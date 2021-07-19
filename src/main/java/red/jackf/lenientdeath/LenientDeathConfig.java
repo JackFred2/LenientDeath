@@ -20,9 +20,10 @@ public class LenientDeathConfig implements ConfigData {
 
     @Comment("List of item tags to be kept upon death")
     @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.PrefixText
     public List<String> tags = List.of(
-        "lenientdeath:items/armor",
-        "lenientdeath:items/equipment",
-        "lenientdeath:items/foods"
+        "lenientdeath:armor",
+        "lenientdeath:equipment",
+        "lenientdeath:foods"
     );
 }
