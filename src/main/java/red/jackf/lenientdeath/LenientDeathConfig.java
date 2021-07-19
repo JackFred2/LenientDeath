@@ -2,22 +2,21 @@ package red.jackf.lenientdeath;
 
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
+import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Config(name = LenientDeath.MODID)
-@Config.Gui.CategoryBackground(category = "visual_options", background = "minecraft:textures/block/soul_sand.png")
+@Config.Gui.CategoryBackground(category = "settings", background = "minecraft:textures/block/soul_sand.png")
 public class LenientDeathConfig implements ConfigData {
-    public List<ListOption> options = new ArrayList<>();
+    @Comment("List of item IDs to be kept upon death")
+    public List<String> items = List.of(
+        "minecraft:apple"
+    );
 
-    public static class ListOption {
-        public ListOptionType type = ListOptionType.ITEM;
-        public String value = "minecraft:diamond_pickaxe";
-    }
-
-    public enum ListOptionType {
-        ITEM,
-        TAG
-    }
+    @Comment("List of item tags to be kept upon death")
+    public List<String> tags = List.of(
+        "lenientdeath:items/equipment",
+        "lenientdeath:items/armor"
+    );
 }
