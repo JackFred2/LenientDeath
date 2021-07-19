@@ -1,21 +1,27 @@
 plugins {
 	id 'fabric-loom' version '0.8-SNAPSHOT'
 	id 'maven-publish'
+	id 'idea'
+	id 'com.matthewprenger.cursegradle' version '1.4.0'
+	id "com.modrinth.minotaur" version "1.2.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
-archivesBaseName = project.archives_base_name
+archivesBaseName = "${project.archives_base_name}-${project.minecraft_version}"
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
+	maven { url = "https://maven.fabricmc.net" } // Fabric
+	maven { url = "https://maven.shedaniel.me/" } // REI & Cloth Config
+	maven {  // ModMenu
+		url = 'https://maven.terraformersmc.com/'
+		content {
+			includeGroup "com.terraformersmc"
+		}
+	}
 }
 
 dependencies {
@@ -26,9 +32,11 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}"
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modImplementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
+	implementation 'org.jetbrains:annotations:16.0.2'
 }
 
 processResources {
