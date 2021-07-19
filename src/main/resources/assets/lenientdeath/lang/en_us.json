@@ -1,0 +1,9 @@
+{
+  "lenientdeath.command.generate.success": "Success generating tag files: %s items registered.",
+  "lenientdeath.command.generate.error": "Error generating tags; check the console for details.",
+  "text.autoconfig.lenientdeath.title": "LenientDeath Config",
+  "text.autoconfig.lenientdeath.option.items": "Item Keep List",
+  "text.autoconfig.lenientdeath.option.items.@Tooltip": "List of item IDs to keep upon death",
+  "text.autoconfig.lenientdeath.option.tags": "Tag Keep List",
+  "text.autoconfig.lenientdeath.option.tags.@Tooltip": "List of item tags to keep upon death"
+}

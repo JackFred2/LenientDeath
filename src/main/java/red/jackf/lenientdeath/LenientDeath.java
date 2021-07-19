@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LenientDeath implements ModInitializer {
 	public static final String MODID = "lenientdeath";
@@ -66,17 +67,16 @@ public class LenientDeath implements ModInitializer {
 			var foods = new ArrayList<Identifier>();
 			var equipment = new ArrayList<Identifier>();
 			var armor = new ArrayList<Identifier>();
-			Registry.ITEM.getIds().stream().sorted((id1, id2) -> {
-				var firstVanilla = id1.getNamespace().equals("minecraft");
-				var secondVanilla = id2.getNamespace().equals("minecraft");
-				if (firstVanilla && !secondVanilla) {
-					return -1;
-				} else if (!firstVanilla && secondVanilla) {
-					return 1;
-				} else {
-					return Comparator.<Identifier>naturalOrder().compare(id1, id2);
-				}
-			}).forEach(id -> {
+
+			var vanillaItems = new ArrayList<Identifier>();
+			var modItems = new ArrayList<Identifier>();
+
+			Registry.ITEM.getIds().stream().sorted(Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)).forEach(id -> {
+				if (id.getNamespace().equals("minecraft")) vanillaItems.add(id);
+				else modItems.add(id);
+			});
+
+			Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
 				var item = Registry.ITEM.get(id);
 				var testStack = new ItemStack(item);
 				var useAction = item.getUseAction(testStack);
