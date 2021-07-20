@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.*;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
@@ -66,9 +67,7 @@ public class LenientDeath implements ModInitializer {
 			if (ERRORED_TAGS.contains(tagStr)) continue;
 			try {
 				var tagId = Identifier.tryParse(tagStr);
-				var world = MinecraftClient.getInstance().world;
-				if (world == null) continue;
-				var tag = world.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+				var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
 				if (tag.contains(item)) return true;
 			} catch (Exception ex) {
 				error("Error checking for tag " + tagStr + ", disabling...", ex);

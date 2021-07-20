@@ -6,24 +6,24 @@ import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.command.CommandSource;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolItem;
-import net.minecraft.item.Wearable;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
 import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,7 +47,7 @@ public class LenientDeathCommand {
         var addNode = CommandManager.literal("add")
             .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> {
                 var suggestions = Stream.concat(
-                    context.getSource().getWorld().getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
+                    ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
                         .map(id -> "#" + id.toString())
                         .filter(id -> !CONFIG.tags.contains(id)),
                     Registry.ITEM.getIds().stream()
@@ -83,7 +83,7 @@ public class LenientDeathCommand {
                     argument = "#minecraft:" + tagId.getPath();
                 }
                 try {
-                    context.getSource().getWorld().getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+                    ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
 
                     // tag exists
                     if (CONFIG.tags.contains(idSubstr)) {
@@ -135,7 +135,7 @@ public class LenientDeathCommand {
                     argument = "#minecraft:" + tagId.getPath();
                 }
                 try {
-                    context.getSource().getWorld().getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+                    ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
 
                     // tag exists
                     if (!CONFIG.tags.contains(idSubstr)) {
