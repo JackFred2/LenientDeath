@@ -48,9 +48,9 @@ public class LenientDeathCommand {
             .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> {
                 var suggestions = Stream.concat(
                     ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
-                        .map(id -> "#" + id.toString())
-                        .filter(id -> !CONFIG.tags.contains(id)),
-                    Registry.ITEM.getIds().stream()
+                        .filter(id -> !CONFIG.tags.contains(id.toString()))
+                        .map(id -> "#" + id),
+                Registry.ITEM.getIds().stream()
                         .map(Identifier::toString)
                         .filter(id -> !CONFIG.items.contains(id)));
                 return CommandSource.suggestMatching(suggestions, builder);
@@ -76,48 +76,22 @@ public class LenientDeathCommand {
         var source = context.getSource();
         if (argument.charAt(0) == '#') { // tag
             var idSubstr = argument.substring(1);
-            var tagId = Identifier.tryParse(idSubstr);
-            if (tagId != null) {
-                if (tagId.getNamespace().equals("minecraft")) {
-                    idSubstr = "minecraft:" + tagId.getPath();
-                    argument = "#minecraft:" + tagId.getPath();
-                }
-                try {
-                    ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
-
-                    // tag exists
-                    if (CONFIG.tags.contains(idSubstr)) {
-                        CONFIG.tags.remove(idSubstr);
-                        LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), false);
-                        return 1;
-                    } else {
-                        source.sendError(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument));
-                    }
-                } catch (UnknownTagException ex) {
-                    unknownTag(argument, source);
-                }
-            } else {
-                invalidIdentifier(idSubstr, source);
-            }
-        } else {
-            var itemId = Identifier.tryParse(argument);
-            if (itemId != null) {
-                if (itemId.getNamespace().equals("minecraft")) argument = "minecraft:" + itemId.getPath();
-                if (Registry.ITEM.containsId(itemId)) {
-                    if (CONFIG.items.contains(argument)) {
-                        CONFIG.items.remove(argument);
-                        LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument), false);
-                        return 1;
-                    } else {
-                        source.sendError(new TranslatableText("lenientdeath.command.error.itemNotInConfig", argument));
-                    }
+                if (CONFIG.tags.contains(idSubstr)) {
+                    CONFIG.tags.remove(idSubstr);
+                    LenientDeath.saveConfig();
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), false);
+                    return 1;
                 } else {
-                    unknownItem(argument, source);
+                    source.sendError(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument));
                 }
+        } else {
+            if (CONFIG.items.contains(argument)) {
+                CONFIG.items.remove(argument);
+                LenientDeath.saveConfig();
+                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument), false);
+                return 1;
             } else {
-                invalidIdentifier(argument, source);
+                source.sendError(new TranslatableText("lenientdeath.command.error.itemNotInConfig", argument));
             }
         }
         return 0;

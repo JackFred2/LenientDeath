@@ -7,11 +7,12 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 @Config(name = LenientDeath.MODID)
 @Config.Gui.Background("minecraft:textures/block/soul_sand.png")
 public class LenientDeathConfig implements ConfigData {
-    @ConfigEntry.Gui.Tooltip
+    @ConfigEntry.Gui.PrefixText
     public boolean detectAutomatically = true;
 
     @ConfigEntry.Gui.Tooltip

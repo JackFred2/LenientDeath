@@ -31,6 +31,7 @@ public class LenientDeath implements ModInitializer {
 		LOG.info("[LenientDeath] " + content);
 	}
 	public static void error(String content, Exception ex) {
+		if (ex == null) LOG.error("[LenientDeath] " + content);
 		LOG.error("[LenientDeath] " + content, ex);
 	}
 
@@ -65,14 +66,19 @@ public class LenientDeath implements ModInitializer {
 		if (isInItemList) return true;
 		for (String tagStr : CONFIG.tags) {
 			if (ERRORED_TAGS.contains(tagStr)) continue;
-			try {
 				var tagId = Identifier.tryParse(tagStr);
-				var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
-				if (tag.contains(item)) return true;
-			} catch (Exception ex) {
-				error("Error checking for tag " + tagStr + ", disabling...", ex);
-				ERRORED_TAGS.add(tagStr);
-			}
+				if (tagId != null) {
+					try {
+						var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+						if (tag.contains(item)) return true;
+					} catch (Exception ex) {
+						error("Error checking for tag " + tagStr + ", disabling...", ex);
+						ERRORED_TAGS.add(tagStr);
+					}
+				} else {
+					error("Tag ID " + tagStr + " is not valid, disabling...", null);
+					ERRORED_TAGS.add(tagStr);
+				}
 		}
 
 		// check auto
