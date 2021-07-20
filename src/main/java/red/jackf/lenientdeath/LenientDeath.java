@@ -4,9 +4,12 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.resource.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.*;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
+import net.minecraft.item.Wearable;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.tag.ServerTagManagerHolder;
@@ -17,7 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import red.jackf.lenientdeath.utils.UnknownTagException;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 public class LenientDeath implements ModInitializer {
 	public static final String MODID = "lenientdeath";
