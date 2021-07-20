@@ -12,6 +12,9 @@ import java.util.List;
 @Config.Gui.Background("minecraft:textures/block/soul_sand.png")
 public class LenientDeathConfig implements ConfigData {
     @ConfigEntry.Gui.Tooltip
+    public boolean detectAutomatically = true;
+
+    @ConfigEntry.Gui.Tooltip
     public List<String> items = new ArrayList<>(List.of(
         "minecraft:bucket",
         "minecraft:water_bucket",

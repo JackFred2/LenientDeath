@@ -15,6 +15,8 @@
   "lenientdeath.command.list.tags": "Tags:",
   "lenientdeath.command.list.items": "Items:",
   "text.autoconfig.lenientdeath.title": "LenientDeath Config",
+  "text.autoconfig.lenientdeath.option.detectAutomatically": "Detect safety automatically",
+  "text.autoconfig.lenientdeath.option.detectAutomatically.@Tooltip": "Whether to detect item eligibility automatically using the same rules as /ld generate, in addition to the rules below. False means only using the rules below.",
   "text.autoconfig.lenientdeath.option.items": "Item Keep List",
   "text.autoconfig.lenientdeath.option.items.@Tooltip": "List of item IDs to keep upon death",
   "text.autoconfig.lenientdeath.option.tags": "Tag Keep List",

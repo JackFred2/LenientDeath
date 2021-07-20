@@ -2,8 +2,6 @@ package red.jackf.lenientdeath;
 
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
-import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.resource.*;
@@ -12,10 +10,10 @@ import net.minecraft.item.*;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.util.*;
@@ -77,6 +75,32 @@ public class LenientDeath implements ModInitializer {
 				ERRORED_TAGS.add(tagStr);
 			}
 		}
+
+		// check auto
+		if (CONFIG.detectAutomatically) {
+			return validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+		}
+
 		return false;
+	}
+
+	public static boolean validSafeEquipment(Item item) {
+		var useAction = item.getUseAction(new ItemStack(item));
+		return item instanceof ToolItem
+			|| item.isDamageable()
+			|| useAction == UseAction.BLOCK
+			|| useAction == UseAction.BOW
+			|| useAction == UseAction.SPEAR
+			|| useAction == UseAction.CROSSBOW
+			|| useAction == UseAction.SPYGLASS;
+	}
+
+	public static boolean validSafeArmor(Item item) {
+		return item instanceof Wearable;
+	}
+
+	public static boolean validSafeFoods(Item item) {
+		var useAction = item.getUseAction(new ItemStack(item));
+		return item.isFood() || useAction == UseAction.EAT || useAction == UseAction.DRINK;
 	}
 }

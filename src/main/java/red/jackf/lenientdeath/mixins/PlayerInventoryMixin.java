@@ -14,9 +14,6 @@ public abstract class PlayerInventoryMixin  {
 
     @Redirect(method = "dropAll", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
     public boolean lenientdeath$checkEmptyOrSafe(ItemStack itemStack) {
-        var empty = itemStack.isEmpty();
-        if (empty) return true;
-        var safe = LenientDeath.isSafe(itemStack.getItem());
-        return safe;
+        return itemStack.isEmpty() || LenientDeath.isSafe(itemStack.getItem());
     }
 }

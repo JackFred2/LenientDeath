@@ -1,11 +1,10 @@
-package red.jackf.lenientdeath.command;
+package red.jackf.lenientdeath;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.ItemPredicateArgumentType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
@@ -19,7 +18,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
-import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.io.IOException;
@@ -226,11 +224,9 @@ public class LenientDeathCommand {
             Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
                 var item = Registry.ITEM.get(id);
                 if (equipmentTags.stream().anyMatch(tag -> tag.contains(item))) return;
-                var testStack = new ItemStack(item);
-                var useAction = item.getUseAction(testStack);
-                if (item.isFood() || useAction == UseAction.EAT || useAction == UseAction.DRINK) foods.add(id);
-                else if (item instanceof Wearable) armor.add(id);
-                else if (item instanceof ToolItem || item.isDamageable() || useAction != UseAction.NONE) equipment.add(id);
+                if (LenientDeath.validSafeFoods(item)) foods.add(id);
+                else if (LenientDeath.validSafeArmor(item)) armor.add(id);
+                else if (LenientDeath.validSafeEquipment(item)) equipment.add(id);
             });
             writeToFile(dir.resolve("foods.json"), foods, Collections.emptyList());
             writeToFile(dir.resolve("equipment.json"), equipment, equipmentTags);
