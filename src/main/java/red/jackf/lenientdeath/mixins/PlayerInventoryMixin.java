@@ -12,6 +12,9 @@ import red.jackf.lenientdeath.LenientDeath;
 @Mixin(PlayerInventory.class)
 public abstract class PlayerInventoryMixin  {
 
+    /**
+     * Check if the item should be kept, either due to it being nothing (the vanilla check) or by being a safe item.
+     */
     @Redirect(method = "dropAll", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
     public boolean lenientdeath$checkEmptyOrSafe(ItemStack itemStack) {
         return itemStack.isEmpty() || LenientDeath.isSafe(itemStack.getItem());
