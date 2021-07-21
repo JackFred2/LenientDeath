@@ -262,7 +262,7 @@ public class LenientDeathCommand {
                  || LenientDeath.validSafeEquipment(item)) safeItems.add(id);
             });
             writeToFile(dir.resolve("safe.json"), safeItems, safeTags);
-            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", safeItems.size()), true);
+            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", safeItems.size(), safeTags.size()), true);
         } catch (Exception ex) {
             context.getSource().sendError(new TranslatableText("lenientdeath.command.generate.error"));
             error("Error generating tags", ex);
