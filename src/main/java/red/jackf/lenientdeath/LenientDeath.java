@@ -54,27 +54,28 @@ public class LenientDeath implements ModInitializer {
 	public static boolean isSafe(Item item) {
 		var isInItemList = CONFIG.items.contains(Registry.ITEM.getId(item).toString());
 		if (isInItemList) return true;
-		if (FabricLoader.getInstance().isModLoaded("trinkets") && CONFIG.trinketsDetection && TrinketsCompatibility.isTrinket(item)) return true;
-		for (String tagStr : CONFIG.tags) {
-			if (ERRORED_TAGS.contains(tagStr)) continue;
-				var tagId = Identifier.tryParse(tagStr);
-				if (tagId != null) {
-					try {
-						var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
-						if (tag.contains(item)) return true;
-					} catch (Exception ex) {
-						error("Error checking for tag " + tagStr + ", disabling...", ex);
-						ERRORED_TAGS.add(tagStr);
-					}
-				} else {
-					error("Tag ID " + tagStr + " is not valid, disabling...", null);
-					ERRORED_TAGS.add(tagStr);
-				}
-		}
-
+		if (FabricLoader.getInstance().isModLoaded("trinkets") && CONFIG.trinketsSafe && TrinketsCompatibility.isTrinket(item)) return true;
 		// check auto
 		if (CONFIG.detectAutomatically) {
 			return validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+		}
+
+		// check config
+		for (String tagStr : CONFIG.tags) {
+			if (ERRORED_TAGS.contains(tagStr)) continue;
+			var tagId = Identifier.tryParse(tagStr);
+			if (tagId != null) {
+				try {
+					var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+					if (tag.contains(item)) return true;
+				} catch (Exception ex) {
+					error("Error checking for tag " + tagStr + ", disabling...", ex);
+					ERRORED_TAGS.add(tagStr);
+				}
+			} else {
+				error("Tag ID " + tagStr + " is not valid, disabling...", null);
+				ERRORED_TAGS.add(tagStr);
+			}
 		}
 
 		return false;

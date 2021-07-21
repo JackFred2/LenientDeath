@@ -16,7 +16,7 @@ public class LenientDeathConfig implements ConfigData {
     public boolean detectAutomatically = true;
 
     @ConfigEntry.Gui.PrefixText
-    public boolean trinketsDetection = true;
+    public boolean trinketsSafe = true;
 
     @ConfigEntry.Gui.Tooltip
     public List<String> items = new ArrayList<>(List.of(
@@ -25,11 +25,8 @@ public class LenientDeathConfig implements ConfigData {
         "minecraft:lava_bucket"
     ));
 
-    @ConfigEntry.Gui.Tooltip
-    @ConfigEntry.Gui.PrefixText
+    @ConfigEntry.Gui.Tooltip(count = 2)
     public List<String> tags = new ArrayList<>(List.of(
-        "lenientdeath:armor",
-        "lenientdeath:equipment",
-        "lenientdeath:foods"
+        "lenientdeath:safe"
     ));
 }

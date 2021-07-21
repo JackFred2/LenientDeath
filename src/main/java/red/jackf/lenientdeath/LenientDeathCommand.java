@@ -1,11 +1,11 @@
 package red.jackf.lenientdeath;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.minecraft.client.MinecraftClient;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.item.Item;
 import net.minecraft.server.command.CommandManager;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,6 +43,18 @@ public class LenientDeathCommand {
                 context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.resetErroredTags"), true);
                 return 0;
             })
+            .build();
+
+        var autoDetectNode = CommandManager.literal("autoDetect")
+            .executes(ctx -> updateAutoDetect(ctx, true))
+            .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                .executes(ctx -> updateAutoDetect(ctx, false)))
+            .build();
+
+        var trinketsNode = CommandManager.literal("trinketsSafe")
+            .executes(ctx -> updateTrinketsSafe(ctx, true))
+            .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                .executes(ctx -> updateTrinketsSafe(ctx, false)))
             .build();
 
         var generateNode = CommandManager.literal("generate")
@@ -80,6 +91,45 @@ public class LenientDeathCommand {
         rootNode.addChild(listNode);
         rootNode.addChild(addNode);
         rootNode.addChild(removeNode);
+        rootNode.addChild(autoDetectNode);
+        rootNode.addChild(trinketsNode);
+    }
+
+    private static int updateAutoDetect(CommandContext<ServerCommandSource> context, boolean query) {
+        if (query) {
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.autoDetect." + (CONFIG.detectAutomatically ? "isEnabled" : "isDisabled")
+            ), false);
+        } else {
+            var newValue = context.getArgument("enabled", Boolean.class);
+            CONFIG.detectAutomatically = newValue;
+            LenientDeath.saveConfig();
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.autoDetect." + (newValue ? "enabled" : "disabled")
+            ), true);
+        }
+
+        return 1;
+    }
+
+    private static int updateTrinketsSafe(CommandContext<ServerCommandSource> context, boolean query) {
+        if (query) {
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.trinketsSafe." + (CONFIG.trinketsSafe ? "isEnabled" : "isDisabled")
+            ), false);
+        } else {
+            var newValue = context.getArgument("enabled", Boolean.class);
+            CONFIG.trinketsSafe = newValue;
+            LenientDeath.saveConfig();
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.trinketsSafe." + (newValue ? "enabled" : "disabled")
+            ), true);
+        }
+
+        if (!FabricLoader.getInstance().isModLoaded("trinkets"))
+            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.trinketsSafe.notLoaded"), false);
+
+        return 1;
     }
 
     private static int removeValue(CommandContext<ServerCommandSource> context) {
@@ -185,14 +235,12 @@ public class LenientDeathCommand {
 
         try {
             var dir = Files.createDirectories(Path.of("lenientdeath"));
-            var foods = new ArrayList<Identifier>();
-            var equipment = new ArrayList<Identifier>();
-            var armor = new ArrayList<Identifier>();
+            var safeItems = new ArrayList<Identifier>();
 
             var vanillaItems = new ArrayList<Identifier>();
             var modItems = new ArrayList<Identifier>();
 
-            var equipmentTags = List.of(
+            var safeTags = List.of(
                 FabricToolTags.AXES,
                 FabricToolTags.HOES,
                 FabricToolTags.PICKAXES,
@@ -208,15 +256,13 @@ public class LenientDeathCommand {
 
             Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
                 var item = Registry.ITEM.get(id);
-                if (equipmentTags.stream().anyMatch(tag -> tag.contains(item))) return;
-                if (LenientDeath.validSafeFoods(item)) foods.add(id);
-                else if (LenientDeath.validSafeArmor(item)) armor.add(id);
-                else if (LenientDeath.validSafeEquipment(item)) equipment.add(id);
+                if (safeTags.stream().anyMatch(tag -> tag.contains(item))) return;
+                if (LenientDeath.validSafeFoods(item)
+                 || LenientDeath.validSafeArmor(item)
+                 || LenientDeath.validSafeEquipment(item)) safeItems.add(id);
             });
-            writeToFile(dir.resolve("foods.json"), foods, Collections.emptyList());
-            writeToFile(dir.resolve("equipment.json"), equipment, equipmentTags);
-            writeToFile(dir.resolve("armor.json"), armor, Collections.emptyList());
-            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", foods.size() + equipment.size() + armor.size(), equipmentTags.size()), true);
+            writeToFile(dir.resolve("safe.json"), safeItems, safeTags);
+            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", safeItems.size()), true);
         } catch (Exception ex) {
             context.getSource().sendError(new TranslatableText("lenientdeath.command.generate.error"));
             error("Error generating tags", ex);
