@@ -1,9 +1,13 @@
+import com.modrinth.minotaur.TaskModrinthUpload
+import com.modrinth.minotaur.request.VersionType
+
 plugins {
 	id 'fabric-loom' version '0.8-SNAPSHOT'
 	id 'maven-publish'
 	id 'idea'
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id "com.modrinth.minotaur" version "1.2.1"
+	id 'net.researchgate.release' version '2.8.1'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -33,7 +37,7 @@ repositories {
 	maven {
 		url = "https://jitpack.io"
 		content {
-			"com.github"
+			includeGroup "com.github.emilyalexandra"
 		}
 	}
 	maven {
@@ -93,6 +97,52 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
+}
+
+curseforge {
+	apiKey = project.findProperty("cf.key")
+
+	project {
+		id = "506536"
+		changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"
+		releaseType = "beta"
+
+		addGameVersion "Fabric"
+		addGameVersion "Java 16"
+
+		project.game_versions.tokenize(",").each { addGameVersion it }
+
+		mainArtifact(remapJar) {
+			relations {
+				requiredDependency("fabric-api")
+				optionalDependency("modmenu")
+				optionalDependency("roughly-enough-items")
+				requiredDependency("cloth-config")
+			}
+			displayName = "${project.prefix} ${archivesBaseName}-${version}.jar"
+		}
+
+	}
+
+	options {
+		forgeGradleIntegration = false
+	}
+}
+
+task publishModrinth (type: TaskModrinthUpload){ // Make sure it runs after build!
+	onlyIf {
+		project.hasProperty("modrinth.key")
+	}
+
+	versionType = VersionType.BETA
+	token = project.findProperty("modrinth.key")
+	projectId = "Bfi1KBJV"
+	versionNumber = project.mod_version
+	versionName = "Lenient Death $project.mod_version"
+	uploadFile = remapJar
+	changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"
+	project.game_versions.tokenize(",").each { addGameVersion it }
+	addLoader('fabric')
 }
 
 // configure the maven publication
