@@ -4,20 +4,18 @@ import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
 import net.minecraft.item.Wearable;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
 import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import red.jackf.lenientdeath.compatibility.TrinketsCompatibility;
 import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.util.HashSet;
@@ -39,7 +37,7 @@ public class LenientDeath implements ModInitializer {
 		LOG.error("[LenientDeath] " + content, ex);
 	}
 
-	private static final Set<String> ERRORED_TAGS = new HashSet<>();
+	public static final Set<String> ERRORED_TAGS = new HashSet<>();
 
 	public static LenientDeathConfig CONFIG = AutoConfig.register(LenientDeathConfig.class, GsonConfigSerializer::new).get();
 
@@ -50,19 +48,7 @@ public class LenientDeath implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		CommandRegistrationCallback.EVENT.register(LenientDeathCommand::register);
-
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-
-			@Override
-			public void reload(ResourceManager manager) {
-				ERRORED_TAGS.clear();
-			}
-
-			@Override
-			public Identifier getFabricId() {
-				return id("taglistener");
-			}
-		});
+		if (FabricLoader.getInstance().isModLoaded("trinkets")) TrinketsCompatibility.setup();
 	}
 
 	public static boolean isSafe(Item item) {

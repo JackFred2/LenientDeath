@@ -3,7 +3,9 @@ package red.jackf.lenientdeath;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
 import net.minecraft.item.Item;
 import net.minecraft.server.command.CommandManager;
@@ -36,6 +38,14 @@ public class LenientDeathCommand {
             .requires(source -> source.hasPermissionLevel(4))
             .build();
 
+        var resetErroredTagsNode = CommandManager.literal("resetErroredTags")
+            .executes(context -> {
+                ERRORED_TAGS.clear();
+                context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.resetErroredTags"), true);
+                return 0;
+            })
+            .build();
+
         var generateNode = CommandManager.literal("generate")
             .executes(LenientDeathCommand::generateTags)
             .build();
@@ -66,6 +76,7 @@ public class LenientDeathCommand {
 
         dispatcher.getRoot().addChild(rootNode);
         rootNode.addChild(generateNode);
+        rootNode.addChild(resetErroredTagsNode);
         rootNode.addChild(listNode);
         rootNode.addChild(addNode);
         rootNode.addChild(removeNode);
@@ -79,7 +90,7 @@ public class LenientDeathCommand {
                 if (CONFIG.tags.contains(idSubstr)) {
                     CONFIG.tags.remove(idSubstr);
                     LenientDeath.saveConfig();
-                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), false);
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), true);
                     return 1;
                 } else {
                     source.sendError(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument));
@@ -88,7 +99,7 @@ public class LenientDeathCommand {
             if (CONFIG.items.contains(argument)) {
                 CONFIG.items.remove(argument);
                 LenientDeath.saveConfig();
-                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument), false);
+                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument), true);
                 return 1;
             } else {
                 source.sendError(new TranslatableText("lenientdeath.command.error.itemNotInConfig", argument));
@@ -115,7 +126,7 @@ public class LenientDeathCommand {
                     if (!CONFIG.tags.contains(idSubstr)) {
                         CONFIG.tags.add(idSubstr);
                         LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument), false);
+                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument), true);
                         return 1;
                     } else {
                         source.sendError(new TranslatableText("lenientdeath.command.error.tagAlreadyInConfig", argument));
@@ -134,7 +145,7 @@ public class LenientDeathCommand {
                     if (!CONFIG.items.contains(argument)) {
                         CONFIG.items.add(argument);
                         LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemAdded", argument), false);
+                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemAdded", argument), true);
                         return 1;
                     } else {
                         source.sendError(new TranslatableText("lenientdeath.command.error.itemAlreadyInConfig", argument));
