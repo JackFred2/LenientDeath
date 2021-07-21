@@ -100,32 +100,34 @@ jar {
 }
 
 curseforge {
-	apiKey = project.findProperty("cf.key")
+	if (project.hasProperty("cf.key")) {
+		apiKey = project.findProperty("cf.key")
 
-	project {
-		id = "506536"
-		changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"
-		releaseType = "beta"
+		project {
+			id = "506536"
+			changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"
+			releaseType = "beta"
 
-		addGameVersion "Fabric"
-		addGameVersion "Java 16"
+			addGameVersion "Fabric"
+			addGameVersion "Java 16"
 
-		project.game_versions.tokenize(",").each { addGameVersion it }
+			project.game_versions.tokenize(",").each { addGameVersion it }
 
-		mainArtifact(remapJar) {
-			relations {
-				requiredDependency("fabric-api")
-				optionalDependency("modmenu")
-				optionalDependency("roughly-enough-items")
-				requiredDependency("cloth-config")
+			mainArtifact(remapJar) {
+				relations {
+					requiredDependency("fabric-api")
+					optionalDependency("modmenu")
+					optionalDependency("roughly-enough-items")
+					requiredDependency("cloth-config")
+				}
+				displayName = "${project.prefix} ${archivesBaseName}-${version}.jar"
 			}
-			displayName = "${project.prefix} ${archivesBaseName}-${version}.jar"
+
 		}
 
-	}
-
-	options {
-		forgeGradleIntegration = false
+		options {
+			forgeGradleIntegration = false
+		}
 	}
 }
 
