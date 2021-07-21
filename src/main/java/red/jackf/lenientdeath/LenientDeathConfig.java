@@ -15,6 +15,9 @@ public class LenientDeathConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean detectAutomatically = true;
 
+    @ConfigEntry.Gui.PrefixText
+    public boolean trinketsDetection = true;
+
     @ConfigEntry.Gui.Tooltip
     public List<String> items = new ArrayList<>(List.of(
         "minecraft:bucket",

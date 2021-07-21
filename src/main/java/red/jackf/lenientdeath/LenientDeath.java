@@ -54,6 +54,7 @@ public class LenientDeath implements ModInitializer {
 	public static boolean isSafe(Item item) {
 		var isInItemList = CONFIG.items.contains(Registry.ITEM.getId(item).toString());
 		if (isInItemList) return true;
+		if (FabricLoader.getInstance().isModLoaded("trinkets") && CONFIG.trinketsDetection && TrinketsCompatibility.isTrinket(item)) return true;
 		for (String tagStr : CONFIG.tags) {
 			if (ERRORED_TAGS.contains(tagStr)) continue;
 				var tagId = Identifier.tryParse(tagStr);

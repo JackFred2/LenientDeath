@@ -18,6 +18,8 @@
   "text.autoconfig.lenientdeath.title": "LenientDeath Config",
   "text.autoconfig.lenientdeath.option.detectAutomatically": "Detect item safety automatically",
   "text.autoconfig.lenientdeath.option.detectAutomatically.@PrefixText": "Whether to detect item eligibility automatically using the same rules as /ld generate, in addition to the rules below. False means only using the rules below.",
+  "text.autoconfig.lenientdeath.option.trinketsDetection": "Save All Trinkets",
+  "text.autoconfig.lenientdeath.option.trinketsDetection.@PrefixText": "Whether to keep all trinkets upon death (if Trinkets is loaded) - you can still enable this for individual trinkets if false.",
   "text.autoconfig.lenientdeath.option.items": "Item Keep List",
   "text.autoconfig.lenientdeath.option.items.@Tooltip": "List of item IDs to keep upon death",
   "text.autoconfig.lenientdeath.option.tags": "Tag Keep List",
