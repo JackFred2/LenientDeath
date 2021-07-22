@@ -1,10 +1,15 @@
 package red.jackf.lenientdeath;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
-import net.fabricmc.loader.api.FabricLoader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import red.jackf.lenientdeath.compatibility.TrinketsCompatibility;
+import red.jackf.lenientdeath.utils.UnknownTagException;
+
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolItem;
@@ -13,13 +18,10 @@ import net.minecraft.tag.ServerTagManagerHolder;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import red.jackf.lenientdeath.compatibility.TrinketsCompatibility;
-import red.jackf.lenientdeath.utils.UnknownTagException;
 
-import java.util.HashSet;
-import java.util.Set;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
+import net.fabricmc.loader.api.FabricLoader;
 
 public class LenientDeath implements ModInitializer {
 	public static final String MODID = "lenientdeath";
@@ -32,9 +34,10 @@ public class LenientDeath implements ModInitializer {
 	public static void info(String content) {
 		LOG.info("[LenientDeath] " + content);
 	}
+
 	public static void error(String content, Exception ex) {
 		if (ex == null) LOG.error("[LenientDeath] " + content);
-		LOG.error("[LenientDeath] " + content, ex);
+		else LOG.error("[LenientDeath] " + content, ex);
 	}
 
 	public static final Set<String> ERRORED_TAGS = new HashSet<>();
