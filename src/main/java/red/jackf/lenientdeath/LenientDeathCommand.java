@@ -71,11 +71,11 @@ public class LenientDeathCommand {
                     ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
                         .filter(id -> !CONFIG.tags.contains(id.toString()))
                         .map(id -> "#" + id),
-                Registry.ITEM.getIds().stream()
+                    Registry.ITEM.getIds().stream()
                         .map(Identifier::toString)
                         .filter(id -> !CONFIG.items.contains(id)));
                 return CommandSource.suggestMatching(suggestions, builder);
-                }).executes(LenientDeathCommand::addValue).build())
+            }).executes(LenientDeathCommand::addValue).build())
             .build();
 
         var removeNode = CommandManager.literal("remove")
@@ -137,14 +137,14 @@ public class LenientDeathCommand {
         var source = context.getSource();
         if (argument.charAt(0) == '#') { // tag
             var idSubstr = argument.substring(1);
-                if (CONFIG.tags.contains(idSubstr)) {
-                    CONFIG.tags.remove(idSubstr);
-                    LenientDeath.saveConfig();
-                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), true);
-                    return 1;
-                } else {
-                    source.sendError(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument));
-                }
+            if (CONFIG.tags.contains(idSubstr)) {
+                CONFIG.tags.remove(idSubstr);
+                LenientDeath.saveConfig();
+                source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument), true);
+                return 1;
+            } else {
+                source.sendError(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument));
+            }
         } else {
             if (CONFIG.items.contains(argument)) {
                 CONFIG.items.remove(argument);
@@ -258,8 +258,8 @@ public class LenientDeathCommand {
                 var item = Registry.ITEM.get(id);
                 if (safeTags.stream().anyMatch(tag -> tag.contains(item))) return;
                 if (LenientDeath.validSafeFoods(item)
-                 || LenientDeath.validSafeArmor(item)
-                 || LenientDeath.validSafeEquipment(item)) safeItems.add(id);
+                    || LenientDeath.validSafeArmor(item)
+                    || LenientDeath.validSafeEquipment(item)) safeItems.add(id);
             });
             writeToFile(dir.resolve("safe.json"), safeItems, safeTags);
             context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", safeItems.size(), safeTags.size()), true);
@@ -274,9 +274,9 @@ public class LenientDeathCommand {
 
     private static void writeToFile(Path file, List<Identifier> ids, List<Tag<Item>> tags) throws IOException {
         var fileContents = new StringBuilder("""
-			{
-			  "values": [
-			""");
+            {
+              "values": [
+            """);
         tags.forEach(tag -> {
             if (tag instanceof Tag.Identified<Item> identified) {
                 var tagId = identified.getId();
@@ -301,9 +301,9 @@ public class LenientDeathCommand {
         //trim last comma and newline
         fileContents.delete(fileContents.length() - 2, fileContents.length());
         fileContents.append("""
-			    
-			  ]
-			}""");
+                
+              ]
+            }""");
         Files.write(file, fileContents.toString().lines().collect(Collectors.toList()));
     }
 }
