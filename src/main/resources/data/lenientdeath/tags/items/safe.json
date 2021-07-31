@@ -1,5 +1,5 @@
 {
-  "values": [
+"values": [
     "#fabric:axes",
     "#fabric:hoes",
     "#fabric:pickaxes",
@@ -40,7 +40,6 @@
     "minecraft:enchanted_golden_apple",
     "minecraft:fishing_rod",
     "minecraft:flint_and_steel",
-    "minecraft:glow_berries",
     "minecraft:golden_apple",
     "minecraft:golden_boots",
     "minecraft:golden_carrot",
@@ -78,7 +77,6 @@
     "minecraft:shield",
     "minecraft:spider_eye",
     "minecraft:splash_potion",
-    "minecraft:spyglass",
     "minecraft:suspicious_stew",
     "minecraft:sweet_berries",
     "minecraft:trident",

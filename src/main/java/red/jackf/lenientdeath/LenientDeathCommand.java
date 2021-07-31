@@ -247,7 +247,7 @@ public class LenientDeathCommand {
     private static void writeToFile(Path file, List<Identifier> ids, List<Tag<Item>> tags) throws IOException {
         StringBuilder fileContents = new StringBuilder(
             "{\n"
-            + "\"values\": [\n");
+            + "  \"values\": [\n");
         tags.forEach(tag -> {
             if (tag instanceof Tag.Identified) {
                 Tag.Identified<Item> identified = (Tag.Identified<Item>) tag;
