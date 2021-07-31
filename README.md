@@ -13,12 +13,13 @@ By default, the mod will detect armor, equipment (tools, weapons, spyglass, etc.
 The `/ld` command lets you change the config through commands, useful for a dedicated server.
 
   - `/ld list` - List all tags and items in the config to be kept on death.
-  - `/ld add <item|tag>` - Add a tag or item to the mod config.
-  - `/ld remove <item|tag>` - Remove a tag or item from the mod config.
+  - `/ld add <item|tag|"hand">` - Add a tag or item to the mod config.
+  - `/ld remove <item|tag|"hand">` - Remove a tag or item from the mod config.
   - `/ld generate` - Generate a tag file for equipment, food and armor based off the same criteria as the automatic detection. Useful if you're only using manual detection.
   - `/ld resetErroredTags` - To prevent log spam and performance issues, if LenientDeath can't find a tag in the config then it won't be checked again until game restart. You can clear this list manually if you have changed your datapacks (and tags).
 - `/ld autoDetect [true|false]` - Enable or disable the automatic safety detection; if false, only the items in the config will be safe. Use without an argument to query.
-- `/ld trinketsSafe [true|false]` - Enable or disable [Trinkets](https://www.curseforge.com/minecraft/mc-mods/trinkets-fabric) safety; if true, all trinkets will be kept automatically, otherwise trinkets are still checked in the item/tag list. Use without an argument to query.
+- `/ld trinketsSafe [true|false]` - Enable or disable [Trinkets](https://www.curseforge.com/minecraft/mc-mods/trinkets-fabric) safety; if true, all trinkets will be kept automatically, otherwise trinkets will be checked in the item/tag list. Use without an argument to query.
+- `/ld listTagItems <tag>` - List all items that fall under a tag including any from sub-tags; useful for configuration.
 
 ### Examples
 

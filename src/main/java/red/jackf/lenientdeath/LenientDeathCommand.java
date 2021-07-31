@@ -4,9 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -15,6 +17,7 @@ import net.minecraft.tag.Tag;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import red.jackf.lenientdeath.utils.UnknownTagException;
@@ -77,10 +80,11 @@ public class LenientDeathCommand {
 
         var addNode = CommandManager.literal("add")
             .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> {
-                var suggestions = Stream.concat(
+                var suggestions = Stream.concat(Stream.concat(
+                    Stream.of("hand"),
                     ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
                         .filter(id -> !CONFIG.tags.contains(id.toString()))
-                        .map(id -> "#" + id),
+                        .map(id -> "#" + id)),
                     Registry.ITEM.getIds().stream()
                         .map(Identifier::toString)
                         .filter(id -> !CONFIG.items.contains(id)));
@@ -89,8 +93,9 @@ public class LenientDeathCommand {
             .build();
 
         var removeNode = CommandManager.literal("remove")
-            .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> CommandSource.suggestMatching(Stream.concat(
-                CONFIG.tags.stream().map(s -> "#" + s),
+            .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> CommandSource.suggestMatching(Stream.concat(Stream.concat(
+                Stream.of("hand"),
+                CONFIG.tags.stream().map(s -> "#" + s)),
                 CONFIG.items.stream()
             ), builder)).executes(LenientDeathCommand::removeValue).build())
             .build();
@@ -166,6 +171,16 @@ public class LenientDeathCommand {
     private static int removeValue(CommandContext<ServerCommandSource> context) {
         var argument = context.getArgument("item", String.class);
         var source = context.getSource();
+
+        if ("hand".equals(argument)) {
+            try {
+                var handStack = source.getPlayer().getStackInHand(Hand.MAIN_HAND);
+                if (!handStack.isEmpty())
+                    argument = Registry.ITEM.getId(handStack.getItem()).toString();
+            } catch (CommandSyntaxException ignored) {
+            }
+        }
+
         if (argument.charAt(0) == '#') { // tag
             var idSubstr = argument.substring(1);
             if (CONFIG.tags.contains(idSubstr)) {
@@ -192,6 +207,16 @@ public class LenientDeathCommand {
     private static int addValue(CommandContext<ServerCommandSource> context) {
         var argument = context.getArgument("item", String.class);
         var source = context.getSource();
+
+        if ("hand".equals(argument)) {
+            try {
+                var handStack = source.getPlayer().getStackInHand(Hand.MAIN_HAND);
+                if (!handStack.isEmpty())
+                    argument = Registry.ITEM.getId(handStack.getItem()).toString();
+            } catch (CommandSyntaxException ignored) {
+            }
+        }
+
         if (argument.charAt(0) == '#') { // tag
             var idSubstr = argument.substring(1);
             var tagId = Identifier.tryParse(idSubstr);
