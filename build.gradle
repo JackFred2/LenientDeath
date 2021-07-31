@@ -139,7 +139,7 @@ task publishModrinth (type: TaskModrinthUpload){ // Make sure it runs after buil
 	versionType = VersionType.BETA
 	token = project.findProperty("modrinth.key")
 	projectId = "Bfi1KBJV"
-	versionNumber = project.mod_version
+	versionNumber = "mc${project.minecraft_version}-${project.mod_version}"
 	versionName = "Lenient Death $project.mod_version"
 	uploadFile = remapJar
 	changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"

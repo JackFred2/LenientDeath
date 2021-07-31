@@ -38,7 +38,6 @@
     "cloth-config2": ">=5.0.0"
   },
   "suggests": {
-    "roughlyenoughitems": "*",
     "modmenu": "*"
   },
   "breaks": {
