@@ -51,7 +51,8 @@ public class LenientDeath implements ModInitializer {
             return true;
         // check auto
         if (CONFIG.detectAutomatically) {
-            return validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+            var autoDetect = validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+            if (autoDetect) return true;
         }
 
         // check config
