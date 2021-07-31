@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.item.Item;
 import net.minecraft.server.command.CommandManager;
@@ -17,15 +17,15 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static red.jackf.lenientdeath.LenientDeath.*;
@@ -33,11 +33,11 @@ import static red.jackf.lenientdeath.LenientDeath.*;
 public class LenientDeathCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicatedServer) {
-        var rootNode = CommandManager.literal("ld")
+        CommandNode<ServerCommandSource> rootNode = CommandManager.literal("ld")
             .requires(source -> source.hasPermissionLevel(4))
             .build();
 
-        var resetErroredTagsNode = CommandManager.literal("resetErroredTags")
+        CommandNode<ServerCommandSource> resetErroredTagsNode = CommandManager.literal("resetErroredTags")
             .executes(context -> {
                 ERRORED_TAGS.clear();
                 context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.resetErroredTags"), true);
@@ -45,30 +45,30 @@ public class LenientDeathCommand {
             })
             .build();
 
-        var autoDetectNode = CommandManager.literal("autoDetect")
+        CommandNode<ServerCommandSource> autoDetectNode = CommandManager.literal("autoDetect")
             .executes(ctx -> updateAutoDetect(ctx, true))
             .then(CommandManager.argument("enabled", BoolArgumentType.bool())
                 .executes(ctx -> updateAutoDetect(ctx, false)))
             .build();
 
-        var trinketsNode = CommandManager.literal("trinketsSafe")
+        /*CommandNode<ServerCommandSource> trinketsNode = CommandManager.literal("trinketsSafe")
             .executes(ctx -> updateTrinketsSafe(ctx, true))
             .then(CommandManager.argument("enabled", BoolArgumentType.bool())
                 .executes(ctx -> updateTrinketsSafe(ctx, false)))
-            .build();
+            .build();*/
 
-        var generateNode = CommandManager.literal("generate")
+        CommandNode<ServerCommandSource> generateNode = CommandManager.literal("generate")
             .executes(LenientDeathCommand::generateTags)
             .build();
 
-        var listNode = CommandManager.literal("list")
+        CommandNode<ServerCommandSource> listNode = CommandManager.literal("list")
             .executes(LenientDeathCommand::listFilters)
             .build();
 
-        var addNode = CommandManager.literal("add")
+        CommandNode<ServerCommandSource> addNode = CommandManager.literal("add")
             .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> {
-                var suggestions = Stream.concat(
-                    ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
+                Stream<String> suggestions = Stream.concat(
+                    ServerTagManagerHolder.getTagManager().getItems().getTagIds().stream()
                         .filter(id -> !CONFIG.tags.contains(id.toString()))
                         .map(id -> "#" + id),
                     Registry.ITEM.getIds().stream()
@@ -78,7 +78,7 @@ public class LenientDeathCommand {
             }).executes(LenientDeathCommand::addValue).build())
             .build();
 
-        var removeNode = CommandManager.literal("remove")
+        CommandNode<ServerCommandSource> removeNode = CommandManager.literal("remove")
             .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> CommandSource.suggestMatching(Stream.concat(
                 CONFIG.tags.stream().map(s -> "#" + s),
                 CONFIG.items.stream()
@@ -92,7 +92,7 @@ public class LenientDeathCommand {
         rootNode.addChild(addNode);
         rootNode.addChild(removeNode);
         rootNode.addChild(autoDetectNode);
-        rootNode.addChild(trinketsNode);
+        //rootNode.addChild(trinketsNode);
     }
 
     private static int updateAutoDetect(CommandContext<ServerCommandSource> context, boolean query) {
@@ -101,7 +101,7 @@ public class LenientDeathCommand {
                 "lenientdeath.command.autoDetect." + (CONFIG.detectAutomatically ? "isEnabled" : "isDisabled")
             ), false);
         } else {
-            var newValue = context.getArgument("enabled", Boolean.class);
+            Boolean newValue = context.getArgument("enabled", Boolean.class);
             CONFIG.detectAutomatically = newValue;
             LenientDeath.saveConfig();
             context.getSource().sendFeedback(new TranslatableText(
@@ -112,31 +112,11 @@ public class LenientDeathCommand {
         return 1;
     }
 
-    private static int updateTrinketsSafe(CommandContext<ServerCommandSource> context, boolean query) {
-        if (query) {
-            context.getSource().sendFeedback(new TranslatableText(
-                "lenientdeath.command.trinketsSafe." + (CONFIG.trinketsSafe ? "isEnabled" : "isDisabled")
-            ), false);
-        } else {
-            var newValue = context.getArgument("enabled", Boolean.class);
-            CONFIG.trinketsSafe = newValue;
-            LenientDeath.saveConfig();
-            context.getSource().sendFeedback(new TranslatableText(
-                "lenientdeath.command.trinketsSafe." + (newValue ? "enabled" : "disabled")
-            ), true);
-        }
-
-        if (!FabricLoader.getInstance().isModLoaded("trinkets"))
-            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.trinketsSafe.notLoaded"), false);
-
-        return 1;
-    }
-
     private static int removeValue(CommandContext<ServerCommandSource> context) {
-        var argument = context.getArgument("item", String.class);
-        var source = context.getSource();
+        String argument = context.getArgument("item", String.class);
+        ServerCommandSource source = context.getSource();
         if (argument.charAt(0) == '#') { // tag
-            var idSubstr = argument.substring(1);
+            String idSubstr = argument.substring(1);
             if (CONFIG.tags.contains(idSubstr)) {
                 CONFIG.tags.remove(idSubstr);
                 LenientDeath.saveConfig();
@@ -159,36 +139,32 @@ public class LenientDeathCommand {
     }
 
     private static int addValue(CommandContext<ServerCommandSource> context) {
-        var argument = context.getArgument("item", String.class);
-        var source = context.getSource();
+        String argument = context.getArgument("item", String.class);
+        ServerCommandSource source = context.getSource();
         if (argument.charAt(0) == '#') { // tag
-            var idSubstr = argument.substring(1);
-            var tagId = Identifier.tryParse(idSubstr);
+            String idSubstr = argument.substring(1);
+            Identifier tagId = Identifier.tryParse(idSubstr);
             if (tagId != null) {
                 if (tagId.getNamespace().equals("minecraft")) {
                     idSubstr = "minecraft:" + tagId.getPath();
                     argument = "#minecraft:" + tagId.getPath();
                 }
-                try {
-                    ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+                ServerTagManagerHolder.getTagManager().getItems().getTagOrEmpty(tagId);
 
-                    // tag exists
-                    if (!CONFIG.tags.contains(idSubstr)) {
-                        CONFIG.tags.add(idSubstr);
-                        LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument), true);
-                        return 1;
-                    } else {
-                        source.sendError(new TranslatableText("lenientdeath.command.error.tagAlreadyInConfig", argument));
-                    }
-                } catch (UnknownTagException ex) {
-                    unknownTag(argument, source);
+                // tag exists
+                if (!CONFIG.tags.contains(idSubstr)) {
+                    CONFIG.tags.add(idSubstr);
+                    LenientDeath.saveConfig();
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument), true);
+                    return 1;
+                } else {
+                    source.sendError(new TranslatableText("lenientdeath.command.error.tagAlreadyInConfig", argument));
                 }
             } else {
                 invalidIdentifier(idSubstr, source);
             }
         } else {
-            var itemId = Identifier.tryParse(argument);
+            Identifier itemId = Identifier.tryParse(argument);
             if (itemId != null) {
                 if (itemId.getNamespace().equals("minecraft")) argument = "minecraft:" + itemId.getPath();
                 if (Registry.ITEM.containsId(itemId)) {
@@ -226,21 +202,17 @@ public class LenientDeathCommand {
         source.sendError(new TranslatableText("lenientdeath.command.error.unknownItem", itemId));
     }
 
-    private static void unknownTag(String tagId, ServerCommandSource source) {
-        source.sendError(new TranslatableText("lenientdeath.command.error.unknownTag", tagId));
-    }
-
     private static int generateTags(CommandContext<ServerCommandSource> context) {
         info("Generating tags, requested by " + context.getSource().getName());
 
         try {
-            var dir = Files.createDirectories(Path.of("lenientdeath"));
-            var safeItems = new ArrayList<Identifier>();
+            Path dir = Files.createDirectories(Paths.get("lenientdeath"));
+            List<Identifier> safeItems = new ArrayList<>();
 
-            var vanillaItems = new ArrayList<Identifier>();
-            var modItems = new ArrayList<Identifier>();
+            List<Identifier> vanillaItems = new ArrayList<>();
+            List<Identifier> modItems = new ArrayList<>();
 
-            var safeTags = List.of(
+            List<Tag<Item>> safeTags = Arrays.asList(
                 FabricToolTags.AXES,
                 FabricToolTags.HOES,
                 FabricToolTags.PICKAXES,
@@ -255,7 +227,7 @@ public class LenientDeathCommand {
             });
 
             Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
-                var item = Registry.ITEM.get(id);
+                Item item = Registry.ITEM.get(id);
                 if (safeTags.stream().anyMatch(tag -> tag.contains(item))) return;
                 if (LenientDeath.validSafeFoods(item)
                     || LenientDeath.validSafeArmor(item)
@@ -273,13 +245,13 @@ public class LenientDeathCommand {
     }
 
     private static void writeToFile(Path file, List<Identifier> ids, List<Tag<Item>> tags) throws IOException {
-        var fileContents = new StringBuilder("""
-            {
-              "values": [
-            """);
+        StringBuilder fileContents = new StringBuilder(
+            "{\n"
+            + "\"values\": [\n");
         tags.forEach(tag -> {
-            if (tag instanceof Tag.Identified<Item> identified) {
-                var tagId = identified.getId();
+            if (tag instanceof Tag.Identified) {
+                Tag.Identified<Item> identified = (Tag.Identified<Item>) tag;
+                Identifier tagId = identified.getId();
                 fileContents.append("    \"#")
                     .append(tagId)
                     .append("\",\n");
@@ -300,10 +272,7 @@ public class LenientDeathCommand {
 
         //trim last comma and newline
         fileContents.delete(fileContents.length() - 2, fileContents.length());
-        fileContents.append("""
-                
-              ]
-            }""");
-        Files.write(file, fileContents.toString().lines().collect(Collectors.toList()));
+        fileContents.append("\n  ]\n}");
+        Files.write(file, Arrays.asList(fileContents.toString().split(System.getProperty("line.separator"))));
     }
 }

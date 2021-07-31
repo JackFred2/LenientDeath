@@ -5,6 +5,7 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Config(name = LenientDeath.MODID)
@@ -17,14 +18,15 @@ public class LenientDeathConfig implements ConfigData {
     public boolean trinketsSafe = true;
 
     @ConfigEntry.Gui.Tooltip
-    public List<String> items = new ArrayList<>(List.of(
+    public List<String> items = new ArrayList<>(Arrays.asList(
         "minecraft:bucket",
         "minecraft:water_bucket",
         "minecraft:lava_bucket"
     ));
 
+    @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
     @ConfigEntry.Gui.Tooltip(count = 2)
-    public List<String> tags = new ArrayList<>(List.of(
+    public List<String> tags = new ArrayList<>(Arrays.asList(
         "lenientdeath:safe"
     ));
 }

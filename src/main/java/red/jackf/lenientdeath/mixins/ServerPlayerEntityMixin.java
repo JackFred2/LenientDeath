@@ -25,7 +25,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity {
     @Inject(method = "copyFrom", at = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayerEntity;enchantmentTableSeed:I", opcode = Opcodes.PUTFIELD))
     public void lenientdeath$copyInvFromOld(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
         if (!alive && !this.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && !oldPlayer.isSpectator()) {
-            this.getInventory().clone(oldPlayer.getInventory());
+            this.inventory.clone(oldPlayer.inventory);
         }
     }
 }

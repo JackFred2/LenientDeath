@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.compatibility;
+/*package red.jackf.lenientdeath.compatibility;
 
 import dev.emi.trinkets.api.Trinket;
 import dev.emi.trinkets.api.TrinketEnums;
@@ -19,3 +19,4 @@ public abstract class TrinketsCompatibility {
         return item instanceof Trinket;
     }
 }
+*/
