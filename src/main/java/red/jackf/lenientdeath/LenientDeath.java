@@ -48,7 +48,8 @@ public class LenientDeath implements ModInitializer {
         //if (FabricLoader.getInstance().isModLoaded("trinkets") && CONFIG.trinketsSafe && TrinketsCompatibility.isTrinket(item)) return true;
         // check auto
         if (CONFIG.detectAutomatically) {
-            return validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+            boolean autoDetect = validSafeEquipment(item) || validSafeArmor(item) || validSafeFoods(item);
+            if (autoDetect) return true;
         }
 
         // check config

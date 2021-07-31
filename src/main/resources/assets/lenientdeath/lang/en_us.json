@@ -24,6 +24,7 @@
   "lenientdeath.command.resetErroredTags": "Successfully reset errored tags.",
   "lenientdeath.command.list.tags": "Tags:",
   "lenientdeath.command.list.items": "Items:",
+  "lenientdeath.command.listTagItems": "Items in tag '%s':",
   "text.autoconfig.lenientdeath.title": "LenientDeath Config",
   "text.autoconfig.lenientdeath.option.detectAutomatically": "Detect item safety automatically",
   "text.autoconfig.lenientdeath.option.detectAutomatically.@PrefixText": "Whether to detect item eligibility automatically using the same rules as /ld generate, in addition to the rules below. False means only using the rules below.",
