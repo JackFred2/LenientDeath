@@ -5,31 +5,19 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.fabricmc.fabric.api.tool.attribute.v1.FabricToolTags;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.tag.ServerTagManagerHolder;
-import net.minecraft.tag.Tag;
+import net.minecraft.tag.TagKey;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
-import red.jackf.lenientdeath.utils.UnknownTagException;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import red.jackf.lenientdeath.utils.DatapackGenerator;
 
 import static red.jackf.lenientdeath.LenientDeath.*;
 
@@ -43,12 +31,19 @@ public class LenientDeathCommand {
             .requires(source -> source.hasPermissionLevel(4))
             .build();
 
-        var resetErroredTagsNode = CommandManager.literal("resetErroredTags")
+        var resetErroredTagsNode = CommandManager.literal("erroredTags")
             .executes(context -> {
-                ERRORED_TAGS.clear();
-                context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.resetErroredTags").formatted(SUCCESS), true);
-                return 0;
+                context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.listErroredTags").formatted(INFO), false);
+                ERRORED_TAGS.forEach(str -> context.getSource().sendFeedback(new LiteralText(" - " + str), false));
+                return 1;
             })
+            .then(CommandManager.literal("reset")
+                .executes(context -> {
+                    ERRORED_TAGS.clear();
+                    context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.resetErroredTags").formatted(SUCCESS), true);
+                    return 1;
+                })
+            )
             .build();
 
         var autoDetectNode = CommandManager.literal("autoDetect")
@@ -64,7 +59,7 @@ public class LenientDeathCommand {
             .build();
 
         var generateNode = CommandManager.literal("generate")
-            .executes(LenientDeathCommand::generateTags)
+            .executes(LenientDeathCommand::generateDatapack)
             .build();
 
         var listNode = CommandManager.literal("list")
@@ -73,32 +68,36 @@ public class LenientDeathCommand {
 
         var listTagItems = CommandManager.literal("listTagItems")
             .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
-                CommandSource.suggestMatching(ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
-                    .map(id -> "#" + id), builder)
+                CommandSource.suggestMatching(Registry.ITEM.streamTags()
+                    .map(tagKey -> "#" + tagKey.id().toString()), builder)
                 ).executes(LenientDeathCommand::listTagItems).build())
             .build();
 
         var addNode = CommandManager.literal("add")
-            .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> {
-                var suggestions = Stream.concat(Stream.concat(
-                    Stream.of("hand"),
-                    ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTagIds().stream()
-                        .filter(id -> !CONFIG.tags.contains(id.toString()))
-                        .map(id -> "#" + id)),
-                    Registry.ITEM.getIds().stream()
-                        .map(Identifier::toString)
-                        .filter(id -> !CONFIG.items.contains(id)));
-                return CommandSource.suggestMatching(suggestions, builder);
-            }).executes(LenientDeathCommand::addValue).build())
-            .build();
+            .then(CommandManager.literal("hand")
+                .executes(LenientDeathCommand::addHand).build()
+            ).then(CommandManager.literal("item")
+                .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) ->
+                    CommandSource.suggestMatching(Registry.ITEM.getIds().stream().map(Identifier::toString).filter(id -> !CONFIG.items.contains(id)), builder)
+                ).executes(LenientDeathCommand::addItem).build())
+            ).then(CommandManager.literal("tag")
+                .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
+                    CommandSource.suggestMatching(Registry.ITEM.streamTags().map(tagKey -> tagKey.id().toString()).filter(id -> !CONFIG.tags.contains(id)), builder)
+                ).executes(LenientDeathCommand::addTag).build())
+            ).build();
 
         var removeNode = CommandManager.literal("remove")
-            .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) -> CommandSource.suggestMatching(Stream.concat(Stream.concat(
-                Stream.of("hand"),
-                CONFIG.tags.stream().map(s -> "#" + s)),
-                CONFIG.items.stream()
-            ), builder)).executes(LenientDeathCommand::removeValue).build())
-            .build();
+            .then(CommandManager.literal("hand")
+                .executes(LenientDeathCommand::removeHand).build()
+            ).then(CommandManager.literal("item")
+                .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) ->
+                    CommandSource.suggestMatching(CONFIG.items.stream(), builder)
+                ).executes(LenientDeathCommand::removeItem).build())
+            ).then(CommandManager.literal("tag")
+                .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
+                    CommandSource.suggestMatching(CONFIG.tags.stream(), builder)
+                ).executes(LenientDeathCommand::removeTag).build())
+            ).build();
 
         dispatcher.getRoot().addChild(rootNode);
         rootNode.addChild(generateNode);
@@ -119,13 +118,15 @@ public class LenientDeathCommand {
             context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.error.unknownIdentifier", arg).formatted(ERROR), false);
             return 0;
         } else {
-            var tag = ServerTagManagerHolder.getTagManager().getOrCreateTagGroup(Registry.ITEM_KEY).getTag(id);
-            if (tag == null) {
+            var tag = Registry.ITEM.streamTagsAndEntries().filter(key -> key.getFirst().id().equals(id)).findFirst();
+            if (tag.isEmpty()) {
                 context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.error.unknownTag", "#" + arg).formatted(ERROR), false);
                 return 0;
             } else {
                 context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.listTagItems", "#" + arg).formatted(INFO), false);
-                tag.values().forEach(item -> context.getSource().sendFeedback(new LiteralText(" - " + Registry.ITEM.getId(item)), false));
+                tag.get().getSecond().stream().forEach(itemEntry -> {
+                    context.getSource().sendFeedback(new LiteralText(" - " + Registry.ITEM.getId(itemEntry.value())), false);
+                });
             }
         }
         return 1;
@@ -168,107 +169,150 @@ public class LenientDeathCommand {
         return 1;
     }
 
-    private static int removeValue(CommandContext<ServerCommandSource> context) {
-        var argument = context.getArgument("item", String.class);
+    private static int removeHand(CommandContext<ServerCommandSource> context) {
         var source = context.getSource();
-
-        if ("hand".equals(argument)) {
-            try {
-                var handStack = source.getPlayer().getStackInHand(Hand.MAIN_HAND);
-                if (!handStack.isEmpty())
-                    argument = Registry.ITEM.getId(handStack.getItem()).toString();
-            } catch (CommandSyntaxException ignored) {
-            }
+        PlayerEntity player;
+        try {
+            player = source.getPlayer();
+        } catch (CommandSyntaxException e) {
+            source.sendFeedback(new TranslatableText("permissions.requires.player").formatted(ERROR), false);
+            return 0;
         }
 
-        if (argument.charAt(0) == '#') { // tag
-            var idSubstr = argument.substring(1);
-            if (CONFIG.tags.contains(idSubstr)) {
-                CONFIG.tags.remove(idSubstr);
+        var handStack = player.getStackInHand(Hand.MAIN_HAND);
+        if (!handStack.isEmpty()) {
+            var handId = Registry.ITEM.getId(handStack.getItem()).toString();
+
+            if (CONFIG.items.contains(handId)) {
+                CONFIG.items.remove(handId);
                 LenientDeath.saveConfig();
-                source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument).formatted(SUCCESS), true);
+                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", handId).formatted(SUCCESS), true);
                 return 1;
             } else {
-                source.sendFeedback(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument).formatted(ERROR), false);
+                source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemNotInConfig", handId).formatted(ERROR), false);
+                return 0;
             }
         } else {
-            if (CONFIG.items.contains(argument)) {
-                CONFIG.items.remove(argument);
-                LenientDeath.saveConfig();
-                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument).formatted(SUCCESS), true);
-                return 1;
-            } else {
-                source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemNotInConfig", argument).formatted(ERROR), false);
-            }
+            source.sendFeedback(new TranslatableText("lenientdeath.command.error.nothingInHand").formatted(ERROR), false);
+            return 0;
         }
-        return 0;
     }
 
-    private static int addValue(CommandContext<ServerCommandSource> context) {
+    private static int removeItem(CommandContext<ServerCommandSource> context) {
         var argument = context.getArgument("item", String.class);
         var source = context.getSource();
 
-        if ("hand".equals(argument)) {
-            try {
-                var handStack = source.getPlayer().getStackInHand(Hand.MAIN_HAND);
-                if (!handStack.isEmpty())
-                    argument = Registry.ITEM.getId(handStack.getItem()).toString();
-            } catch (CommandSyntaxException ignored) {
-            }
+        if (CONFIG.items.contains(argument)) {
+            CONFIG.items.remove(argument);
+            LenientDeath.saveConfig();
+            source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemRemoved", argument).formatted(SUCCESS), true);
+            return 1;
+        } else {
+            source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemNotInConfig", argument).formatted(ERROR), false);
+            return 0;
+        }
+    }
+
+    private static int removeTag(CommandContext<ServerCommandSource> context) {
+        var argument = context.getArgument("tag", String.class);
+        var source = context.getSource();
+
+        if (CONFIG.tags.contains(argument)) {
+            CONFIG.tags.remove(argument);
+            LenientDeath.saveConfig();
+            source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagRemoved", argument).formatted(SUCCESS), true);
+            return 1;
+        } else {
+            source.sendFeedback(new TranslatableText("lenientdeath.command.error.tagNotInConfig", argument).formatted(ERROR), false);
+            return 0;
+        }
+    }
+
+    private static int addHand(CommandContext<ServerCommandSource> context) {
+        var source = context.getSource();
+        PlayerEntity player;
+        try {
+            player = source.getPlayer();
+        } catch (CommandSyntaxException e) {
+            source.sendFeedback(new TranslatableText("permissions.requires.player").formatted(ERROR), false);
+            return 0;
         }
 
-        if (argument.charAt(0) == '#') { // tag
-            var idSubstr = argument.substring(1);
-            var tagId = Identifier.tryParse(idSubstr);
-            if (tagId != null) {
-                if (tagId.getNamespace().equals("minecraft")) {
-                    idSubstr = "minecraft:" + tagId.getPath();
-                    argument = "#minecraft:" + tagId.getPath();
-                }
-                try {
-                    ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
+        var handStack = player.getStackInHand(Hand.MAIN_HAND);
+        if (!handStack.isEmpty()) {
+            var handId = Registry.ITEM.getId(handStack.getItem()).toString();
 
-                    // tag exists
-                    if (!CONFIG.tags.contains(idSubstr)) {
-                        CONFIG.tags.add(idSubstr);
-                        LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument).formatted(SUCCESS), true);
-                        return 1;
-                    } else {
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.error.tagAlreadyInConfig", argument).formatted(ERROR), false);
-                    }
-                } catch (UnknownTagException ex) {
-                    unknownTag(argument, source);
-                }
+            if (!CONFIG.items.contains(handId)) {
+                CONFIG.items.add(handId);
+                LenientDeath.saveConfig();
+                source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemAdded", handId).formatted(SUCCESS), true);
+                return 1;
             } else {
-                invalidIdentifier(idSubstr, source);
+                source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemAlreadyInConfig", handId).formatted(ERROR), false);
+                return 0;
             }
         } else {
-            var itemId = Identifier.tryParse(argument);
-            if (itemId != null) {
-                if (itemId.getNamespace().equals("minecraft")) argument = "minecraft:" + itemId.getPath();
-                if (Registry.ITEM.containsId(itemId)) {
-                    if (!CONFIG.items.contains(argument)) {
-                        CONFIG.items.add(argument);
-                        LenientDeath.saveConfig();
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemAdded", argument).formatted(SUCCESS), true);
-                        return 1;
-                    } else {
-                        source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemAlreadyInConfig", argument).formatted(ERROR), false);
-                    }
+            source.sendFeedback(new TranslatableText("lenientdeath.command.error.nothingInHand").formatted(ERROR), false);
+            return 0;
+        }
+    }
+
+    private static int addItem(CommandContext<ServerCommandSource> context) {
+        var argument = context.getArgument("item", String.class);
+        var source = context.getSource();
+
+        var id = Identifier.tryParse(argument);
+        if (id != null) {
+            if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) argument = "minecraft:" + id.getPath();
+            if (Registry.ITEM.containsId(id)) {
+                if (!CONFIG.items.contains(argument)) {
+                    CONFIG.items.add(argument);
+                    LenientDeath.saveConfig();
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.itemAdded", argument).formatted(SUCCESS), true);
+                    return 1;
                 } else {
-                    unknownItem(argument, source);
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.error.itemAlreadyInConfig", argument).formatted(ERROR), false);
+                    return 0;
                 }
             } else {
-                invalidIdentifier(argument, source);
+                unknownItem(argument, source);
+                return 0;
             }
+        } else {
+            invalidIdentifier(argument, source);
+            return 0;
         }
-        return 0;
+    }
+
+    private static int addTag(CommandContext<ServerCommandSource> context) {
+        var argument = context.getArgument("tag", String.class);
+        var source = context.getSource();
+
+        var tagId = Identifier.tryParse(argument);
+        if (tagId != null) {
+            if (Registry.ITEM.containsTag(TagKey.of(Registry.ITEM_KEY, tagId))) {
+                if (!CONFIG.tags.contains(tagId.toString())) {
+                    CONFIG.tags.add(tagId.toString());
+                    LenientDeath.saveConfig();
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.success.tagAdded", argument).formatted(SUCCESS), true);
+                    return 1;
+                } else {
+                    source.sendFeedback(new TranslatableText("lenientdeath.command.error.tagAlreadyInConfig", argument).formatted(ERROR), false);
+                    return 0;
+                }
+            } else {
+                unknownTag(argument, source);
+                return 0;
+            }
+        } else {
+            invalidIdentifier(argument, source);
+            return 0;
+        }
     }
 
     private static int listFilters(CommandContext<ServerCommandSource> context) {
         context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.list.tags").formatted(Formatting.YELLOW), false);
-        CONFIG.tags.forEach(s -> context.getSource().sendFeedback(new LiteralText(" - #" + s), false));
+        CONFIG.tags.forEach(s -> context.getSource().sendFeedback(new LiteralText(" - " + s), false));
         context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.list.items").formatted(Formatting.YELLOW), false);
         CONFIG.items.forEach(s -> context.getSource().sendFeedback(new LiteralText(" - " + s), false));
         return 1;
@@ -286,80 +330,16 @@ public class LenientDeathCommand {
         source.sendFeedback(new TranslatableText("lenientdeath.command.error.unknownTag", tagId).formatted(ERROR), false);
     }
 
-    private static int generateTags(CommandContext<ServerCommandSource> context) {
+    private static int generateDatapack(CommandContext<ServerCommandSource> context) {
         info("Generating tags, requested by " + context.getSource().getName());
-
-        try {
-            var dir = Files.createDirectories(Path.of("lenientdeath"));
-            var safeItems = new ArrayList<Identifier>();
-
-            var vanillaItems = new ArrayList<Identifier>();
-            var modItems = new ArrayList<Identifier>();
-
-            var safeTags = List.of(
-                FabricToolTags.AXES,
-                FabricToolTags.HOES,
-                FabricToolTags.PICKAXES,
-                FabricToolTags.SHEARS,
-                FabricToolTags.SHOVELS,
-                FabricToolTags.SWORDS
-            );
-
-            Registry.ITEM.getIds().stream().sorted(Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)).forEach(id -> {
-                if (id.getNamespace().equals("minecraft")) vanillaItems.add(id);
-                else modItems.add(id);
-            });
-
-            Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
-                var item = Registry.ITEM.get(id);
-                if (safeTags.stream().anyMatch(tag -> tag.contains(item))) return;
-                if (LenientDeath.validSafeFoods(item)
-                    || LenientDeath.validSafeArmor(item)
-                    || LenientDeath.validSafeEquipment(item)) safeItems.add(id);
-            });
-            writeToFile(dir.resolve("safe.json"), safeItems, safeTags);
-            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", safeItems.size(), safeTags.size()).formatted(SUCCESS), true);
-        } catch (Exception ex) {
+        var result = DatapackGenerator.generateDatapack();
+        if (result.getLeft()) {
+            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success", result.getRight()).formatted(SUCCESS), true);
+            context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.success2", result.getRight()).formatted(SUCCESS), false);
+            return 1;
+        } else {
             context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.generate.error").formatted(ERROR), false);
-            error("Error generating tags", ex);
             return 0;
         }
-
-        return 1;
-    }
-
-    private static void writeToFile(Path file, List<Identifier> ids, List<Tag<Item>> tags) throws IOException {
-        var fileContents = new StringBuilder("""
-            {
-              "values": [
-            """);
-        tags.forEach(tag -> {
-            if (tag instanceof Tag.Identified<Item> identified) {
-                var tagId = identified.getId();
-                fileContents.append("    \"#")
-                    .append(tagId)
-                    .append("\",\n");
-            } else {
-                LOG.warn("Could not get ID for tag");
-            }
-        });
-        ids.forEach(id -> {
-            if (id.getNamespace().equals("minecraft"))
-                fileContents.append("    \"")
-                    .append(id)
-                    .append("\",\n");
-            else
-                fileContents.append("    {\n      \"id\": \"") // modded items, mark not required
-                    .append(id)
-                    .append("\",\n      \"required\": false\n    },\n");
-        });
-
-        //trim last comma and newline
-        fileContents.delete(fileContents.length() - 2, fileContents.length());
-        fileContents.append("""
-                
-              ]
-            }""");
-        Files.write(file, fileContents.toString().lines().collect(Collectors.toList()));
     }
 }

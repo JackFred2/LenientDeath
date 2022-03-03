@@ -5,20 +5,17 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolItem;
-import net.minecraft.item.Wearable;
-import net.minecraft.tag.ServerTagManagerHolder;
+import net.minecraft.item.*;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import red.jackf.lenientdeath.compatibility.TrinketsCompatibility;
-import red.jackf.lenientdeath.utils.UnknownTagException;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class LenientDeath implements ModInitializer {
@@ -57,19 +54,24 @@ public class LenientDeath implements ModInitializer {
 
         // check config
         for (String tagStr : CONFIG.tags) {
-            if (ERRORED_TAGS.contains(tagStr)) continue;
             var tagId = Identifier.tryParse(tagStr);
             if (tagId != null) {
-                try {
-                    var tag = ServerTagManagerHolder.getTagManager().getTag(Registry.ITEM_KEY, tagId, UnknownTagException::new);
-                    if (tag.contains(item)) return true;
-                } catch (Exception ex) {
-                    error("Error checking for tag " + tagStr + ", disabling...", ex);
-                    ERRORED_TAGS.add(tagStr);
+                final Optional<TagKey<Item>> registeredTag = Registry.ITEM.streamTags().filter(key -> key.id().equals(tagId)).findFirst();
+                if (registeredTag.isPresent()) {
+                    if (item.getRegistryEntry().isIn(registeredTag.get())) return true;
+
+                    ERRORED_TAGS.remove(tagStr);
+                } else {
+                    if (!ERRORED_TAGS.contains(tagStr)) {
+                        error("Tag ID " + tagStr + " is not valid.", null);
+                        ERRORED_TAGS.add(tagStr);
+                    }
                 }
             } else {
-                error("Tag ID " + tagStr + " is not valid, disabling...", null);
-                ERRORED_TAGS.add(tagStr);
+                if (!ERRORED_TAGS.contains(tagStr)) {
+                    error(tagStr + " is not a valid identifier.", null);
+                    ERRORED_TAGS.add(tagStr);
+                }
             }
         }
 
@@ -79,6 +81,7 @@ public class LenientDeath implements ModInitializer {
     public static boolean validSafeEquipment(Item item) {
         var useAction = item.getUseAction(new ItemStack(item));
         return item instanceof ToolItem
+            || item instanceof BucketItem
             || item.isDamageable()
             || useAction == UseAction.BLOCK
             || useAction == UseAction.BOW

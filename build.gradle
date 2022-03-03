@@ -24,20 +24,15 @@ repositories {
 		url = 'https://maven.terraformersmc.com/'
 		content {
 			includeGroup "com.terraformersmc"
+			includeGroup "dev.emi"
 		}
 	}
 	maven {
 		name = "Ladysnake Libs"
 		url = "https://ladysnake.jfrog.io/artifactory/mods"
 		content {
-			includeGroup "io.github.onyxstudios"
-			includeGroup "io.github.onyxstudios.Cardinal-Components-API"
-		}
-	}
-	maven {
-		url = "https://jitpack.io"
-		content {
-			includeGroup "com.github.emilyalexandra"
+			includeGroup "dev.onyxstudios"
+			includeGroup "dev.onyxstudios.cardinal-components-api"
 		}
 	}
 	maven {
@@ -58,11 +53,11 @@ dependencies {
 	modImplementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
 	// Trinkets
-	modImplementation("com.github.emilyalexandra:trinkets:${project.trinkets_version}") {
+	modImplementation("dev.emi:trinkets:${project.trinkets_version}") {
 		//transitive = false
 	}
 
-	modImplementation("net.devtech:arrp:0.4.4")
+	//modImplementation("net.devtech:arrp:0.5.5")
 
 	implementation 'org.jetbrains:annotations:16.0.2'
 }

@@ -18,9 +18,6 @@ public class LenientDeathConfig implements ConfigData {
 
     @ConfigEntry.Gui.Tooltip
     public List<String> items = new ArrayList<>(List.of(
-        "minecraft:bucket",
-        "minecraft:water_bucket",
-        "minecraft:lava_bucket"
     ));
 
     @ConfigEntry.Gui.Tooltip(count = 2)
