@@ -18,6 +18,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import red.jackf.lenientdeath.utils.DatapackGenerator;
+import red.jackf.lenientdeath.utils.LenientDeathPerPlayerMixinInterface;
 
 import static red.jackf.lenientdeath.LenientDeath.*;
 
@@ -28,7 +29,14 @@ public class LenientDeathCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, boolean dedicatedServer) {
         var rootNode = CommandManager.literal("ld")
-            .requires(source -> source.hasPermissionLevel(4))
+            .executes(ctx -> {
+                if (CONFIG.perPlayer) {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.personal." + (((LenientDeathPerPlayerMixinInterface) ctx.getSource().getPlayer()).isItemSavingEnabled() ? "enabled" : "disabled").formatted(INFO)), false);
+                } else {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.isDisabled").formatted(INFO), false);
+                }
+                return 1;
+            })
             .build();
 
         var resetErroredTagsNode = CommandManager.literal("erroredTags")
@@ -44,25 +52,61 @@ public class LenientDeathCommand {
                     return 1;
                 })
             )
+            .requires(source -> source.hasPermissionLevel(4))
             .build();
 
         var autoDetectNode = CommandManager.literal("autoDetect")
             .executes(ctx -> updateAutoDetect(ctx, true))
             .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                .requires(source -> source.hasPermissionLevel(4))
                 .executes(ctx -> updateAutoDetect(ctx, false)))
             .build();
 
         var trinketsNode = CommandManager.literal("trinketsSafe")
             .executes(ctx -> updateTrinketsSafe(ctx, true))
             .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                .requires(source -> source.hasPermissionLevel(4))
                 .executes(ctx -> updateTrinketsSafe(ctx, false)))
             .build();
 
+        var perPlayerNode = CommandManager.literal("perPlayer")
+            .executes(ctx -> updatePerPlayer(ctx, true))
+            .then(CommandManager.argument("enabled", BoolArgumentType.bool())
+                .requires(source -> source.hasPermissionLevel(4))
+                .executes(ctx -> updatePerPlayer(ctx, false)))
+            .build();
+
+        var enablePerPlayerNode = CommandManager.literal("enableForMe")
+            .executes(ctx -> {
+                ((LenientDeathPerPlayerMixinInterface) ctx.getSource().getPlayer()).setItemSavingEnabled(true);
+                if (CONFIG.perPlayer) {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.personal.nowEnabled").formatted(SUCCESS), false);
+                } else {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.isDisabled").formatted(ERROR), false);
+                }
+                return 1;
+            })
+            .build();
+
+        var disablePerPlayerNode = CommandManager.literal("disableForMe")
+            .executes(ctx -> {
+                ((LenientDeathPerPlayerMixinInterface) ctx.getSource().getPlayer()).setItemSavingEnabled(false);
+                if (CONFIG.perPlayer) {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.personal.nowDisabled").formatted(SUCCESS), false);
+                } else {
+                    ctx.getSource().sendFeedback(new TranslatableText("lenientdeath.command.perPlayer.isDisabled").formatted(ERROR), false);
+                }
+                return 1;
+            })
+            .build();
+
         var generateNode = CommandManager.literal("generate")
+            .requires(source -> source.hasPermissionLevel(4))
             .executes(LenientDeathCommand::generateDatapack)
             .build();
 
         var listNode = CommandManager.literal("list")
+            .requires(source -> source.hasPermissionLevel(4))
             .executes(LenientDeathCommand::listFilters)
             .build();
 
@@ -71,6 +115,7 @@ public class LenientDeathCommand {
                 CommandSource.suggestMatching(Registry.ITEM.streamTags()
                     .map(tagKey -> "#" + tagKey.id().toString()), builder)
                 ).executes(LenientDeathCommand::listTagItems).build())
+            .requires(source -> source.hasPermissionLevel(4))
             .build();
 
         var addNode = CommandManager.literal("add")
@@ -84,7 +129,9 @@ public class LenientDeathCommand {
                 .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
                     CommandSource.suggestMatching(Registry.ITEM.streamTags().map(tagKey -> tagKey.id().toString()).filter(id -> !CONFIG.tags.contains(id)), builder)
                 ).executes(LenientDeathCommand::addTag).build())
-            ).build();
+            )
+            .requires(source -> source.hasPermissionLevel(4))
+            .build();
 
         var removeNode = CommandManager.literal("remove")
             .then(CommandManager.literal("hand")
@@ -97,6 +144,7 @@ public class LenientDeathCommand {
                 .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
                     CommandSource.suggestMatching(CONFIG.tags.stream(), builder)
                 ).executes(LenientDeathCommand::removeTag).build())
+            .requires(source -> source.hasPermissionLevel(4))
             ).build();
 
         dispatcher.getRoot().addChild(rootNode);
@@ -108,6 +156,9 @@ public class LenientDeathCommand {
         rootNode.addChild(removeNode);
         rootNode.addChild(autoDetectNode);
         rootNode.addChild(trinketsNode);
+        rootNode.addChild(perPlayerNode);
+        rootNode.addChild(enablePerPlayerNode);
+        rootNode.addChild(disablePerPlayerNode);
     }
 
     private static int listTagItems(CommandContext<ServerCommandSource> context) {
@@ -165,6 +216,23 @@ public class LenientDeathCommand {
 
         if (!FabricLoader.getInstance().isModLoaded("trinkets"))
             context.getSource().sendFeedback(new TranslatableText("lenientdeath.command.trinketsSafe.notLoaded").formatted(INFO), false);
+
+        return 1;
+    }
+
+    private static int updatePerPlayer(CommandContext<ServerCommandSource> context, boolean query) {
+        if (query) {
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.perPlayer." + (CONFIG.perPlayer ? "isEnabled" : "isDisabled")
+            ).formatted(INFO), false);
+        } else {
+            var newValue = context.getArgument("enabled", Boolean.class);
+            CONFIG.perPlayer = newValue;
+            LenientDeath.saveConfig();
+            context.getSource().sendFeedback(new TranslatableText(
+                "lenientdeath.command.perPlayer." + (newValue ? "enabled" : "disabled")
+            ).formatted(SUCCESS), true);
+        }
 
         return 1;
     }

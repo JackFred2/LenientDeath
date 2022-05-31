@@ -16,6 +16,9 @@ public class LenientDeathConfig implements ConfigData {
     @ConfigEntry.Gui.PrefixText
     public boolean trinketsSafe = true;
 
+    @ConfigEntry.Gui.PrefixText
+    public boolean perPlayer = false;
+
     @ConfigEntry.Gui.Tooltip
     public List<String> items = new ArrayList<>(List.of(
     ));
