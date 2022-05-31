@@ -22,7 +22,7 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Le
         super(world, pos, yaw, profile);
     }
 
-    private boolean isItemSavingEnabled = false;
+    private boolean isItemSavingEnabled = true;
 
     @Override
     public boolean isItemSavingEnabled() {

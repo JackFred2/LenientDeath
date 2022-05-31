@@ -38,6 +38,14 @@ repositories {
 	maven {
 		url = uri("https://storage.googleapis.com/devan-maven/")
 	}
+	maven {
+		name = "Nucleoid"
+		url = "https://maven.nucleoid.xyz/"
+		content {
+			includeGroup "fr.catcore"
+			includeGroup "xyz.nucleoid"
+		}
+	}
 }
 
 dependencies {
@@ -57,7 +65,8 @@ dependencies {
 		//transitive = false
 	}
 
-	//modImplementation("net.devtech:arrp:0.5.5")
+	modImplementation("fr.catcore:server-translations-api:${project.server_translations_api_version}")
+	include("fr.catcore:server-translations-api:${project.server_translations_api_version}")
 
 	implementation 'org.jetbrains:annotations:16.0.2'
 }

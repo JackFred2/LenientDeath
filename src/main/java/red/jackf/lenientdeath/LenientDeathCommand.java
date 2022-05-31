@@ -106,7 +106,6 @@ public class LenientDeathCommand {
             .build();
 
         var listNode = CommandManager.literal("list")
-            .requires(source -> source.hasPermissionLevel(4))
             .executes(LenientDeathCommand::listFilters)
             .build();
 
@@ -144,8 +143,9 @@ public class LenientDeathCommand {
                 .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
                     CommandSource.suggestMatching(CONFIG.tags.stream(), builder)
                 ).executes(LenientDeathCommand::removeTag).build())
+            )
             .requires(source -> source.hasPermissionLevel(4))
-            ).build();
+            .build();
 
         dispatcher.getRoot().addChild(rootNode);
         rootNode.addChild(generateNode);
