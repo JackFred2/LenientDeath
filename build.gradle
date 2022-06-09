@@ -1,13 +1,9 @@
-import com.modrinth.minotaur.TaskModrinthUpload
-import com.modrinth.minotaur.request.VersionType
-
 plugins {
-	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
-	id 'idea'
+	id 'io.github.juuxel.loom-quiltflower' version '1.7.1'
 	id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id "com.modrinth.minotaur" version "2.+"
-	id 'net.researchgate.release' version '2.8.1'
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -65,8 +61,8 @@ dependencies {
 		//transitive = false
 	}
 
-	modImplementation("fr.catcore:server-translations-api:${project.server_translations_api_version}")
-	include("fr.catcore:server-translations-api:${project.server_translations_api_version}")
+	//modImplementation("fr.catcore:server-translations-api:${project.server_translations_api_version}")
+	//include("fr.catcore:server-translations-api:${project.server_translations_api_version}")
 
 	implementation 'org.jetbrains:annotations:16.0.2'
 }
@@ -139,7 +135,7 @@ modrinth {
 	uploadFile = remapJar
 	changelog = "Check the GitHub for changes: https://github.com/JackFred2/LenientDeath"
 	project.game_versions.tokenize(",")
-	loaders = ["fabric"]
+	loaders = ["fabric", "quilt"]
 	dependencies {
 		required.project("9s6osm5g") // cloth config
 		required.project("P7dR8mSH") // fabric api
