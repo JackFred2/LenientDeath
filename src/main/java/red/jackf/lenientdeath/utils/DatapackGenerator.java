@@ -1,11 +1,10 @@
 package red.jackf.lenientdeath.utils;
 
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
-import net.minecraft.util.registry.Registry;
 import red.jackf.lenientdeath.LenientDeath;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,13 +30,13 @@ public abstract class DatapackGenerator {
             var vanillaItems = new ArrayList<Identifier>();
             var modItems = new ArrayList<Identifier>();
 
-            Registry.ITEM.getIds().stream().sorted(Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)).forEach(id -> {
+            Registries.ITEM.getIds().stream().sorted(Comparator.comparing(Identifier::getNamespace).thenComparing(Identifier::getPath)).forEach(id -> {
                 if (id.getNamespace().equals("minecraft")) vanillaItems.add(id);
                 else modItems.add(id);
             });
 
             Stream.concat(vanillaItems.stream(), modItems.stream()).forEach(id -> {
-                var item = Registry.ITEM.get(id);
+                var item = Registries.ITEM.get(id);
                 if (LenientDeath.validSafeFoods(item)
                     || LenientDeath.validSafeArmor(item)
                     || LenientDeath.validSafeEquipment(item)) safeItems.add(id);

@@ -6,10 +6,10 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.*;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import red.jackf.lenientdeath.compatibility.TrinketsCompatibility;
@@ -42,7 +42,7 @@ public class LenientDeath implements ModInitializer {
     }
 
     public static boolean isSafe(Item item) {
-        var isInItemList = CONFIG.items.contains(Registry.ITEM.getId(item).toString());
+        var isInItemList = CONFIG.items.contains(Registries.ITEM.getId(item).toString());
         if (isInItemList) return true;
         if (FabricLoader.getInstance().isModLoaded("trinkets") && CONFIG.trinketsSafe && TrinketsCompatibility.isTrinket(item))
             return true;
@@ -56,7 +56,7 @@ public class LenientDeath implements ModInitializer {
         for (String tagStr : CONFIG.tags) {
             var tagId = Identifier.tryParse(tagStr);
             if (tagId != null) {
-                final Optional<TagKey<Item>> registeredTag = Registry.ITEM.streamTags().filter(key -> key.id().equals(tagId)).findFirst();
+                final Optional<TagKey<Item>> registeredTag = Registries.ITEM.streamTags().filter(key -> key.id().equals(tagId)).findFirst();
                 if (registeredTag.isPresent()) {
                     if (item.getRegistryEntry().isIn(registeredTag.get())) return true;
 
@@ -91,7 +91,7 @@ public class LenientDeath implements ModInitializer {
     }
 
     public static boolean validSafeArmor(Item item) {
-        return item instanceof Wearable;
+        return item instanceof Equipment;
     }
 
     public static boolean validSafeFoods(Item item) {

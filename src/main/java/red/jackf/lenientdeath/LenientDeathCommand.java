@@ -8,14 +8,15 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.CommandSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.tag.TagKey;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registries;
 import red.jackf.lenientdeath.utils.DatapackGenerator;
 import red.jackf.lenientdeath.utils.LenientDeathPerPlayerMixinInterface;
 
@@ -110,7 +111,7 @@ public class LenientDeathCommand {
 
         var listTagItems = CommandManager.literal("listTagItems")
             .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
-                CommandSource.suggestMatching(Registry.ITEM.streamTags()
+                CommandSource.suggestMatching(Registries.ITEM.streamTags()
                     .map(tagKey -> "#" + tagKey.id().toString()), builder)
                 ).executes(LenientDeathCommand::listTagItems).build())
             .requires(source -> source.hasPermissionLevel(4))
@@ -121,11 +122,11 @@ public class LenientDeathCommand {
                 .executes(LenientDeathCommand::addHand).build()
             ).then(CommandManager.literal("item")
                 .then(CommandManager.argument("item", StringArgumentType.greedyString()).suggests((context, builder) ->
-                    CommandSource.suggestMatching(Registry.ITEM.getIds().stream().map(Identifier::toString).filter(id -> !CONFIG.items.contains(id)), builder)
+                    CommandSource.suggestMatching(Registries.ITEM.getIds().stream().map(Identifier::toString).filter(id -> !CONFIG.items.contains(id)), builder)
                 ).executes(LenientDeathCommand::addItem).build())
             ).then(CommandManager.literal("tag")
                 .then(CommandManager.argument("tag", StringArgumentType.greedyString()).suggests((context, builder) ->
-                    CommandSource.suggestMatching(Registry.ITEM.streamTags().map(tagKey -> tagKey.id().toString()).filter(id -> !CONFIG.tags.contains(id)), builder)
+                    CommandSource.suggestMatching(Registries.ITEM.streamTags().map(tagKey -> tagKey.id().toString()).filter(id -> !CONFIG.tags.contains(id)), builder)
                 ).executes(LenientDeathCommand::addTag).build())
             )
             .requires(source -> source.hasPermissionLevel(4))
@@ -168,14 +169,14 @@ public class LenientDeathCommand {
             context.getSource().sendFeedback(Text.translatable("lenientdeath.command.error.unknownIdentifier", arg).formatted(ERROR), false);
             return 0;
         } else {
-            var tag = Registry.ITEM.streamTagsAndEntries().filter(key -> key.getFirst().id().equals(id)).findFirst();
+            var tag = Registries.ITEM.streamTagsAndEntries().filter(key -> key.getFirst().id().equals(id)).findFirst();
             if (tag.isEmpty()) {
                 context.getSource().sendFeedback(Text.translatable("lenientdeath.command.error.unknownTag", "#" + arg).formatted(ERROR), false);
                 return 0;
             } else {
                 context.getSource().sendFeedback(Text.translatable("lenientdeath.command.listTagItems", "#" + arg).formatted(INFO), false);
                 tag.get().getSecond().stream().forEach(itemEntry -> {
-                    context.getSource().sendFeedback(Text.literal(" - " + Registry.ITEM.getId(itemEntry.value())), false);
+                    context.getSource().sendFeedback(Text.literal(" - " + Registries.ITEM.getId(itemEntry.value())), false);
                 });
             }
         }
@@ -246,7 +247,7 @@ public class LenientDeathCommand {
 
         var handStack = player.getStackInHand(Hand.MAIN_HAND);
         if (!handStack.isEmpty()) {
-            var handId = Registry.ITEM.getId(handStack.getItem()).toString();
+            var handId = Registries.ITEM.getId(handStack.getItem()).toString();
 
             if (CONFIG.items.contains(handId)) {
                 CONFIG.items.remove(handId);
@@ -303,7 +304,7 @@ public class LenientDeathCommand {
 
         var handStack = player.getStackInHand(Hand.MAIN_HAND);
         if (!handStack.isEmpty()) {
-            var handId = Registry.ITEM.getId(handStack.getItem()).toString();
+            var handId = Registries.ITEM.getId(handStack.getItem()).toString();
 
             if (!CONFIG.items.contains(handId)) {
                 CONFIG.items.add(handId);
@@ -327,7 +328,7 @@ public class LenientDeathCommand {
         var id = Identifier.tryParse(argument);
         if (id != null) {
             if (id.getNamespace().equals(Identifier.DEFAULT_NAMESPACE)) argument = "minecraft:" + id.getPath();
-            if (Registry.ITEM.containsId(id)) {
+            if (Registries.ITEM.containsId(id)) {
                 if (!CONFIG.items.contains(argument)) {
                     CONFIG.items.add(argument);
                     LenientDeath.saveConfig();
@@ -353,7 +354,7 @@ public class LenientDeathCommand {
 
         var tagId = Identifier.tryParse(argument);
         if (tagId != null) {
-            if (Registry.ITEM.containsTag(TagKey.of(Registry.ITEM_KEY, tagId))) {
+            if (Registries.ITEM.getEntryList(TagKey.of(RegistryKeys.ITEM, tagId)).isPresent()) {
                 if (!CONFIG.tags.contains(tagId.toString())) {
                     CONFIG.tags.add(tagId.toString());
                     LenientDeath.saveConfig();
