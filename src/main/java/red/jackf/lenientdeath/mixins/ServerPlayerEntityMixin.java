@@ -54,5 +54,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Le
         if (!alive && !this.world.getGameRules().getBoolean(GameRules.KEEP_INVENTORY) && !oldPlayer.isSpectator()) {
             this.getInventory().clone(oldPlayer.getInventory());
         }
+        this.isItemSavingEnabled = ((LenientDeathPerPlayerMixinInterface) oldPlayer).isItemSavingEnabled();
     }
 }

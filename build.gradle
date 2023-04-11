@@ -61,8 +61,8 @@ dependencies {
 		//transitive = false
 	}
 
-	//modImplementation("fr.catcore:server-translations-api:${project.server_translations_api_version}")
-	//include("fr.catcore:server-translations-api:${project.server_translations_api_version}")
+	modImplementation("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
+	include("xyz.nucleoid:server-translations-api:${project.server_translations_api_version}")
 
 	implementation 'org.jetbrains:annotations:16.0.2'
 }
