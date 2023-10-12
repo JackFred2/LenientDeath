@@ -1,47 +1,30 @@
 {
-  "schemaVersion": 1,
-  "id": "lenientdeath",
-  "version": "${version}",
-  "name": "Lenient Death",
-  "description": "Makes dying more forgiving, but not completely free.",
-  "authors": [
-    {
-      "name": "JackFred",
-      "contact": {
-        "homepage": "https://github.com/JackFred2",
-        "email": "jack@jackf.red"
-      }
-    }
-  ],
-  "contact": {
-    "sources": "https://github.com/JackFred2/LenientDeath",
-    "issues": "https://github.com/JackFred2/LenientDeath/issues"
-  },
-  "license": "MIT",
-  "icon": "assets/lenientdeath/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "red.jackf.lenientdeath.LenientDeath"
-    ],
-    "modmenu": [
-      "red.jackf.lenientdeath.LenientDeathModMenu"
-    ]
-  },
-  "mixins": [
-    "lenientdeath.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": ">=0.11.3",
-    "fabric": "*",
-    "minecraft": ">=1.20",
-    "cloth-config2": ">=7.0.0"
-  },
-  "suggests": {
-    "modmenu": "*"
-  },
-  "breaks": {
-    "gravestones": "*",
-    "vanilladeathchest": "*"
-  }
+	"schemaVersion": 1,
+	"id": "lenientdeath",
+	"version": "${version}",
+	"name": "Lenient Death",
+	"description": "Server-sided Fabric & Quilt mod to make death less frustrating.",
+	"authors": [
+		"JackFred"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/lenient-death",
+		"sources": "https://github.com/JackFred2/LenientDeath",
+		"issues": "https://github.com/JackFred2/LenientDeath/issues"
+	},
+	"license": "LGPL-3.0-only",
+	"icon": "assets/lenientdeath/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"red.jackf.lenientdeath.LenientDeath"
+		]
+	},
+	"mixins": [],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": ">=1.20.2",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
 }
