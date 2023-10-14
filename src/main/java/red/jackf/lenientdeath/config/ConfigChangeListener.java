@@ -7,13 +7,13 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
 
-public class ConfigChangeListener {
+class ConfigChangeListener {
     public static final ConfigChangeListener INSTANCE = new ConfigChangeListener();
     private static final long INTERVAL_MILLIS = 1000L;
+    private final FileAlterationMonitor monitor;
+    private boolean running = false;
 
-    private ConfigChangeListener() {}
-
-    protected void setup() {
+    private ConfigChangeListener() {
         var filter = FileFilterUtils.and(
                 FileFilterUtils.fileFileFilter(),
                 FileFilterUtils.nameFileFilter(ConfigHandler.PATH.getFileName().toString()));
@@ -21,18 +21,40 @@ public class ConfigChangeListener {
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
             public void onFileChange(File file) {
-                ConfigHandler.LOGGER.info("Config changed, reloading");
+                ConfigHandler.LOGGER.info("Config file changed, reloading");
                 LenientDeathConfig.INSTANCE.load();
             }
         });
 
-        var monitor = new FileAlterationMonitor(INTERVAL_MILLIS);
-        monitor.addObserver(observer);
+        this.monitor = new FileAlterationMonitor(INTERVAL_MILLIS);
+        this.monitor.setThreadFactory(r -> {
+            var thread = new Thread(r);
+            thread.setName("Lenient Death Config Watcher");
+            thread.setDaemon(true);
+            return thread;
+        });
+        this.monitor.addObserver(observer);
+    }
+
+    protected void start() {
+        if (running) return;
         try {
-            monitor.start();
-            ConfigHandler.LOGGER.debug("Setup config watcher");
+            this.monitor.start();
+            running = true;
+            ConfigHandler.LOGGER.debug("Started config watcher");
         } catch (Exception e) {
-            ConfigHandler.LOGGER.error("Couldn't setup config file watcher", e);
+            ConfigHandler.LOGGER.error("Couldn't start config file watcher", e);
+        }
+    }
+
+    protected void stop() {
+        if (!running) return;
+        try {
+            this.monitor.stop();
+            running = false;
+            ConfigHandler.LOGGER.debug("Stopped config watcher");
+        } catch (Exception e) {
+            ConfigHandler.LOGGER.error("Couldn't stop config file watcher", e);
         }
     }
 }

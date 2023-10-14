@@ -24,8 +24,6 @@ public class ConfigHandler {
 
     public void setup() {
         get();
-
-        ConfigChangeListener.INSTANCE.setup();
     }
 
     public LenientDeathConfig get() {
@@ -73,6 +71,8 @@ public class ConfigHandler {
             instance = new LenientDeathConfig();
             this.save();
         }
+
+        instance.onLoad();
     }
 
     public void save() {

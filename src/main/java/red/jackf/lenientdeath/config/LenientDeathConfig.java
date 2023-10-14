@@ -7,6 +7,18 @@ public class LenientDeathConfig {
     public static ConfigHandler INSTANCE = new ConfigHandler();
 
     @Comment("""
+            Options relating to handling this config file.""")
+    public Config config = new Config();
+
+    public static class Config {
+        @Comment("""
+                Should Lenient Death watch this config file for changes, and auto reload them? Useful for servers.
+                Options: true, false
+                Default: true""")
+        public boolean enableFileWatcher = true;
+    }
+
+    @Comment("""
             When players die, any dropped items from their inventory will have a glowing outline shown through walls,
             in order to help them find and recover their items. This outline only shows to the player who died, unless
             changed in the settings.""")
@@ -28,5 +40,10 @@ public class LenientDeathConfig {
             DEAD_PLAYER_AND_TEAM,
             EVERYONE
         }
+    }
+
+    public void onLoad() {
+        if (config.enableFileWatcher) ConfigChangeListener.INSTANCE.start();
+        else ConfigChangeListener.INSTANCE.stop();
     }
 }
