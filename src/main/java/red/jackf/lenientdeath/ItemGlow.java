@@ -3,10 +3,10 @@ package red.jackf.lenientdeath;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.jackfredlib.api.lying.glowing.EntityGlowLie;
+import red.jackf.lenientdeath.config.ConfigHandler;
 
 /**
  * Adds a glowing outline to dropped items for players to easily find their items again. Only shown to the given player.
@@ -28,10 +28,19 @@ public class ItemGlow {
      * @param entity Item that was dropped.
      */
     public static void addItemGlow(ServerPlayer player, ItemEntity entity) {
-        EntityGlowLie.builder(entity)
+        var builder = EntityGlowLie.builder(entity)
                 .colour(ChatFormatting.GREEN)
-                .onTick(ItemGlow::itemGlowLieTickCallback)
-                .createAndShow(player);
+                .onTick(ItemGlow::itemGlowLieTickCallback);
+
+        switch (ConfigHandler.INSTANCE.get().droppedItemGlow.glowVisibility) {
+            case EVERYONE -> builder.createAndShow(player.server.getPlayerList().getPlayers());
+            case DEAD_PLAYER -> builder.createAndShow(player);
+            case DEAD_PLAYER_AND_TEAM -> builder.createAndShow(player.server.getPlayerList()
+                                                                       .getPlayers()
+                                                                       .stream()
+                                                                       .filter(otherPlayer -> otherPlayer.getTeam() == player.getTeam())
+                                                                       .toList());
+        }
     }
 
     /**
@@ -60,7 +69,7 @@ public class ItemGlow {
 
     private static void itemGlowLieTickCallback(ServerPlayer player, EntityGlowLie<ItemEntity> lie) {
         ItemEntity item = lie.entity();
-        if (item.getRemovalReason() == Entity.RemovalReason.DISCARDED) lie.fade(); // expired or pickup check
+        if (item.getRemovalReason() != null && item.getRemovalReason().shouldDestroy()) lie.fade(); // expired or pickup check
 
         int timeRemaining = ITEM_MAX_AGE - item.getAge();
         lie.setGlowColour(getColourForTimeLeft(timeRemaining));
