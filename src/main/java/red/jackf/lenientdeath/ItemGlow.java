@@ -3,6 +3,7 @@ package red.jackf.lenientdeath;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.jackfredlib.api.lying.glowing.EntityGlowLie;
@@ -54,12 +55,12 @@ public class ItemGlow {
         if (timeLeftSeconds >= 120) return ChatFormatting.YELLOW;
         if (timeLeftSeconds >= 60) return ChatFormatting.GOLD;
         if (timeLeftSeconds >= 30) return ChatFormatting.RED;
-        return timeLeftTicks % ITEM_FLASH_INTERVAL_TICKS == 0 ? ChatFormatting.RED : null;
+        return (timeLeftTicks % ITEM_FLASH_INTERVAL_TICKS) < (ITEM_FLASH_INTERVAL_TICKS / 2) ? ChatFormatting.RED : null;
     }
 
     private static void itemGlowLieTickCallback(ServerPlayer player, EntityGlowLie<ItemEntity> lie) {
         ItemEntity item = lie.entity();
-        if (item.isRemoved()) lie.fade(); // expired or pickup check
+        if (item.getRemovalReason() == Entity.RemovalReason.DISCARDED) lie.fade(); // expired or pickup check
 
         int timeRemaining = ITEM_MAX_AGE - item.getAge();
         lie.setGlowColour(getColourForTimeLeft(timeRemaining));
