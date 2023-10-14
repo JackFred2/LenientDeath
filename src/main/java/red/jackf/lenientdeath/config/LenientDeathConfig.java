@@ -4,6 +4,8 @@ import blue.endless.jankson.Comment;
 
 @SuppressWarnings("unused")
 public class LenientDeathConfig {
+    public static ConfigHandler INSTANCE = new ConfigHandler();
+
     @Comment("""
             When players die, any dropped items from their inventory will have a glowing outline shown through walls,
             in order to help them find and recover their items. This outline only shows to the player who died, unless

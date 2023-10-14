@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import red.jackf.lenientdeath.config.ConfigHandler;
+import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 public class LenientDeath implements ModInitializer {
     public static Logger getLogger(String suffix) {
@@ -18,7 +18,7 @@ public class LenientDeath implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        ConfigHandler.INSTANCE.get();
+        LenientDeathConfig.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
     }

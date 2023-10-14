@@ -6,7 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.jackfredlib.api.lying.glowing.EntityGlowLie;
-import red.jackf.lenientdeath.config.ConfigHandler;
+import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 /**
  * Adds a glowing outline to dropped items for players to easily find their items again. Only shown to the given player.
@@ -28,11 +28,13 @@ public class ItemGlow {
      * @param entity Item that was dropped.
      */
     public static void addItemGlow(ServerPlayer player, ItemEntity entity) {
+        if (!LenientDeathConfig.INSTANCE.get().droppedItemGlow.enabled) return;
+
         var builder = EntityGlowLie.builder(entity)
                 .colour(ChatFormatting.GREEN)
                 .onTick(ItemGlow::itemGlowLieTickCallback);
 
-        switch (ConfigHandler.INSTANCE.get().droppedItemGlow.glowVisibility) {
+        switch (LenientDeathConfig.INSTANCE.get().droppedItemGlow.glowVisibility) {
             case EVERYONE -> builder.createAndShow(player.server.getPlayerList().getPlayers());
             case DEAD_PLAYER -> builder.createAndShow(player);
             case DEAD_PLAYER_AND_TEAM -> builder.createAndShow(player.server.getPlayerList()
