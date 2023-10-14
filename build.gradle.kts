@@ -98,13 +98,13 @@ loom {
 	log4jConfigs.from(file("log4j2.xml"))
 
 	runs {
-
 		getByName("client") {
 			environment = "client"
 			configName = "Run Client"
 			runDir = "run"
 			source(sourceSets["client"])
 			ideConfigGenerated(true)
+			this.vmArgs.add("-Dlog4j.configurationFile=../log4j2.xml")
 			client()
 		}
 
@@ -114,6 +114,7 @@ loom {
 			runDir = "runServer"
 			source(sourceSets["main"])
 			ideConfigGenerated(true)
+			this.vmArgs.add("-Dlog4j.configurationFile=../log4j2.xml")
 			server()
 		}
 	}

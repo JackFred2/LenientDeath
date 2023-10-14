@@ -6,14 +6,20 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import red.jackf.lenientdeath.config.ConfigHandler;
 
 public class LenientDeath implements ModInitializer {
-    public static final Logger LOGGER = LogManager.getLogger();
+    public static Logger getLogger(String suffix) {
+        return LoggerFactory.getLogger("red.jackf.lenientdeath.Lenient Death" + (suffix.isBlank() ? "" : "/" + suffix));
+    }
+    public static final Logger LOGGER = getLogger("");
 
     @Override
     public void onInitialize() {
+        ConfigHandler.INSTANCE.get();
+
         ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
     }
 
