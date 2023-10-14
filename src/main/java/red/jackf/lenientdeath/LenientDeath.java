@@ -6,8 +6,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LenientDeath implements ModInitializer {
+    public static final Logger LOGGER = LogManager.getLogger();
+
     @Override
     public void onInitialize() {
         ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
