@@ -3,6 +3,7 @@ package red.jackf.lenientdeath;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -36,5 +37,10 @@ public class LenientDeath implements ModInitializer {
 
     public static boolean shouldKeepOnDeath(ItemStack stack) {
         return stack.is(Items.DIAMOND);
+    }
+
+    public static void handleItem(ServerPlayer serverPlayer, ItemEntity item) {
+        ItemGlow.addItemGlow(serverPlayer, item);
+        ItemLifeExtender.extendItemLifetime(item);
     }
 }

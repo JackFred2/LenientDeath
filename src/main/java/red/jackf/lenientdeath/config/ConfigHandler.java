@@ -43,6 +43,8 @@ public class ConfigHandler {
                 JsonObject json = JANKSON.load(PATH.toFile());
                 instance = JANKSON.fromJsonCarefully(json, LenientDeathConfig.class);
 
+                instance.verify();
+
                 // check for config update and save if new
                 JsonElement copy = JANKSON.toJson(instance);
                 // if during serialization there's missing keys,

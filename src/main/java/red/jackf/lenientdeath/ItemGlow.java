@@ -49,7 +49,8 @@ public class ItemGlow {
      * Get the appropriate outline colour for a given item's lifetime.
      *
      * <ul>
-     * <li> \inf - 3m  : Green </li>
+     * <li> \inf - 5m  : Aqua </li>
+     * <li> 5m   - 3m  : Green </li>
      * <li> 3m   - 2m  : Yellow </li>
      * <li> 2m   - 1m  : Orange </li>
      * <li> 1m   - 30s : Red </li>
@@ -62,10 +63,11 @@ public class ItemGlow {
     @Nullable
     private static ChatFormatting getColourForTimeLeft(int timeLeftTicks) {
         int timeLeftSeconds = timeLeftTicks / SharedConstants.TICKS_PER_SECOND;
-        if (timeLeftSeconds >= 180) return ChatFormatting.GREEN;
-        if (timeLeftSeconds >= 120) return ChatFormatting.YELLOW;
-        if (timeLeftSeconds >= 60) return ChatFormatting.GOLD;
-        if (timeLeftSeconds >= 30) return ChatFormatting.RED;
+        if (timeLeftSeconds > 300) return ChatFormatting.AQUA;
+        if (timeLeftSeconds > 180) return ChatFormatting.GREEN;
+        if (timeLeftSeconds > 120) return ChatFormatting.YELLOW;
+        if (timeLeftSeconds > 60) return ChatFormatting.GOLD;
+        if (timeLeftSeconds > 30) return ChatFormatting.RED;
         return (timeLeftTicks % ITEM_FLASH_INTERVAL_TICKS) < (ITEM_FLASH_INTERVAL_TICKS / 2) ? ChatFormatting.RED : null;
     }
 
@@ -73,7 +75,11 @@ public class ItemGlow {
         ItemEntity item = lie.entity();
         if (item.getRemovalReason() != null && item.getRemovalReason().shouldDestroy()) lie.fade(); // expired or pickup check
 
-        int timeRemaining = ITEM_MAX_AGE - item.getAge();
-        lie.setGlowColour(getColourForTimeLeft(timeRemaining));
+        if (item.getAge() == -32768) { // infinite lifetime
+            lie.setGlowColour(ChatFormatting.LIGHT_PURPLE);
+        } else {
+            int timeRemaining = ITEM_MAX_AGE - item.getAge();
+            lie.setGlowColour(getColourForTimeLeft(timeRemaining));
+        }
     }
 }
