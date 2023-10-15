@@ -3,6 +3,7 @@ package red.jackf.lenientdeath.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,8 +40,10 @@ public class InventoryMixin {
             method = "dropAll",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
     private ItemEntity addOutlineToEntity(ItemEntity original) {
-        if (this.player instanceof ServerPlayer serverPlayer)
+        if (this.player instanceof ServerPlayer serverPlayer) {
             ItemGlow.addItemGlow(serverPlayer, original);
+            original.setCustomName(Component.literal("name"));
+        }
         return original;
     }
 }

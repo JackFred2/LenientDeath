@@ -13,16 +13,23 @@ class ConfigChangeListener {
     private final FileAlterationMonitor monitor;
     private boolean running = false;
 
+    private boolean skipNext = false;
+
     private ConfigChangeListener() {
         var filter = FileFilterUtils.and(
                 FileFilterUtils.fileFileFilter(),
                 FileFilterUtils.nameFileFilter(ConfigHandler.PATH.getFileName().toString()));
+
         var observer = new FileAlterationObserver(ConfigHandler.PATH.getParent().toFile(), filter);
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
             public void onFileChange(File file) {
-                ConfigHandler.LOGGER.info("Config file changed, reloading");
-                LenientDeathConfig.INSTANCE.load();
+                if (skipNext) {
+                    skipNext = false;
+                } else {
+                    ConfigHandler.LOGGER.info("Config file changed, reloading");
+                    LenientDeathConfig.INSTANCE.load();
+                }
             }
         });
 
@@ -36,8 +43,13 @@ class ConfigChangeListener {
         this.monitor.addObserver(observer);
     }
 
+    protected void skipNext() {
+        if (running) skipNext = true;
+    }
+
     protected void start() {
         if (running) return;
+        skipNext = false;
         try {
             this.monitor.start();
             running = true;
