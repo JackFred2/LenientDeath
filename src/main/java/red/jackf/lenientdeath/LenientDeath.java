@@ -16,6 +16,7 @@ public class LenientDeath implements ModInitializer {
         return LoggerFactory.getLogger("red.jackf.lenientdeath.Lenient Death" + (suffix.isBlank() ? "" : "/" + suffix));
     }
     public static final Logger LOGGER = getLogger("");
+    public static final String MODID = "lenientdeath";
 
     @Override
     public void onInitialize() {

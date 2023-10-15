@@ -3,6 +3,7 @@ package red.jackf.lenientdeath.config;
 import blue.endless.jankson.Comment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
 
 import java.util.ArrayList;
@@ -112,14 +113,14 @@ public class LenientDeathConfig {
                     Options: 0 or more Item IDs, in the form "minecraft:golden_pickaxe". If an item by a given ID doesn't exist,
                              a warning will be logged to the console.
                     Default: Empty list""")
-            public List<ResourceLocation> items = new ArrayList<>(List.of(new ResourceLocation("water_bucket")));
+            public List<ResourceLocation> items = new ArrayList<>();
 
             @Comment("""
                     Which item tags should always be kept on a player's death?
                     Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
                              exist, a warning will be logged to the console.
-                    Default: Empty list""")
-            public List<ResourceLocation> tags = new ArrayList<>();
+                    Default: 'lenientdeath:safe'""")
+            public List<ResourceLocation> tags = new ArrayList<>(List.of(new ResourceLocation(LenientDeath.MODID, "safe")));
         }
 
         public static class AlwaysDropped {
