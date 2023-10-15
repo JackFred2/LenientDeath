@@ -10,6 +10,7 @@ import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.filtering.ItemFiltering;
 
 public class LenientDeath implements ModInitializer {
     public static Logger getLogger(String suffix) {
@@ -20,6 +21,7 @@ public class LenientDeath implements ModInitializer {
     @Override
     public void onInitialize() {
         LenientDeathConfig.INSTANCE.setup();
+        ItemFiltering.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
     }
