@@ -10,12 +10,17 @@ public class PreserveItems {
         ManualAllowAndBlocklist.INSTANCE.setup();
     }
 
+    /**
+     * Whether a given ItemStack should be kept within a player's inventory on death.
+     * @param stack ItemStack to check
+     * @return If the ItemStack should be kept in a player's inventory.
+     */
     public boolean shouldPreserve(ItemStack stack) {
-        var configPreserveTest = ManualAllowAndBlocklist.INSTANCE.shouldKeepBasedOnConfig(stack);
-        if (configPreserveTest == ShouldPreserve.NO) return false;
-        else if (configPreserveTest == ShouldPreserve.YES) return true;
+        var nbtPreserveTest = NbtChecker.INSTANCE.shouldKeep(stack);
+        if (nbtPreserveTest != null) return nbtPreserveTest;
 
-
+        var configPreserveTest = ManualAllowAndBlocklist.INSTANCE.shouldKeep(stack);
+        if (configPreserveTest != null) return configPreserveTest;
         return false;
     }
 }

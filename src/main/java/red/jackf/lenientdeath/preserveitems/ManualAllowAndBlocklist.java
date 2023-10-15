@@ -43,10 +43,10 @@ public class ManualAllowAndBlocklist {
         });
     }
 
-    protected ShouldPreserve shouldKeepBasedOnConfig(ItemStack stack) {
-        if (alwaysDroppedItems.contains(stack.getItem())) return ShouldPreserve.NO;
-        if (alwaysPreserved.contains(stack.getItem())) return ShouldPreserve.YES;
-        return ShouldPreserve.IGNORE;
+    protected @Nullable Boolean shouldKeep(ItemStack stack) {
+        if (alwaysDroppedItems.contains(stack.getItem())) return false;
+        if (alwaysPreserved.contains(stack.getItem())) return true;
+        return null;
     }
 
     /**

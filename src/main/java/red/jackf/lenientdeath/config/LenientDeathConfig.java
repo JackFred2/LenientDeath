@@ -92,6 +92,11 @@ public class LenientDeathConfig {
         public boolean enabled = true;
 
         @Comment("""
+                Allows you to preserve items based on the presence of an NBT tag. Note that Lenient Death doesn't add this
+                NBT tag to items for you, they will need to be added via another method.""")
+        public Nbt nbt = new Nbt();
+
+        @Comment("""
                 Configures which items should always be kept on death, ignoring the other settings based on NBT
                 or type settings. Has a lower priority than the Always Dropped filter.""")
         public AlwaysPreserved alwaysPreserved = new AlwaysPreserved();
@@ -132,11 +137,30 @@ public class LenientDeathConfig {
                     Default: Empty list""")
             public List<ResourceLocation> tags = new ArrayList<>();
         }
+
+        public static class Nbt {
+            @Comment("""
+                    Whether preserving based off of an NBT should be enabled.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment("""
+                    The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
+                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
+                    Default: 'Soulbound'""")
+            public String nbtKey = "Soulbound";
+        }
     }
 
     public void verify() {
+        var defaultInstance = new LenientDeathConfig();
+
         this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds
                 = Mth.clamp(this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds, 0, 1800);
+
+        if (this.preserveItemsOnDeath.nbt.nbtKey.isBlank())
+            this.preserveItemsOnDeath.nbt.nbtKey = defaultInstance.preserveItemsOnDeath.nbt.nbtKey;
     }
 
     public void onLoad() {
