@@ -5,12 +5,11 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.filtering.ItemFiltering;
+import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 public class LenientDeath implements ModInitializer {
     public static Logger getLogger(String suffix) {
@@ -21,7 +20,7 @@ public class LenientDeath implements ModInitializer {
     @Override
     public void onInitialize() {
         LenientDeathConfig.INSTANCE.setup();
-        ItemFiltering.INSTANCE.setup();
+        PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
     }
@@ -38,7 +37,9 @@ public class LenientDeath implements ModInitializer {
     }
 
     public static boolean shouldKeepOnDeath(ItemStack stack) {
-        return stack.is(Items.DIAMOND);
+        if (LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.enabled)
+            return PreserveItems.INSTANCE.shouldPreserve(stack);
+        return false;
     }
 
     public static void handleItem(ServerPlayer serverPlayer, ItemEntity item) {

@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.filtering;
+package red.jackf.lenientdeath.preserveitems;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -6,6 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import red.jackf.lenientdeath.LenientDeath;
@@ -14,11 +15,13 @@ import red.jackf.lenientdeath.config.LenientDeathConfig;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ItemFiltering {
+/**
+ * Handles filtering of items for which should be dropped.
+ */
+public class ManualAllowAndBlocklist {
     private static final Logger LOGGER = LenientDeath.getLogger("Item Filtering");
-    public static final ItemFiltering INSTANCE = new ItemFiltering();
-    private ItemFiltering() {}
-
+    public static final ManualAllowAndBlocklist INSTANCE = new ManualAllowAndBlocklist();
+    private ManualAllowAndBlocklist() {}
 
     @Nullable
     private Registry<Item> itemRegistry = null;
@@ -26,7 +29,7 @@ public class ItemFiltering {
     private final Set<Item> alwaysPreserved = new HashSet<>();
     private final Set<Item> alwaysDroppedItems = new HashSet<>();
 
-    public void setup() {
+    protected void setup() {
         CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
             if (client) return;
             this.itemRegistry = registries.registryOrThrow(Registries.ITEM);
@@ -40,6 +43,15 @@ public class ItemFiltering {
         });
     }
 
+    protected ShouldPreserve shouldKeepBasedOnConfig(ItemStack stack) {
+        if (alwaysDroppedItems.contains(stack.getItem())) return ShouldPreserve.NO;
+        if (alwaysPreserved.contains(stack.getItem())) return ShouldPreserve.YES;
+        return ShouldPreserve.IGNORE;
+    }
+
+    /**
+     * Load items from the current tag set and config.
+     */
     public void refreshItems() {
         this.alwaysPreserved.clear();
         this.alwaysDroppedItems.clear();

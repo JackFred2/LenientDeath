@@ -3,7 +3,7 @@ package red.jackf.lenientdeath.config;
 import blue.endless.jankson.Comment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import red.jackf.lenientdeath.filtering.ItemFiltering;
+import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,20 +71,26 @@ public class LenientDeathConfig {
 
         @Comment("""
                 Should items dropped on a player's death never despawn? Please be aware that this may cause performance
-                issues if players never try to recover their items as they will accumulate. To mitigate this, any item
-                entities will be given the 'LENIENT_DEATH_INFINITE_LIFETIME' tag, so you can use the command
-                '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME]' to remove them.
+                issues over a long period of time if players never try to recover their items as they will accumulate.
+                To mitigate this, any item entities will be given the 'LENIENT_DEATH_INFINITE_LIFETIME' tag, so you can
+                use the command '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME]' to remove them.
                 Options: true, false
                 Default: false""")
         public boolean deathDropItemsNeverDespawn = false;
     }
 
     @Comment("""
-            When a dead player's inventory is dropped, certain items will be kept based on their type, NBT, or an
-            allow-list. This behavior can be configured here, and can be set to work on a per-player basis.""")
+            When a dead player's inventory is dropped, certain items can be kept based on their type, NBT, or an
+            allow or block-list. This behavior can be configured here, and can be set to work on a per-player basis.""")
     public PreserveItemsOnDeath preserveItemsOnDeath = new PreserveItemsOnDeath();
 
     public static class PreserveItemsOnDeath {
+        @Comment("""
+                Should this feature be enabled?
+                Options: true, false
+                Default: false""")
+        public boolean enabled = true;
+
         @Comment("""
                 Configures which items should always be kept on death, ignoring the other settings based on NBT
                 or type settings. Has a lower priority than the Always Dropped filter.""")
@@ -137,6 +143,6 @@ public class LenientDeathConfig {
         if (config.enableFileWatcher) ConfigChangeListener.INSTANCE.start();
         else ConfigChangeListener.INSTANCE.stop();
 
-        ItemFiltering.INSTANCE.refreshItems();
+        ManualAllowAndBlocklist.INSTANCE.refreshItems();
     }
 }
