@@ -1,8 +1,13 @@
 {
   "lenientdeath.title": "Lenient Death",
-  "lenientdeath.command.perPlayer.disabled": "Per-player mode is disabled.",
-  "lenientdeath.command.perPlayer.playerDisabled": "Lenient Death is disabled.",
-  "lenientdeath.command.perPlayer.playerEnabled": "Lenient Death is enabled.",
+  "lenientdeath.command.perPlayer.playerDisabled": "Lenient Death is disabled",
+  "lenientdeath.command.perPlayer.playerEnabled": "Lenient Death is enabled",
+  "lenientdeath.command.perPlayer.setPlayerDisabled": "Disabled Lenient Death",
+  "lenientdeath.command.perPlayer.setPlayerEnabled": "Enabled Lenient Death",
+  "lenientdeath.command.perPlayer.setPlayerAlreadyDisabled": "Lenient Death is already disabled",
+  "lenientdeath.command.perPlayer.setPlayerAlreadyEnabled": "Lenient Death is already enabled",
   "lenientdeath.command.perPlayer.enableButton": "Enable",
-  "lenientdeath.command.perPlayer.disableButton": "Disable"
+  "lenientdeath.command.perPlayer.disableButton": "Disable",
+  "lenientdeath.command.perPlayer.noPermissionToChangeSelf": "You are not allowed to change your own settings",
+  "lenientdeath.command.perPlayer.noPermissionToChangeOthers": "You are not allowed to change others' settings"
 }

@@ -53,6 +53,13 @@ repositories {
 		}
 	}
 
+	maven {
+		url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+		content {
+			includeGroup("me.lucko")
+		}
+	}
+
 	// JackFredLib
 	maven {
 		name = "JackFredMaven"
@@ -124,6 +131,7 @@ dependencies {
 	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${properties["mixin_extras_version"]}")!!)!!)
 	include(implementation("commons-io:commons-io:${properties["commons_io_version"]}")!!)
 
+	include(modImplementation("me.lucko:fabric-permissions-api:${properties["fabric_permissions_api"]}")!!)
 	include(modImplementation("xyz.nucleoid:server-translations-api:${properties["server_translations_api_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-base:${properties["jflib_base_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-colour:${properties["jflib_colour_version"]}")!!)

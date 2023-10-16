@@ -3,10 +3,13 @@ package red.jackf.lenientdeath;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
@@ -22,6 +25,8 @@ public class LenientDeath implements ModInitializer {
     public static final String MODID = "lenientdeath";
     public static final String PER_PLAYER_TAG_KEY = "LenientDeathPerPlayer";
 
+    private static @Nullable MinecraftServer currentServer = null;
+
     @Override
     public void onInitialize() {
         LenientDeathConfig.INSTANCE.setup();
@@ -35,7 +40,14 @@ public class LenientDeath implements ModInitializer {
             );
         });
 
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> currentServer = server);
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> currentServer = null);
+
         CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);
+    }
+
+    public static @Nullable MinecraftServer getCurrentServer() {
+        return currentServer;
     }
 
     /**

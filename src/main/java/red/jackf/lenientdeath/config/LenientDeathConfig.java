@@ -2,6 +2,7 @@ package red.jackf.lenientdeath.config;
 
 import blue.endless.jankson.Comment;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
@@ -155,7 +156,7 @@ public class LenientDeathConfig {
 
             @Comment("""
                     Whether the player should be able to change their own per-player setting, using the Lenient Death
-                    command. Admins can always change other players' settings.
+                    command. Admins can always change their own and other players' settings.
                     Options: true, false
                     Default: true""")
             public boolean playersCanChangeTheirOwnSetting = true;
@@ -398,5 +399,11 @@ public class LenientDeathConfig {
         else ConfigChangeListener.INSTANCE.stop();
 
         ManualAllowAndBlocklist.INSTANCE.refreshItems();
+
+        if (LenientDeath.getCurrentServer() != null) {
+            for (ServerPlayer player : LenientDeath.getCurrentServer().getPlayerList().getPlayers()) {
+                LenientDeath.getCurrentServer().getCommands().sendCommands(player);
+            }
+        }
     }
 }

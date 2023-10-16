@@ -3,6 +3,7 @@ package red.jackf.lenientdeath.mixins;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -40,7 +41,8 @@ public abstract class ServerPlayerEntityMixin extends Player implements LenientD
 
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$readPerPlayerToData(CompoundTag tag, CallbackInfo ci) {
-        this.perPlayerEnabledForMe = tag.getBoolean(LenientDeath.PER_PLAYER_TAG_KEY);
+        if (tag.contains(LenientDeath.PER_PLAYER_TAG_KEY, Tag.TAG_BYTE))
+            this.perPlayerEnabledForMe = tag.getBoolean(LenientDeath.PER_PLAYER_TAG_KEY);
     }
 
     @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
