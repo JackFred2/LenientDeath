@@ -1,14 +1,16 @@
 package red.jackf.lenientdeath.command;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 
 class CommandFormatting {
     private static final ChatFormatting TEXT_COLOUR = ChatFormatting.WHITE;
-    private static final ChatFormatting SUCCESS_COLOUR = ChatFormatting.GREEN;
+    protected static final ChatFormatting SUCCESS_COLOUR = ChatFormatting.GREEN;
     private static final ChatFormatting INFO_COLOUR = ChatFormatting.YELLOW;
-    private static final ChatFormatting ERROR_COLOUR = ChatFormatting.RED;
+    protected static final ChatFormatting ERROR_COLOUR = ChatFormatting.RED;
     private static final ChatFormatting VARIABLE_COLOUR = ChatFormatting.AQUA;
 
     static Component success(Text... parts) {
@@ -34,6 +36,13 @@ class CommandFormatting {
     static Component error(Component component) {
         return error(new Text.Plain(component));
     }
+
+
+    static Style suggests(Style base, String command) {
+        return base.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
+                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(command)));
+    }
+
 
     static Text text(Component text) {
         return new Text.Plain(text);
