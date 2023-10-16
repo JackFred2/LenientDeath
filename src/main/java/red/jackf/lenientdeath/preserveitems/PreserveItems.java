@@ -21,6 +21,10 @@ public class PreserveItems {
 
         var configPreserveTest = ManualAllowAndBlocklist.INSTANCE.shouldKeep(stack);
         if (configPreserveTest != null) return configPreserveTest;
+
+        var itemTypeTest = ItemTypeChecker.INSTANCE.shouldKeep(stack);
+        if (itemTypeTest != null) return itemTypeTest;
+
         return false;
     }
 }

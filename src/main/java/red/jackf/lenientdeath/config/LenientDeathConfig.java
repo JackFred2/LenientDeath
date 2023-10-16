@@ -31,6 +31,7 @@ public class LenientDeathConfig {
             in order to help them find and recover their items. This outline only shows to the player who died and their
             team, unless changed in the settings.""")
     public DroppedItemGlow droppedItemGlow = new DroppedItemGlow();
+
     public static class DroppedItemGlow {
         @Comment("""
                 Should this feature be enabled?
@@ -82,7 +83,9 @@ public class LenientDeathConfig {
 
     @Comment("""
             When a dead player's inventory is dropped, certain items can be kept based on their type, NBT, or an
-            allow or block-list. This behavior can be configured here, and can be set to work on a per-player basis.""")
+            allow or block-list.
+            
+            These rules are evaluated in the following order: NBT -> Always Dropped List -> Always Preserved List -> Item Type""")
     public PreserveItemsOnDeath preserveItemsOnDeath = new PreserveItemsOnDeath();
 
     public static class PreserveItemsOnDeath {
@@ -98,14 +101,209 @@ public class LenientDeathConfig {
         public Nbt nbt = new Nbt();
 
         @Comment("""
+                Configures which items should always be dropped on death, ignoring the other settings based on NBT
+                or type settings. Takes precedence over the Always Preserved config.""")
+        public AlwaysDropped alwaysDropped = new AlwaysDropped();
+
+        @Comment("""
                 Configures which items should always be kept on death, ignoring the other settings based on NBT
                 or type settings. Has a lower priority than the Always Dropped filter.""")
         public AlwaysPreserved alwaysPreserved = new AlwaysPreserved();
 
         @Comment("""
-                Configures which items should always be dropped on death, ignoring the other settings based on NBT
-                or type settings. Takes precedence over the Always Preserved config.""")
-        public AlwaysDropped alwaysDropped = new AlwaysDropped();
+                Allows you to preserve or drop items based on their type (armour, weapon, food, etc). Has better compatibility
+                with mods which don't add their items to various tags. Items part of multiple types will use the first result
+                from the following order: DROP > PRESERVE > IGNORE""")
+        public ByItemType byItemType = new ByItemType();
+
+        public static class ByItemType {
+            @Comment("""
+                    Whether preserving based off item type should be enabled.
+                    Options: true, false
+                    Default: true""")
+            public boolean enabled = true;
+
+            @Comment("""
+                    Should helmet-type items always drop, be preserved, or fall to further processing?
+                    Examples: Iron Helmet, Turtle Helmet
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior helmets = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should chestplate-type items always drop, be preserved, or fall to further processing?
+                    Example: Golden Chestplate
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior chestplates = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should elytra-type items always drop, be preserved, or fall to further processing?
+                    Example: Elytra
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior elytras = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should leggings-type items always drop, be preserved, or fall to further processing?
+                    Example: Diamond leggings
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior leggings = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should boots-type items always drop, be preserved, or fall to further processing?
+                    Example: Chainmail boots
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior boots = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should shield-type items always drop, be preserved, or fall to further processing?
+                    Example: Shield
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior shields = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should other equippable items always drop, be preserved, or fall to further processing?
+                    Example: Skulls
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: IGNORE""")
+            public TypeBehavior otherEquippables = TypeBehavior.IGNORE;
+
+            @Comment("""
+                    Should sword-type items always drop, be preserved, or fall to further processing?
+                    Example: Wooden Sword
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior swords = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should trident-type items always drop, be preserved, or fall to further processing?
+                    Example: Wooden Sword
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior tridents = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should bow-type items always drop, be preserved, or fall to further processing?
+                    Example: Bow
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior bows = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should crossbow-type items always drop, be preserved, or fall to further processing?
+                    Example: Crossbow
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior crossbows = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should other projectile-launching items always drop, be preserved, or fall to further processing?
+                    Example: <None in Vanilla>
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior otherProjectileLaunchers = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should pickaxe-type items always drop, be preserved, or fall to further processing?
+                    Example: Netherite Pickaxe
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior pickaxes = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should shovel-type items always drop, be preserved, or fall to further processing?
+                    Example: Iron Shovel
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior shovels = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should axe-type items always drop, be preserved, or fall to further processing?
+                    Example: Diamond Axe
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior axes = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should hoe-type items always drop, be preserved, or fall to further processing?
+                    Example: Golden Hoe
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior hoes = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should other digging items not in the above categories always drop, be preserved, or fall to further
+                    processing?
+                    Example: <None in Vanilla>
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior otherDiggingItems = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should tools not in the above categories always drop, be preserved, or fall to further processing?
+                    Example: Brush, Spyglass, Goat Horn
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior otherTools = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should buckets always drop, be preserved, or fall to further processing?
+                    Example: Bucket, Bucket of Water, Bucket of Lava
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior buckets = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should food items always drop, be preserved, or fall to further processing?
+                    Example: Cooked Steak, Mushroom Stew
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior food = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should potion items always drop, be preserved, or fall to further processing?
+                    Example: Water Bottle, Potion of Instant Health II
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: PRESERVE""")
+            public TypeBehavior potions = TypeBehavior.PRESERVE;
+
+            @Comment("""
+                    Should shulker boxes always drop, be preserved, or fall to further processing?
+                    Note: Items contained within won't be checked, so this may be used to cheese other settings.
+                    Example: Shulker Box
+                    Options: DROP, PRESERVE, IGNORE
+                    Default: IGNORE""")
+            public TypeBehavior shulkerBoxes = TypeBehavior.IGNORE;
+
+            public enum TypeBehavior {
+                DROP,
+                PRESERVE,
+                IGNORE;
+
+                public TypeBehavior and(TypeBehavior other) {
+                    if (this.ordinal() > other.ordinal()) return other;
+                    return this;
+                }
+            }
+        }
+
+        public static class Nbt {
+            @Comment("""
+                    Whether preserving based off item NBT should be enabled.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment("""
+                    The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
+                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
+                    Default: 'Soulbound'""")
+            public String nbtKey = "Soulbound";
+        }
 
         public static class AlwaysPreserved {
             @Comment("""
@@ -137,20 +335,6 @@ public class LenientDeathConfig {
                              exist, a warning will be logged to the console.
                     Default: Empty list""")
             public List<ResourceLocation> tags = new ArrayList<>();
-        }
-
-        public static class Nbt {
-            @Comment("""
-                    Whether preserving based off of an NBT should be enabled.
-                    Options: true, false
-                    Default: false""")
-            public boolean enabled = false;
-
-            @Comment("""
-                    The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
-                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
-                    Default: 'Soulbound'""")
-            public String nbtKey = "Soulbound";
         }
     }
 
