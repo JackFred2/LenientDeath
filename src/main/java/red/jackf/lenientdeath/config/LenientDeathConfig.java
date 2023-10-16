@@ -27,6 +27,23 @@ public class LenientDeathConfig {
     }
 
     @Comment("""
+            Options relating to Lenient Death's '/ld' command. Used to configure the mod in-game, as well as to manage
+            per-player mode if enabled.""")
+    public Command command = new Command();
+
+    public static class Command {
+        @Comment("""
+                List of names to use for the command, in case one conflicts. To disable, remove all names and have an
+                empty list []. Requires a world reload / server restart for changes to take effect.
+                Options: Any string without whitespace.
+                Default: ["lenientdeath", "ld"]""")
+        public List<String> commandNames = new ArrayList<>(List.of(
+                "lenientdeath",
+                "ld"
+        ));
+    }
+
+    @Comment("""
             When players die, any dropped items from their inventory will have a glowing outline shown through walls,
             in order to help them find and recover their items. This outline only shows to the player who died and their
             team, unless changed in the settings.""")
@@ -115,6 +132,80 @@ public class LenientDeathConfig {
                 with mods which don't add their items to various tags. Items part of multiple types will use the first result
                 from the following order: DROP > PRESERVE > IGNORE""")
         public ByItemType byItemType = new ByItemType();
+
+        @Comment("""
+                Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
+                to use the mod. Does not affect other Lenient Death features.""")
+        public PerPlayer perPlayer = new PerPlayer();
+
+        // TODO implement
+        public static class PerPlayer {
+            @Comment("""
+                    Whether Lenient Death item preservation should be on a per player basis.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment("""
+                    The default enabled state for players when they join. If true, Lenient Death is default enabled for
+                    the player.
+                    Options: true, false
+                    Default: true""")
+            public boolean defaultEnabledForPlayer = true;
+
+            @Comment("""
+                    Whether the player should be able to change their own per-player setting, using the Lenient Death
+                    command. Admins can always change other players' settings.
+                    Options: true, false
+                    Default: true""")
+            public boolean playersCanChangeTheirOwnSetting = true;
+        }
+
+        public static class Nbt {
+            @Comment("""
+                    Whether preserving based off item NBT should be enabled.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment("""
+                    The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
+                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
+                    Default: 'Soulbound'""")
+            public String nbtKey = "Soulbound";
+        }
+
+        public static class AlwaysPreserved {
+            @Comment("""
+                    Which items should always be kept on a player's death?
+                    Options: 0 or more Item IDs, in the form "minecraft:golden_pickaxe". If an item by a given ID doesn't exist,
+                             a warning will be logged to the console.
+                    Default: Empty list""")
+            public List<ResourceLocation> items = new ArrayList<>();
+
+            @Comment("""
+                    Which item tags should always be kept on a player's death?
+                    Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
+                             exist, a warning will be logged to the console.
+                    Default: 'lenientdeath:safe'""")
+            public List<ResourceLocation> tags = new ArrayList<>(List.of(new ResourceLocation(LenientDeath.MODID, "safe")));
+        }
+
+        public static class AlwaysDropped {
+            @Comment("""
+                    Which items should always be dropped on a player's death?
+                    Options: 0 or more Item IDs, in the form "minecraft:golden_pickaxe". If an item by a given ID doesn't exist,
+                             a warning will be logged to the console.
+                    Default: Empty list""")
+            public List<ResourceLocation> items = new ArrayList<>();
+
+            @Comment("""
+                    Which item tags should always be dropped on a player's death?
+                    Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
+                             exist, a warning will be logged to the console.
+                    Default: Empty list""")
+            public List<ResourceLocation> tags = new ArrayList<>();
+        }
 
         public static class ByItemType {
             @Comment("""
@@ -289,52 +380,6 @@ public class LenientDeathConfig {
                     return this;
                 }
             }
-        }
-
-        public static class Nbt {
-            @Comment("""
-                    Whether preserving based off item NBT should be enabled.
-                    Options: true, false
-                    Default: false""")
-            public boolean enabled = false;
-
-            @Comment("""
-                    The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
-                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
-                    Default: 'Soulbound'""")
-            public String nbtKey = "Soulbound";
-        }
-
-        public static class AlwaysPreserved {
-            @Comment("""
-                    Which items should always be kept on a player's death?
-                    Options: 0 or more Item IDs, in the form "minecraft:golden_pickaxe". If an item by a given ID doesn't exist,
-                             a warning will be logged to the console.
-                    Default: Empty list""")
-            public List<ResourceLocation> items = new ArrayList<>();
-
-            @Comment("""
-                    Which item tags should always be kept on a player's death?
-                    Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
-                             exist, a warning will be logged to the console.
-                    Default: 'lenientdeath:safe'""")
-            public List<ResourceLocation> tags = new ArrayList<>(List.of(new ResourceLocation(LenientDeath.MODID, "safe")));
-        }
-
-        public static class AlwaysDropped {
-            @Comment("""
-                    Which items should always be dropped on a player's death?
-                    Options: 0 or more Item IDs, in the form "minecraft:golden_pickaxe". If an item by a given ID doesn't exist,
-                             a warning will be logged to the console.
-                    Default: Empty list""")
-            public List<ResourceLocation> items = new ArrayList<>();
-
-            @Comment("""
-                    Which item tags should always be dropped on a player's death?
-                    Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
-                             exist, a warning will be logged to the console.
-                    Default: Empty list""")
-            public List<ResourceLocation> tags = new ArrayList<>();
         }
     }
 

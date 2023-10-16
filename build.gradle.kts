@@ -43,29 +43,13 @@ repositories {
 		}
 	}
 
-	// YACL
+	// Server Side Translations Lib
 	maven {
-		name = "Xander Maven"
-		url = uri("https://maven.isxander.dev/releases")
+		name = "NucleoidMC"
+		url = uri("https://maven.nucleoid.xyz")
 		content {
-			includeGroup("dev.isxander.yacl")
-		}
-	}
-
-	// YACL Dependencies
-	maven {
-		name = "Sonatype"
-		url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-		content {
-			includeGroupAndSubgroups("com.twelvemonkeys")
-		}
-	}
-
-	maven {
-		name = "QuiltMC"
-		url = uri("https://maven.quiltmc.org/repository/release")
-		content {
-			includeGroupAndSubgroups("org.quiltmc")
+			includeGroup("fr.catcore")
+			includeGroup("xyz.nucleoid")
 		}
 	}
 
@@ -140,6 +124,7 @@ dependencies {
 	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${properties["mixin_extras_version"]}")!!)!!)
 	include(implementation("commons-io:commons-io:${properties["commons_io_version"]}")!!)
 
+	include(modImplementation("xyz.nucleoid:server-translations-api:${properties["server_translations_api_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-base:${properties["jflib_base_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-colour:${properties["jflib_colour_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-lying:${properties["jflib_lying_version"]}")!!)

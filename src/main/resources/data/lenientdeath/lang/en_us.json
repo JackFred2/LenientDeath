@@ -1,0 +1,6 @@
+{
+  "lenientdeath.title": "Lenient Death",
+  "lenientdeath.command.perPlayer.disabled": "Per-player mode is disabled.",
+  "lenientdeath.command.perPlayer.playerDisabled": "Lenient Death is disabled.",
+  "lenientdeath.command.perPlayer.playerEnabled": "Lenient Death is enabled."
+}

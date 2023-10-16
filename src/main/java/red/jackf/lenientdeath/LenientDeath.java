@@ -1,6 +1,7 @@
 package red.jackf.lenientdeath;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -8,7 +9,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.preserveitems.LenientDeathServerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 public class LenientDeath implements ModInitializer {
@@ -17,13 +20,22 @@ public class LenientDeath implements ModInitializer {
     }
     public static final Logger LOGGER = getLogger("");
     public static final String MODID = "lenientdeath";
+    public static final String PER_PLAYER_TAG_KEY = "LenientDeathPerPlayer";
 
     @Override
     public void onInitialize() {
         LenientDeathConfig.INSTANCE.setup();
         PreserveItems.INSTANCE.setup();
 
-        ServerPlayerEvents.COPY_FROM.register(LenientDeath::copyOldInventory);
+        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
+            copyOldInventory(oldPlayer, newPlayer, keepEverything);
+
+            ((LenientDeathServerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
+                    ((LenientDeathServerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
+            );
+        });
+
+        CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);
     }
 
     /**
