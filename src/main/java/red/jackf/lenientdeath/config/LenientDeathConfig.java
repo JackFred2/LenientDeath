@@ -124,7 +124,8 @@ public class LenientDeathConfig {
                 Should items dropped on a player's death never despawn? Please be aware that this may cause performance
                 issues over a long period of time if players never try to recover their items as they will accumulate.
                 To mitigate this, any item entities made to never despawn will be given the 'LENIENT_DEATH_INFINITE_LIFETIME'
-                tag, so you can use the command '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME]' to remove them.
+                tag, so you can use the command '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME,nbt={Age: -32768s}]'
+                to remove them.
                 Options: true, false
                 Default: false""")
         public boolean deathDropItemsNeverDespawn = false;

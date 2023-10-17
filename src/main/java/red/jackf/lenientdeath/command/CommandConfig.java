@@ -1,5 +1,6 @@
 package red.jackf.lenientdeath.command;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -64,11 +65,11 @@ public class CommandConfig {
                         set.accept(getConfig(), true);
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                                CommandFormatting.variable(fullName),
-                                CommandFormatting.symbol(": "),
-                                CommandFormatting.bool(false),
-                                CommandFormatting.symbol(" -> "),
-                                CommandFormatting.bool(true)
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": "),
+                            CommandFormatting.bool(false),
+                            CommandFormatting.symbol(" -> "),
+                            CommandFormatting.bool(true)
                         ), true);
 
                         return 1;
@@ -99,6 +100,102 @@ public class CommandConfig {
 
                         return 1;
                     }
+                }
+            ));
+    }
+
+    private static <E extends Enum<E>> LiteralArgumentBuilder<CommandSourceStack> makeEnum(String name,
+                                                                          String fullName,
+                                                                          Class<E> enumClass,
+                                                                          Function<LenientDeathConfig, E> get,
+                                                                          BiConsumer<LenientDeathConfig, E> set) {
+        var node = Commands.literal(name)
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                    CommandFormatting.variable(fullName),
+                    CommandFormatting.symbol(": "),
+                    CommandFormatting.variable(get.apply(getConfig()).name())
+                ), false);
+
+                return 1;
+            });
+
+        for (E constant : enumClass.getEnumConstants()) {
+            node.then(Commands.literal(constant.name())
+                .executes(ctx -> {
+                    var old = get.apply(getConfig());
+                    if (old == constant) {
+                        ctx.getSource().sendFailure(CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": "),
+                            CommandFormatting.variable(constant.name()),
+                            CommandFormatting.symbol(" "),
+                            CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
+                        ));
+
+                        return 0;
+                    } else {
+                        set.accept(getConfig(), constant);
+                        verifyAndSave();
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": "),
+                            CommandFormatting.variable(old.name()),
+                            CommandFormatting.symbol(" -> "),
+                            CommandFormatting.variable(constant.name())
+                        ), true);
+
+                        return 1;
+                    }
+                })
+            );
+        }
+
+        return node;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeIntRange(String name,
+                                                                           String fullName,
+                                                                           int min,
+                                                                           int max,
+                                                                           Function<LenientDeathConfig, Integer> get,
+                                                                           BiConsumer<LenientDeathConfig, Integer> set) {
+        return Commands.literal(name)
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                    CommandFormatting.variable(fullName),
+                    CommandFormatting.symbol(": "),
+                    CommandFormatting.variable(String.valueOf(get.apply(getConfig())))
+                ), false);
+
+                return 1;
+            }).then(Commands.argument(name, IntegerArgumentType.integer(min, max))
+                .executes(ctx -> {
+                    var old = get.apply(getConfig());
+                    var newValue = IntegerArgumentType.getInteger(ctx, name);
+                    if (old == newValue) {
+                        ctx.getSource().sendFailure(CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": "),
+                            CommandFormatting.variable(String.valueOf(newValue)),
+                            CommandFormatting.symbol(" "),
+                            CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
+                        ));
+
+                        return 0;
+                    } else {
+                        set.accept(getConfig(), newValue);
+                        verifyAndSave();
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": "),
+                            CommandFormatting.variable(String.valueOf(old)),
+                            CommandFormatting.symbol(" -> "),
+                            CommandFormatting.variable(String.valueOf(newValue))
+                        ), true);
+
+                        return 1;
+                    }
                 })
             );
     }
@@ -113,6 +210,9 @@ public class CommandConfig {
 
         root.then(createConfigNode());
         root.then(createMetaNode());
+        root.then(createPerPlayerNode());
+        root.then(createDroppedItemGlowNode());
+        root.then(createExtendedDeathItemLifetime());
 
         return root;
     }
@@ -220,5 +320,48 @@ public class CommandConfig {
         root.then(names);
 
         return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createPerPlayerNode() {
+        return Commands.literal("perPlayer")
+            .then(makeBoolean("defaultEnabledForPlayer",
+                "perPlayer.defaultEnabledForPlayer",
+                config -> config.perPlayer.defaultEnabledForPlayer,
+                (config, newVal) -> config.perPlayer.defaultEnabledForPlayer = newVal))
+            .then(makeBoolean("playersCanChangeTheirOwnSetting",
+                "perPlayer.playersCanChangeTheirOwnSetting",
+                config -> config.perPlayer.playersCanChangeTheirOwnSetting,
+                (config, newVal) -> config.perPlayer.playersCanChangeTheirOwnSetting = newVal));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createDroppedItemGlowNode() {
+        return Commands.literal("droppedItemGlow")
+                .then(makeBoolean("enabled",
+                                  "droppedItemGlow.enabled",
+                                  config -> config.droppedItemGlow.enabled,
+                                  (config, newVal) -> config.droppedItemGlow.enabled = newVal))
+                .then(makeEnum("glowVisibility",
+                               "droppedItemGlow.glowVisibility",
+                               LenientDeathConfig.DroppedItemGlow.Visibility.class,
+                               config -> config.droppedItemGlow.glowVisibility,
+                               (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createExtendedDeathItemLifetime() {
+        return Commands.literal("extendedDeathItemLifetime")
+                .then(makeBoolean("enabled",
+                                  "extendedDeathItemLifetime.enabled",
+                                  config -> config.extendedDeathItemLifetime.enabled,
+                                  (config, newVal) -> config.extendedDeathItemLifetime.enabled = newVal))
+                .then(makeIntRange("deathDropItemLifetimeSeconds",
+                                   "extendedDeathItemLifetime.deathDropItemLifetimeSeconds",
+                                   0,
+                                   1800,
+                                   config -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds,
+                                   (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds = newVal))
+                .then(makeBoolean("deathDropItemsNeverDespawn",
+                                  "extendedDeathItemLifetime.deathDropItemsNeverDespawn",
+                                  config -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn,
+                                  (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn = newVal));
     }
 }
