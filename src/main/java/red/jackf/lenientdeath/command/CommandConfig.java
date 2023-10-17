@@ -9,14 +9,19 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"ExtractMethodRecommender", "SameParameterValue"})
 public class CommandConfig {
@@ -274,7 +279,7 @@ public class CommandConfig {
         root.then(createDroppedItemGlowNode());
         root.then(createExtendedDeathItemLifetime());
         root.then(createPreserveExperienceOnDeathNode());
-        root.then(createPreserveItemsOnDeath());
+        root.then(createPreserveItemsOnDeath(context));
 
         return root;
     }
@@ -455,13 +460,22 @@ public class CommandConfig {
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createItemTagNodes(
+            CommandBuildContext context,
             String name,
             Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> itemListGet,
             Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> tagListGet) {
         var root = Commands.literal(name);
 
-        var items = createPreserveItemListNode(itemListGet, "item", "items", "preserveItemsOnDeath." + name + ".items");
-        var tags = createPreserveItemListNode(tagListGet, "tag", "tags", "preserveItemsOnDeath." + name + ".tags");
+        Supplier<Stream<ResourceLocation>> itemIdSupplier = () -> context.holderLookup(Registries.ITEM)
+                                                                         .listElementIds()
+                                                                         .map(ResourceKey::location);
+
+        Supplier<Stream<ResourceLocation>> tagSupplier = () -> context.holderLookup(Registries.ITEM)
+                                                                         .listTagIds()
+                                                                         .map(TagKey::location);
+
+        var items = createPreserveItemListNode(itemIdSupplier, itemListGet, "item", "items", "preserveItemsOnDeath." + name + ".items");
+        var tags = createPreserveItemListNode(tagSupplier, tagListGet, "tag", "tags", "preserveItemsOnDeath." + name + ".tags");
 
         root.then(items);
         root.then(tags);
@@ -470,6 +484,7 @@ public class CommandConfig {
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemListNode(
+            Supplier<Stream<ResourceLocation>> resourceIds,
             Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> listGet,
             String singular,
             String name,
@@ -490,6 +505,10 @@ public class CommandConfig {
                 return 1;
             }).then(Commands.literal("add")
                 .then(Commands.argument(singular, ResourceLocationArgument.id())
+                    .suggests((ctx, builder) -> {
+                        var existing = listGet.apply(getConfig().preserveItemsOnDeath);
+                        return SharedSuggestionProvider.suggestResource(resourceIds.get().filter(id -> !existing.contains(id)), builder);
+                    })
                     .executes(ctx -> {
                         var id = ResourceLocationArgument.getId(ctx, singular);
                         var list = listGet.apply(getConfig().preserveItemsOnDeath);
@@ -522,6 +541,7 @@ public class CommandConfig {
                 )
             ).then(Commands.literal("remove")
                 .then(Commands.argument(singular, ResourceLocationArgument.id())
+                    .suggests((ctx, builder) -> SharedSuggestionProvider.suggestResource(listGet.apply(getConfig().preserveItemsOnDeath), builder))
                     .executes(ctx -> {
                         var id = ResourceLocationArgument.getId(ctx, singular);
                         var list = listGet.apply(getConfig().preserveItemsOnDeath);
@@ -555,7 +575,7 @@ public class CommandConfig {
             );
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemsOnDeath() {
+    private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemsOnDeath(CommandBuildContext context) {
         var root = Commands.literal("preserveItemsOnDeath")
             .then(makeEnum("enabled",
                 "preserveItemsOnDeath.enabled",
@@ -579,11 +599,13 @@ public class CommandConfig {
                 config -> config.preserveItemsOnDeath.byItemType.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
 
-        root.then(createItemTagNodes("alwaysDropped",
+        root.then(createItemTagNodes(context,
+                                     "alwaysDropped",
                                      config -> config.alwaysDropped.items,
                                      config -> config.alwaysDropped.tags));
 
-        root.then(createItemTagNodes("alwaysPreserved",
+        root.then(createItemTagNodes(context,
+                                     "alwaysPreserved",
                                      config -> config.alwaysPreserved.items,
                                      config -> config.alwaysPreserved.tags));
 
