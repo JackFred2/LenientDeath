@@ -17,7 +17,16 @@ import static red.jackf.lenientdeath.config.LenientDeathJankson.JANKSON;
 
 public class ConfigHandler {
     protected static final Path PATH = FabricLoader.getInstance().getConfigDir().resolve("lenientdeath.json5");
-    private static final JsonGrammar GRAMMAR = JsonGrammar.JANKSON;
+    private static final JsonGrammar GRAMMAR = JsonGrammar.builder()
+            .bareSpecialNumerics(true)
+            .printUnquotedKeys(true)
+            .withComments(true)
+            .build();
+    private static final JsonGrammar GRAMMAR_NO_COMMENTS = JsonGrammar.builder()
+            .bareSpecialNumerics(true)
+            .printUnquotedKeys(true)
+            .withComments(false)
+            .build();
     protected static final Logger LOGGER = LenientDeath.getLogger("Config");
 
     ConfigHandler() {}
@@ -71,7 +80,7 @@ public class ConfigHandler {
             this.save();
         }
 
-        if (instance != old) instance.onLoad();
+        if (instance != old) instance.onLoad(old);
     }
 
     public void save() {
@@ -79,7 +88,7 @@ public class ConfigHandler {
         JsonElement json = JANKSON.toJson(config);
         try {
             LOGGER.debug("Saving config");
-            Files.writeString(PATH, json.toJson(GRAMMAR));
+            Files.writeString(PATH, json.toJson(config.config.stripComments ? GRAMMAR_NO_COMMENTS : GRAMMAR));
         } catch (IOException ex) {
             LOGGER.error("Error saving config", ex);
         }

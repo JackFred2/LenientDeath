@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
@@ -28,6 +29,12 @@ public class LenientDeathConfig {
                 Options: true, false
                 Default: true""")
         public boolean enableFileWatcher = true;
+
+        @Comment("""
+                Whether to remove these comments from the config file. Not recommended.
+                Options: true, false
+                Default: false""")
+        public boolean stripComments = false;
     }
 
     @Comment("""
@@ -109,8 +116,8 @@ public class LenientDeathConfig {
 
     public static class PerPlayer {
         @Comment("""
-                    The default enabled state for players when they join. If true, Lenient Death is default enabled for
-                    the player.
+                    The default enabled state for players when they join. If true, Lenient Death is enabled by default for
+                    new players.
                     Options: true, false
                     Default: true""")
         public boolean defaultEnabledForPlayer = true;
@@ -406,7 +413,7 @@ public class LenientDeathConfig {
             this.preserveItemsOnDeath.nbt.nbtKey = defaultInstance.preserveItemsOnDeath.nbt.nbtKey;
     }
 
-    public void onLoad() {
+    public void onLoad(@Nullable LenientDeathConfig old) {
         if (config.enableFileWatcher) ConfigChangeListener.INSTANCE.start();
         else ConfigChangeListener.INSTANCE.stop();
 
@@ -418,5 +425,9 @@ public class LenientDeathConfig {
                 LenientDeath.getCurrentServer().getCommands().sendCommands(player);
             }
         }
+
+        // re-save for comment changes
+        if (old != null && old.config.stripComments != this.config.stripComments)
+            LenientDeathConfig.INSTANCE.save();
     }
 }
