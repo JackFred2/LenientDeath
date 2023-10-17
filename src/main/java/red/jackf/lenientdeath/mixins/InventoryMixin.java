@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 @Mixin(Inventory.class)
 public class InventoryMixin {
@@ -31,7 +32,7 @@ public class InventoryMixin {
             method = "dropAll()V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
     private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original) {
-        return LenientDeath.shouldKeepOnDeath(this.player, stack) || original.call(stack);
+        return PreserveItems.shouldKeepOnDeath(this.player, stack) || original.call(stack);
     }
 
     @ModifyExpressionValue(
@@ -39,7 +40,7 @@ public class InventoryMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
     private ItemEntity addOutlineToEntity(ItemEntity item) {
         if (this.player instanceof ServerPlayer serverPlayer) {
-            LenientDeath.handleItem(serverPlayer, item);
+            LenientDeath.handleItemEntity(serverPlayer, item);
         }
         return item;
     }

@@ -21,6 +21,8 @@ import static net.minecraft.network.chat.Component.translatable;
 import static red.jackf.lenientdeath.command.CommandFormatting.*;
 
 public class PerPlayer {
+    public static final String PER_PLAYER_TAG_KEY = "LenientDeathPerPlayer";
+
     private PerPlayer() {}
 
     private static boolean isEnabled() {

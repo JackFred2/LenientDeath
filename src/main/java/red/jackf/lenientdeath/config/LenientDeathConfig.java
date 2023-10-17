@@ -55,6 +55,27 @@ public class LenientDeathConfig {
     }
 
     @Comment("""
+                Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
+                to use the mod. Affects item and XP preservation on death.""")
+    public PerPlayer perPlayer = new PerPlayer();
+
+    public static class PerPlayer {
+        @Comment("""
+                    The default enabled state for players when they join. If true, Lenient Death is enabled by default for
+                    new players.
+                    Options: true, false
+                    Default: true""")
+        public boolean defaultEnabledForPlayer = true;
+
+        @Comment("""
+                    Whether the player should be able to change their own per-player setting, using the Lenient Death
+                    command. Admins can always change their own and other players' settings.
+                    Options: true, false
+                    Default: true""")
+        public boolean playersCanChangeTheirOwnSetting = true;
+    }
+
+    @Comment("""
             When players die, any dropped items from their inventory will have a glowing outline shown through walls,
             in order to help them find and recover their items. This outline only shows to the player who died and their
             team, unless changed in the settings.""")
@@ -107,27 +128,6 @@ public class LenientDeathConfig {
                 Options: true, false
                 Default: false""")
         public boolean deathDropItemsNeverDespawn = false;
-    }
-
-    @Comment("""
-                Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
-                to use the mod. Affects item and XP preservation on death.""")
-    public PerPlayer perPlayer = new PerPlayer();
-
-    public static class PerPlayer {
-        @Comment("""
-                    The default enabled state for players when they join. If true, Lenient Death is enabled by default for
-                    new players.
-                    Options: true, false
-                    Default: true""")
-        public boolean defaultEnabledForPlayer = true;
-
-        @Comment("""
-                    Whether the player should be able to change their own per-player setting, using the Lenient Death
-                    command. Admins can always change their own and other players' settings.
-                    Options: true, false
-                    Default: true""")
-        public boolean playersCanChangeTheirOwnSetting = true;
     }
 
     @Comment("""

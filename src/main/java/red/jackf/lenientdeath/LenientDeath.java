@@ -7,9 +7,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +20,6 @@ public class LenientDeath implements ModInitializer {
     }
     public static final Logger LOGGER = getLogger("");
     public static final String MODID = "lenientdeath";
-    public static final String PER_PLAYER_TAG_KEY = "LenientDeathPerPlayer";
 
     private static @Nullable MinecraftServer currentServer = null;
 
@@ -33,7 +29,7 @@ public class LenientDeath implements ModInitializer {
         PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
-            copyOldInventory(oldPlayer, newPlayer, keepEverything);
+            PreserveItems.copyOldInventory(oldPlayer, newPlayer, keepEverything);
 
             ((PerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
                     ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
@@ -50,24 +46,7 @@ public class LenientDeath implements ModInitializer {
         return currentServer;
     }
 
-    /**
-     * Called at {@link ServerPlayer#restoreFrom}
-     */
-    private static void copyOldInventory(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean keepEverything) {
-        // dont do anything if existing checks happened
-        if (keepEverything) return;
-        //noinspection resource
-        if (newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) || oldPlayer.isSpectator()) return;
-        newPlayer.getInventory().replaceWith(oldPlayer.getInventory());
-    }
-
-    public static boolean shouldKeepOnDeath(Player player, ItemStack stack) {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
-        if (config.enabled.test(player)) return PreserveItems.INSTANCE.shouldPreserve(stack);
-        return false;
-    }
-
-    public static void handleItem(ServerPlayer serverPlayer, ItemEntity item) {
+    public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item) {
         ItemGlow.addItemGlow(serverPlayer, item);
         ItemLifeExtender.extendItemLifetime(item);
     }

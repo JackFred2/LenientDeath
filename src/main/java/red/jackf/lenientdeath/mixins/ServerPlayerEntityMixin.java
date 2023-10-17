@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.command.PerPlayer;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.PerPlayerDuck;
 
@@ -41,12 +41,12 @@ public abstract class ServerPlayerEntityMixin extends Player implements PerPlaye
 
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$readPerPlayerToData(CompoundTag tag, CallbackInfo ci) {
-        if (tag.contains(LenientDeath.PER_PLAYER_TAG_KEY, Tag.TAG_BYTE))
-            this.perPlayerEnabledForMe = tag.getBoolean(LenientDeath.PER_PLAYER_TAG_KEY);
+        if (tag.contains(PerPlayer.PER_PLAYER_TAG_KEY, Tag.TAG_BYTE))
+            this.perPlayerEnabledForMe = tag.getBoolean(PerPlayer.PER_PLAYER_TAG_KEY);
     }
 
     @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$addPerPlayerToData(CompoundTag tag, CallbackInfo ci) {
-        tag.putBoolean(LenientDeath.PER_PLAYER_TAG_KEY, this.perPlayerEnabledForMe);
+        tag.putBoolean(PerPlayer.PER_PLAYER_TAG_KEY, this.perPlayerEnabledForMe);
     }
 }
