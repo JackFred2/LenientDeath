@@ -8,15 +8,23 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 @SuppressWarnings({"ExtractMethodRecommender", "SameParameterValue"})
 public class CommandConfig {
+    private static final CommandFormatting.Text LIST_PREFIX = CommandFormatting.symbol(" • ");
+    private static final CommandFormatting.Text COLON = CommandFormatting.symbol(": ");
+    private static final CommandFormatting.Text SPACE = CommandFormatting.symbol(" ");
+    private static final CommandFormatting.Text QUOTE = CommandFormatting.symbol("\"");
+    private static final CommandFormatting.Text ARROW = CommandFormatting.symbol(" -> ");
     private CommandConfig() {}
 
     protected static final Predicate<CommandSourceStack> CHANGE_CONFIG_PREDICATE = Permissions.require(
@@ -44,7 +52,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                     CommandFormatting.variable(fullName),
-                    CommandFormatting.symbol(": "),
+                    COLON,
                     CommandFormatting.bool(get.apply(getConfig()))
                 ), false);
 
@@ -54,9 +62,9 @@ public class CommandConfig {
                     if (get.apply(getConfig())) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.bool(true),
-                            CommandFormatting.symbol(" "),
+                            SPACE,
                             CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
                         ));
 
@@ -66,9 +74,9 @@ public class CommandConfig {
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.bool(false),
-                            CommandFormatting.symbol(" -> "),
+                            ARROW,
                             CommandFormatting.bool(true)
                         ), true);
 
@@ -80,9 +88,9 @@ public class CommandConfig {
                     if (!get.apply(getConfig())) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.bool(false),
-                            CommandFormatting.symbol(" "),
+                            SPACE,
                             CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
                         ));
 
@@ -92,9 +100,9 @@ public class CommandConfig {
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.bool(true),
-                            CommandFormatting.symbol(" -> "),
+                            ARROW,
                             CommandFormatting.bool(false)
                         ), true);
 
@@ -113,7 +121,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                     CommandFormatting.variable(fullName),
-                    CommandFormatting.symbol(": "),
+                    COLON,
                     CommandFormatting.variable(get.apply(getConfig()).name())
                 ), false);
 
@@ -127,9 +135,9 @@ public class CommandConfig {
                     if (old == constant) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.variable(constant.name()),
-                            CommandFormatting.symbol(" "),
+                            SPACE,
                             CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
                         ));
 
@@ -139,9 +147,9 @@ public class CommandConfig {
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.variable(old.name()),
-                            CommandFormatting.symbol(" -> "),
+                            ARROW,
                             CommandFormatting.variable(constant.name())
                         ), true);
 
@@ -164,7 +172,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                     CommandFormatting.variable(fullName),
-                    CommandFormatting.symbol(": "),
+                    COLON,
                     CommandFormatting.variable(String.valueOf(get.apply(getConfig())))
                 ), false);
 
@@ -176,9 +184,9 @@ public class CommandConfig {
                     if (old == newValue) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.variable(String.valueOf(newValue)),
-                            CommandFormatting.symbol(" "),
+                            SPACE,
                             CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
                         ));
 
@@ -188,9 +196,9 @@ public class CommandConfig {
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.variable(String.valueOf(old)),
-                            CommandFormatting.symbol(" -> "),
+                            ARROW,
                             CommandFormatting.variable(String.valueOf(newValue))
                         ), true);
 
@@ -202,16 +210,17 @@ public class CommandConfig {
 
 
     private static LiteralArgumentBuilder<CommandSourceStack> makeWord(String name,
-                                                                           String fullName,
-                                                                           Function<LenientDeathConfig, String> get,
-                                                                           BiConsumer<LenientDeathConfig, String> set) {
+                                                                       String fullName,
+                                                                       Function<LenientDeathConfig, String> get,
+                                                                       BiConsumer<LenientDeathConfig, String> set) {
         return Commands.literal(name)
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                     CommandFormatting.variable(fullName),
-                    CommandFormatting.symbol(": \""),
+                    COLON,
+                    QUOTE,
                     CommandFormatting.variable(get.apply(getConfig())),
-                    CommandFormatting.symbol("\"")
+                    QUOTE
                 ), false);
 
                 return 1;
@@ -222,9 +231,10 @@ public class CommandConfig {
                     if (old.equals(newValue)) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": \""),
+                            COLON,
+                            QUOTE,
                             CommandFormatting.variable(newValue),
-                            CommandFormatting.symbol("\" "),
+                            QUOTE,
                             CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
                         ));
 
@@ -234,11 +244,14 @@ public class CommandConfig {
                         verifyAndSave();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
-                            CommandFormatting.symbol(": \""),
+                            COLON,
+                            QUOTE,
                             CommandFormatting.variable(old),
-                            CommandFormatting.symbol("\" -> \""),
+                            QUOTE,
+                            ARROW,
+                            QUOTE,
                             CommandFormatting.variable(newValue),
-                            CommandFormatting.symbol("\"")
+                            QUOTE
                         ), true);
 
                         return 1;
@@ -286,11 +299,11 @@ public class CommandConfig {
         names.executes(ctx -> {
             ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 CommandFormatting.variable("command.commandNames"),
-                CommandFormatting.symbol(":")
+                COLON
             ), false);
             for (String name : getConfig().command.commandNames) {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                    CommandFormatting.symbol(" • "),
+                    LIST_PREFIX,
                     CommandFormatting.variable(name)
                 ), false);
             }
@@ -306,7 +319,7 @@ public class CommandConfig {
                     if (config.commandNames.contains(name)) {
                         ctx.getSource().sendFailure(CommandFormatting.error(
                             CommandFormatting.variable("command.commandNames"),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.text(
                                 Component.translatable("lenientdeath.command.config.alreadyInList",
                                     CommandFormatting.variable(name).resolve(CommandFormatting.TextType.BLANK)))
@@ -316,7 +329,7 @@ public class CommandConfig {
                         config.commandNames.add(name);
                         ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                             CommandFormatting.variable("command.commandNames"),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.text(
                                 Component.translatable("lenientdeath.command.config.added",
                                     CommandFormatting.variable(name).resolve(CommandFormatting.TextType.BLANK)))
@@ -339,7 +352,7 @@ public class CommandConfig {
                     if (!config.commandNames.contains(name)) {
                         ctx.getSource().sendFailure(CommandFormatting.error(
                             CommandFormatting.variable("command.commandNames"),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.text(
                                 Component.translatable("lenientdeath.command.config.notInList",
                                     CommandFormatting.variable(name).resolve(CommandFormatting.TextType.BLANK)))
@@ -349,7 +362,7 @@ public class CommandConfig {
                         config.commandNames.remove(name);
                         ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                             CommandFormatting.variable("command.commandNames"),
-                            CommandFormatting.symbol(": "),
+                            COLON,
                             CommandFormatting.text(
                                 Component.translatable("lenientdeath.command.config.removed",
                                     CommandFormatting.variable(name).resolve(CommandFormatting.TextType.BLANK)))
@@ -441,6 +454,107 @@ public class CommandConfig {
                         (config, newVal) -> set.accept(config.preserveItemsOnDeath.byItemType, newVal));
     }
 
+    private static LiteralArgumentBuilder<CommandSourceStack> createItemTagNodes(
+            String name,
+            Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> itemListGet,
+            Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> tagListGet) {
+        var root = Commands.literal(name);
+
+        var items = createPreserveItemListNode(itemListGet, "item", "items", "preserveItemsOnDeath." + name + ".items");
+        var tags = createPreserveItemListNode(tagListGet, "tag", "tags", "preserveItemsOnDeath." + name + ".tags");
+
+        root.then(items);
+        root.then(tags);
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemListNode(
+            Function<LenientDeathConfig.PreserveItemsOnDeath, List<ResourceLocation>> listGet,
+            String singular,
+            String name,
+            String fullName) {
+        return Commands.literal(name)
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                        CommandFormatting.variable(fullName),
+                        COLON
+                ), false);
+
+                for (var itemId : listGet.apply(getConfig().preserveItemsOnDeath))
+                    ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            LIST_PREFIX,
+                            CommandFormatting.variable(itemId.toString())
+                    ), false);
+
+                return 1;
+            }).then(Commands.literal("add")
+                .then(Commands.argument(singular, ResourceLocationArgument.id())
+                    .executes(ctx -> {
+                        var id = ResourceLocationArgument.getId(ctx, singular);
+                        var list = listGet.apply(getConfig().preserveItemsOnDeath);
+                        if (list.contains(id)) {
+                            ctx.getSource().sendFailure(CommandFormatting.error(
+                                CommandFormatting.variable(fullName),
+                                COLON,
+                                CommandFormatting.text(
+                                    Component.translatable("lenientdeath.command.config.alreadyInList",
+                                        CommandFormatting.variable(String.valueOf(id))
+                                            .resolve(CommandFormatting.TextType.BLANK)))
+                            ));
+
+                            return 0;
+                        } else {
+                            list.add(id);
+                            verifyAndSave();
+                            ctx.getSource().sendSuccess(() -> CommandFormatting.success(
+                                CommandFormatting.variable(fullName),
+                                COLON,
+                                CommandFormatting.text(
+                                    Component.translatable("lenientdeath.command.config.added",
+                                        CommandFormatting.variable(String.valueOf(id))
+                                            .resolve(CommandFormatting.TextType.BLANK)))
+                            ), true);
+
+                            return 1;
+                        }
+                    })
+                )
+            ).then(Commands.literal("remove")
+                .then(Commands.argument(singular, ResourceLocationArgument.id())
+                    .executes(ctx -> {
+                        var id = ResourceLocationArgument.getId(ctx, singular);
+                        var list = listGet.apply(getConfig().preserveItemsOnDeath);
+                        if (!list.contains(id)) {
+                            ctx.getSource().sendFailure(CommandFormatting.error(
+                                CommandFormatting.variable(fullName),
+                                COLON,
+                                CommandFormatting.text(
+                                    Component.translatable("lenientdeath.command.config.notInList",
+                                        CommandFormatting.variable(String.valueOf(id))
+                                            .resolve(CommandFormatting.TextType.BLANK)))
+                            ));
+
+                             return 0;
+                        } else {
+                            list.remove(id);
+                            verifyAndSave();
+                            ctx.getSource().sendSuccess(() -> CommandFormatting.success(
+                                CommandFormatting.variable(fullName),
+                                COLON,
+                                 CommandFormatting.text(
+                                     Component.translatable("lenientdeath.command.config.removed",
+                                         CommandFormatting.variable(String.valueOf(id))
+                                             .resolve(CommandFormatting.TextType.BLANK)))
+                            ), true);
+
+                            return 1;
+                        }
+                    })
+                )
+            );
+    }
+
     private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemsOnDeath() {
         var root = Commands.literal("preserveItemsOnDeath")
             .then(makeEnum("enabled",
@@ -464,6 +578,14 @@ public class CommandConfig {
                 "preserveItemsOnDeath.byItemType.enabled",
                 config -> config.preserveItemsOnDeath.byItemType.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
+
+        root.then(createItemTagNodes("alwaysDropped",
+                                     config -> config.alwaysDropped.items,
+                                     config -> config.alwaysDropped.tags));
+
+        root.then(createItemTagNodes("alwaysPreserved",
+                                     config -> config.alwaysPreserved.items,
+                                     config -> config.alwaysPreserved.tags));
 
         itemType.then(makeItemTypeNode("helmets", types -> types.helmets, (config, newVal) -> config.helmets = newVal));
         itemType.then(makeItemTypeNode("chestplates", types -> types.chestplates, (config, newVal) -> config.chestplates = newVal));
