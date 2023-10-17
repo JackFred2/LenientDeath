@@ -55,7 +55,7 @@ public class PerPlayer {
             true
     ).or(CHECK_OTHERS_PREDICATE).or(CHANGE_SELF_PREDICATE);
 
-    static ArgumentBuilder<CommandSourceStack, ?> createCommandNode(CommandBuildContext buildCtx) {
+    static ArgumentBuilder<CommandSourceStack, ?> createCommandNode(CommandBuildContext ignoredBuildCtx) {
         return Commands.literal("perPlayer")
             .requires(ignored -> isEnabled())
             .then(Commands.literal("check")

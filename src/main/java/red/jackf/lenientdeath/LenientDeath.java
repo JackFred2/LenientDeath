@@ -26,6 +26,8 @@ public class LenientDeath implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        LOGGER.debug("Setup Lenient Death");
+
         LenientDeathConfig.INSTANCE.setup();
         PreserveItems.INSTANCE.setup();
 
