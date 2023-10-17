@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,11 +30,21 @@ public class LenientDeath implements ModInitializer {
         PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
-            PreserveItems.copyOldInventory(oldPlayer, newPlayer, keepEverything);
-
             ((PerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
                     ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
             );
+
+            // skip if vanilla handled it
+            // noinspection resource
+            if (keepEverything || newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) || oldPlayer.isSpectator())
+                return;
+
+            // check is done on the item preservation side, don't double check in case setting changes between respawn
+            //if (LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.enabled.test(oldPlayer))
+            PreserveItems.copyOldInventory(oldPlayer, newPlayer);
+
+            if (LenientDeathConfig.INSTANCE.get().preserveExperienceOnDeath.enabled.test(oldPlayer))
+                PreserveExperience.copyExperience(oldPlayer, newPlayer);
         });
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> currentServer = server);

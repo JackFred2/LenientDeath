@@ -123,16 +123,36 @@ public class LenientDeathConfig {
         @Comment("""
                 Should items dropped on a player's death never despawn? Please be aware that this may cause performance
                 issues over a long period of time if players never try to recover their items as they will accumulate.
-                To mitigate this, any item entities will be given the 'LENIENT_DEATH_INFINITE_LIFETIME' tag, so you can
-                use the command '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME]' to remove them.
+                To mitigate this, any item entities made to never despawn will be given the 'LENIENT_DEATH_INFINITE_LIFETIME'
+                tag, so you can use the command '/kill @e[type=item,tag=LENIENT_DEATH_INFINITE_LIFETIME]' to remove them.
                 Options: true, false
                 Default: false""")
         public boolean deathDropItemsNeverDespawn = false;
     }
 
     @Comment("""
+            In Vanilla, when a player dies they lose all of their experience, a small part of which is dropped as XP orbs.
+            This feature lets you keep all or a portion of your experience when yo die.  Can be used on as part of the
+            per-player feature.""")
+    public PreserveExperienceOnDeath preserveExperienceOnDeath = new PreserveExperienceOnDeath();
+
+    public static class PreserveExperienceOnDeath {
+        @Comment("""
+                Should this feature be enabled?
+                Options: yes, per_player, no
+                Default: no""")
+        public PerPlayerEnabled enabled = PerPlayerEnabled.no;
+
+        @Comment("""
+                What percentage of a player's experience should be dropped on death?
+                Options: [0, 100]
+                Default: 60""")
+        public int preservedPercentage = 60;
+    }
+
+    @Comment("""
             When a dead player's inventory is dropped, certain items can be kept based on their type, NBT, or an
-            allow or block-list.
+            allow or block-list. Can be used on as part of the per-player feature.
             
             These rules are evaluated in the following order: NBT -> Always Dropped List -> Always Preserved List -> Item Type""")
     public PreserveItemsOnDeath preserveItemsOnDeath = new PreserveItemsOnDeath();
@@ -411,6 +431,9 @@ public class LenientDeathConfig {
 
         if (this.preserveItemsOnDeath.nbt.nbtKey.isBlank())
             this.preserveItemsOnDeath.nbt.nbtKey = defaultInstance.preserveItemsOnDeath.nbt.nbtKey;
+
+        this.preserveExperienceOnDeath.preservedPercentage
+                = Mth.clamp(this.preserveExperienceOnDeath.preservedPercentage, 0, 100);
     }
 
     public void onLoad(@Nullable LenientDeathConfig old) {

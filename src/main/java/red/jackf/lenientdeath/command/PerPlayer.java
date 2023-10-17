@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.command.permissions.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.PerPlayerDuck;
+import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
 
 import java.util.function.Predicate;
 
@@ -26,8 +27,8 @@ public class PerPlayer {
     private PerPlayer() {}
 
     private static boolean isEnabled() {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
-        return config.enabled == LenientDeathConfig.PerPlayerEnabled.per_player;
+        var config = LenientDeathConfig.INSTANCE.get();
+        return config.preserveExperienceOnDeath.enabled == PerPlayerEnabled.per_player || config.preserveItemsOnDeath.enabled == PerPlayerEnabled.per_player;
     }
 
     private static boolean playersCanChangeTheirOwnSetting() {
