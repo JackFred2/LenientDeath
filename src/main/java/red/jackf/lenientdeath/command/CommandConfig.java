@@ -213,6 +213,7 @@ public class CommandConfig {
         root.then(createPerPlayerNode());
         root.then(createDroppedItemGlowNode());
         root.then(createExtendedDeathItemLifetime());
+        root.then(createPreserveExperienceOnDeathNode());
 
         return root;
     }
@@ -336,32 +337,48 @@ public class CommandConfig {
 
     private static LiteralArgumentBuilder<CommandSourceStack> createDroppedItemGlowNode() {
         return Commands.literal("droppedItemGlow")
-                .then(makeBoolean("enabled",
-                                  "droppedItemGlow.enabled",
-                                  config -> config.droppedItemGlow.enabled,
-                                  (config, newVal) -> config.droppedItemGlow.enabled = newVal))
-                .then(makeEnum("glowVisibility",
-                               "droppedItemGlow.glowVisibility",
-                               LenientDeathConfig.DroppedItemGlow.Visibility.class,
-                               config -> config.droppedItemGlow.glowVisibility,
-                               (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal));
+            .then(makeBoolean("enabled",
+                "droppedItemGlow.enabled",
+                config -> config.droppedItemGlow.enabled,
+                (config, newVal) -> config.droppedItemGlow.enabled = newVal))
+            .then(makeEnum("glowVisibility",
+                "droppedItemGlow.glowVisibility",
+                LenientDeathConfig.DroppedItemGlow.Visibility.class,
+                config -> config.droppedItemGlow.glowVisibility,
+                (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createExtendedDeathItemLifetime() {
         return Commands.literal("extendedDeathItemLifetime")
-                .then(makeBoolean("enabled",
-                                  "extendedDeathItemLifetime.enabled",
-                                  config -> config.extendedDeathItemLifetime.enabled,
-                                  (config, newVal) -> config.extendedDeathItemLifetime.enabled = newVal))
-                .then(makeIntRange("deathDropItemLifetimeSeconds",
-                                   "extendedDeathItemLifetime.deathDropItemLifetimeSeconds",
-                                   0,
-                                   1800,
-                                   config -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds,
-                                   (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds = newVal))
-                .then(makeBoolean("deathDropItemsNeverDespawn",
-                                  "extendedDeathItemLifetime.deathDropItemsNeverDespawn",
-                                  config -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn,
-                                  (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn = newVal));
+            .then(makeBoolean("enabled",
+                "extendedDeathItemLifetime.enabled",
+                config -> config.extendedDeathItemLifetime.enabled,
+                (config, newVal) -> config.extendedDeathItemLifetime.enabled = newVal))
+            .then(makeIntRange("deathDropItemLifetimeSeconds",
+                "extendedDeathItemLifetime.deathDropItemLifetimeSeconds",
+                0,
+                1800,
+                config -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds,
+                (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds = newVal))
+            .then(makeBoolean("deathDropItemsNeverDespawn",
+                "extendedDeathItemLifetime.deathDropItemsNeverDespawn",
+                config -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn,
+                (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn = newVal));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createPreserveExperienceOnDeathNode() {
+        return Commands.literal("preserveExperienceOnDeath")
+            .then(makeEnum("enabled",
+                "preserveExperienceOnDeath.enabled",
+                LenientDeathConfig.PerPlayerEnabled.class,
+                config -> config.preserveExperienceOnDeath.enabled,
+                (config, newVal) -> config.preserveExperienceOnDeath.enabled = newVal))
+            .then(makeIntRange("preservedPercentage",
+                "preserveExperienceOnDeath.preservedPercentage",
+                0,
+                100,
+                config -> config.preserveExperienceOnDeath.preservedPercentage,
+                (config, newVal) -> config.preserveExperienceOnDeath.preservedPercentage = newVal)
+            );
     }
 }
