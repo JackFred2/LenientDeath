@@ -91,7 +91,8 @@ class CommandFormatting {
     protected enum TextType {
         SUCCESS(Component.literal("[+] ").withStyle(Style.EMPTY.withColor(SUCCESS_COLOUR)), SUCCESS_COLOUR),
         INFO(Component.literal("[•] ").withStyle(Style.EMPTY.withColor(INFO_COLOUR)), INFO_COLOUR),
-        ERROR(Component.literal("[-] ").withStyle(Style.EMPTY.withColor(ERROR_COLOUR)), ERROR_COLOUR);
+        ERROR(Component.literal("[-] ").withStyle(Style.EMPTY.withColor(ERROR_COLOUR)), ERROR_COLOUR),
+        BLANK(Component.literal("[?] ").withStyle(Style.EMPTY), ChatFormatting.RESET);
         private final Component prefix;
         private final ChatFormatting colour;
 
