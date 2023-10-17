@@ -52,6 +52,10 @@ class CommandFormatting {
         return new Text.Plain(Component.literal(text).withStyle(VARIABLE_COLOUR));
     }
 
+    static Text bool(boolean value) {
+        return new Text.Plain(Component.literal(value ? "true" : "false").withStyle(value ? SUCCESS_COLOUR : ERROR_COLOUR));
+    }
+
     static Text symbol(String symbol) {
         return new Text.Symbol(symbol);
     }

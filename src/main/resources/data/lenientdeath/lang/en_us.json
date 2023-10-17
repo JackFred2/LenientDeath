@@ -9,5 +9,6 @@
   "lenientdeath.command.perPlayer.enableButton": "Enable",
   "lenientdeath.command.perPlayer.disableButton": "Disable",
   "lenientdeath.command.perPlayer.noPermissionToChangeSelf": "You are not allowed to change your own settings",
-  "lenientdeath.command.perPlayer.noPermissionToChangeOthers": "You are not allowed to change others' settings"
+  "lenientdeath.command.perPlayer.noPermissionToChangeOthers": "You are not allowed to change others' settings",
+  "lenientdeath.command.config.unchanged": "(unchanged)"
 }

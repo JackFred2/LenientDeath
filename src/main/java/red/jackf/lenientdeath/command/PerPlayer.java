@@ -3,7 +3,6 @@ package red.jackf.lenientdeath.command;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -11,9 +10,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.command.permissions.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
 
 import java.util.function.Predicate;
@@ -22,8 +21,6 @@ import static net.minecraft.network.chat.Component.translatable;
 import static red.jackf.lenientdeath.command.CommandFormatting.*;
 
 public class PerPlayer {
-    public static final String PER_PLAYER_TAG_KEY = "LenientDeathPerPlayer";
-
     private PerPlayer() {}
 
     private static boolean isEnabled() {
@@ -50,12 +47,12 @@ public class PerPlayer {
             4
     ).or(CHANGE_OTHERS_PREDICATE);
 
-    private static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
+    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
             PermissionKeys.PER_PLAYER_CHECK_SELF,
             true
     ).or(CHECK_OTHERS_PREDICATE).or(CHANGE_SELF_PREDICATE);
 
-    static ArgumentBuilder<CommandSourceStack, ?> createCommandNode(CommandBuildContext ignoredBuildCtx) {
+    static ArgumentBuilder<CommandSourceStack, ?> createCommandNode() {
         return Commands.literal("perPlayer")
             .requires(ignored -> isEnabled())
             .then(Commands.literal("check")
