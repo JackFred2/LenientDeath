@@ -188,14 +188,14 @@ public class LenientDeathConfig {
 
         public static class Nbt {
             @Comment("""
-                    Whether preserving based off item NBT should be enabled.
+                    Whether preserving based off a certain item NBT tag should be enabled.
                     Options: true, false
                     Default: false""")
             public boolean enabled = false;
 
             @Comment("""
                     The name of the NBT tag to look for. This is expected to be a Boolean, i.e. in the form {Soulbound: 1b}.
-                    Options: A String of characters, with a length of at least 1. Must not be wholly whitespace characters.
+                    Options: A single word.
                     Default: 'Soulbound'""")
             public String nbtKey = "Soulbound";
         }

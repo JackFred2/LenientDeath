@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@SuppressWarnings("ExtractMethodRecommender")
+@SuppressWarnings({"ExtractMethodRecommender", "SameParameterValue"})
 public class CommandConfig {
     private CommandConfig() {}
 
@@ -200,6 +200,53 @@ public class CommandConfig {
             );
     }
 
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeWord(String name,
+                                                                           String fullName,
+                                                                           Function<LenientDeathConfig, String> get,
+                                                                           BiConsumer<LenientDeathConfig, String> set) {
+        return Commands.literal(name)
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                    CommandFormatting.variable(fullName),
+                    CommandFormatting.symbol(": \""),
+                    CommandFormatting.variable(get.apply(getConfig())),
+                    CommandFormatting.symbol("\"")
+                ), false);
+
+                return 1;
+            }).then(Commands.argument(name, StringArgumentType.word())
+                .executes(ctx -> {
+                    var old = get.apply(getConfig());
+                    var newValue = StringArgumentType.getString(ctx, name);
+                    if (old.equals(newValue)) {
+                        ctx.getSource().sendFailure(CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": \""),
+                            CommandFormatting.variable(newValue),
+                            CommandFormatting.symbol("\" "),
+                            CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
+                        ));
+
+                        return 0;
+                    } else {
+                        set.accept(getConfig(), newValue);
+                        verifyAndSave();
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            CommandFormatting.symbol(": \""),
+                            CommandFormatting.variable(old),
+                            CommandFormatting.symbol("\" -> \""),
+                            CommandFormatting.variable(newValue),
+                            CommandFormatting.symbol("\"")
+                        ), true);
+
+                        return 1;
+                    }
+                })
+            );
+    }
+
     ///////////
     // NODES //
     ///////////
@@ -214,6 +261,7 @@ public class CommandConfig {
         root.then(createDroppedItemGlowNode());
         root.then(createExtendedDeathItemLifetime());
         root.then(createPreserveExperienceOnDeathNode());
+        root.then(createPreserveItemsOnDeath());
 
         return root;
     }
@@ -380,5 +428,70 @@ public class CommandConfig {
                 config -> config.preserveExperienceOnDeath.preservedPercentage,
                 (config, newVal) -> config.preserveExperienceOnDeath.preservedPercentage = newVal)
             );
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeItemTypeNode(
+            String typeName,
+            Function<LenientDeathConfig.PreserveItemsOnDeath.ByItemType, LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior> get,
+            BiConsumer<LenientDeathConfig.PreserveItemsOnDeath.ByItemType, LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior> set) {
+        return makeEnum(typeName,
+                        "preserveItemsOnDeath.byItemType." + typeName,
+                        LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior.class,
+                        config -> get.apply(config.preserveItemsOnDeath.byItemType),
+                        (config, newVal) -> set.accept(config.preserveItemsOnDeath.byItemType, newVal));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createPreserveItemsOnDeath() {
+        var root = Commands.literal("preserveItemsOnDeath")
+            .then(makeEnum("enabled",
+                "preserveItemsOnDeath.enabled",
+                LenientDeathConfig.PerPlayerEnabled.class,
+                config -> config.preserveItemsOnDeath.enabled,
+                (config, newVal) -> config.preserveItemsOnDeath.enabled = newVal));
+
+        var nbt = Commands.literal("nbt")
+            .then(makeBoolean("enabled",
+                "preserveItemsOnDeath.nbt.enabled",
+                config -> config.preserveItemsOnDeath.nbt.enabled,
+                (config, newVal) -> config.preserveItemsOnDeath.nbt.enabled = newVal))
+            .then(makeWord("nbtKey",
+                "preserveItemsOnDeath.nbt.nbtKey",
+                config -> config.preserveItemsOnDeath.nbt.nbtKey,
+                (config, newVal) -> config.preserveItemsOnDeath.nbt.nbtKey = newVal));
+
+        var itemType = Commands.literal("byItemType")
+            .then(makeBoolean("enabled",
+                "preserveItemsOnDeath.byItemType.enabled",
+                config -> config.preserveItemsOnDeath.byItemType.enabled,
+                (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
+
+        itemType.then(makeItemTypeNode("helmets", types -> types.helmets, (config, newVal) -> config.helmets = newVal));
+        itemType.then(makeItemTypeNode("chestplates", types -> types.chestplates, (config, newVal) -> config.chestplates = newVal));
+        itemType.then(makeItemTypeNode("elytras", types -> types.elytras, (config, newVal) -> config.elytras = newVal));
+        itemType.then(makeItemTypeNode("leggings", types -> types.leggings, (config, newVal) -> config.leggings = newVal));
+        itemType.then(makeItemTypeNode("boots", types -> types.boots, (config, newVal) -> config.boots = newVal));
+        itemType.then(makeItemTypeNode("shields", types -> types.shields, (config, newVal) -> config.shields = newVal));
+        itemType.then(makeItemTypeNode("otherEquippables", types -> types.otherEquippables, (config, newVal) -> config.otherEquippables = newVal));
+        itemType.then(makeItemTypeNode("swords", types -> types.swords, (config, newVal) -> config.swords = newVal));
+        itemType.then(makeItemTypeNode("tridents", types -> types.tridents, (config, newVal) -> config.tridents = newVal));
+        itemType.then(makeItemTypeNode("bows", types -> types.bows, (config, newVal) -> config.bows = newVal));
+        itemType.then(makeItemTypeNode("crossbows", types -> types.crossbows, (config, newVal) -> config.crossbows = newVal));
+        itemType.then(makeItemTypeNode("otherProjectileLaunchers", types -> types.otherProjectileLaunchers, (config, newVal) -> config.otherProjectileLaunchers = newVal));
+        itemType.then(makeItemTypeNode("pickaxes", types -> types.pickaxes, (config, newVal) -> config.pickaxes = newVal));
+        itemType.then(makeItemTypeNode("shovels", types -> types.shovels, (config, newVal) -> config.shovels = newVal));
+        itemType.then(makeItemTypeNode("axes", types -> types.axes, (config, newVal) -> config.axes = newVal));
+        itemType.then(makeItemTypeNode("hoes", types -> types.hoes, (config, newVal) -> config.hoes = newVal));
+        itemType.then(makeItemTypeNode("otherDiggingItems", types -> types.otherDiggingItems, (config, newVal) -> config.otherDiggingItems = newVal));
+        itemType.then(makeItemTypeNode("otherTools", types -> types.otherTools, (config, newVal) -> config.otherTools = newVal));
+        itemType.then(makeItemTypeNode("buckets", types -> types.buckets, (config, newVal) -> config.buckets = newVal));
+        itemType.then(makeItemTypeNode("food", types -> types.food, (config, newVal) -> config.food = newVal));
+        itemType.then(makeItemTypeNode("potions", types -> types.potions, (config, newVal) -> config.potions = newVal));
+        itemType.then(makeItemTypeNode("shulkerBoxes", types -> types.shulkerBoxes, (config, newVal) -> config.shulkerBoxes = newVal));
+
+        root.then(nbt);
+        // TODO item / tag adders/removers
+        root.then(itemType);
+
+        return root;
     }
 }
