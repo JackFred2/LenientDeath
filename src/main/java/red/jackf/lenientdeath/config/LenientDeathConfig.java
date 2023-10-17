@@ -4,11 +4,14 @@ import blue.endless.jankson.Comment;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 public class LenientDeathConfig {
@@ -58,14 +61,14 @@ public class LenientDeathConfig {
         public boolean enabled = true;
         @Comment("""
                 Who should we show a dead player's items' outlines to?
-                Options: DEAD_PLAYER, DEAD_PLAYER_AND_TEAM, EVERYONE
-                Default: DEAD_PLAYER_AND_TEAM""")
-        public Visibility glowVisibility = Visibility.DEAD_PLAYER_AND_TEAM;
+                Options: dead_player, dead_player_and_team, everyone
+                Default: dead_player_and_team""")
+        public Visibility glowVisibility = Visibility.dead_player_and_team;
 
         public enum Visibility {
-            DEAD_PLAYER,
-            DEAD_PLAYER_AND_TEAM,
-            EVERYONE
+            dead_player,
+            dead_player_and_team,
+            everyone
         }
     }
 
@@ -100,6 +103,27 @@ public class LenientDeathConfig {
     }
 
     @Comment("""
+                Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
+                to use the mod. Affects item and XP preservation on death.""")
+    public PerPlayer perPlayer = new PerPlayer();
+
+    public static class PerPlayer {
+        @Comment("""
+                    The default enabled state for players when they join. If true, Lenient Death is default enabled for
+                    the player.
+                    Options: true, false
+                    Default: true""")
+        public boolean defaultEnabledForPlayer = true;
+
+        @Comment("""
+                    Whether the player should be able to change their own per-player setting, using the Lenient Death
+                    command. Admins can always change their own and other players' settings.
+                    Options: true, false
+                    Default: true""")
+        public boolean playersCanChangeTheirOwnSetting = true;
+    }
+
+    @Comment("""
             When a dead player's inventory is dropped, certain items can be kept based on their type, NBT, or an
             allow or block-list.
             
@@ -109,9 +133,9 @@ public class LenientDeathConfig {
     public static class PreserveItemsOnDeath {
         @Comment("""
                 Should this feature be enabled?
-                Options: true, false
-                Default: false""")
-        public boolean enabled = true;
+                Options: yes, per_player, no
+                Default: yes""")
+        public PerPlayerEnabled enabled = PerPlayerEnabled.yes;
 
         @Comment("""
                 Allows you to preserve items based on the presence of an NBT tag. Note that Lenient Death doesn't add this
@@ -131,36 +155,8 @@ public class LenientDeathConfig {
         @Comment("""
                 Allows you to preserve or drop items based on their type (armour, weapon, food, etc). Has better compatibility
                 with mods which don't add their items to various tags. Items part of multiple types will use the first result
-                from the following order: DROP > PRESERVE > IGNORE""")
+                from the following order: drop > preserve > ignore.""")
         public ByItemType byItemType = new ByItemType();
-
-        @Comment("""
-                Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
-                to use the mod. Does not affect other Lenient Death features.""")
-        public PerPlayer perPlayer = new PerPlayer();
-
-        // TODO implement
-        public static class PerPlayer {
-            @Comment("""
-                    Whether Lenient Death item preservation should be on a per player basis.
-                    Options: true, false
-                    Default: false""")
-            public boolean enabled = false;
-
-            @Comment("""
-                    The default enabled state for players when they join. If true, Lenient Death is default enabled for
-                    the player.
-                    Options: true, false
-                    Default: true""")
-            public boolean defaultEnabledForPlayer = true;
-
-            @Comment("""
-                    Whether the player should be able to change their own per-player setting, using the Lenient Death
-                    command. Admins can always change their own and other players' settings.
-                    Options: true, false
-                    Default: true""")
-            public boolean playersCanChangeTheirOwnSetting = true;
-        }
 
         public static class Nbt {
             @Comment("""
@@ -218,169 +214,185 @@ public class LenientDeathConfig {
             @Comment("""
                     Should helmet-type items always drop, be preserved, or fall to further processing?
                     Examples: Iron Helmet, Turtle Helmet
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior helmets = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior helmets = TypeBehavior.preserve;
 
             @Comment("""
                     Should chestplate-type items always drop, be preserved, or fall to further processing?
                     Example: Golden Chestplate
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior chestplates = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior chestplates = TypeBehavior.preserve;
 
             @Comment("""
                     Should elytra-type items always drop, be preserved, or fall to further processing?
                     Example: Elytra
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior elytras = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior elytras = TypeBehavior.preserve;
 
             @Comment("""
                     Should leggings-type items always drop, be preserved, or fall to further processing?
                     Example: Diamond leggings
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior leggings = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior leggings = TypeBehavior.preserve;
 
             @Comment("""
                     Should boots-type items always drop, be preserved, or fall to further processing?
                     Example: Chainmail boots
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior boots = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior boots = TypeBehavior.preserve;
 
             @Comment("""
                     Should shield-type items always drop, be preserved, or fall to further processing?
                     Example: Shield
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior shields = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior shields = TypeBehavior.preserve;
 
             @Comment("""
                     Should other equippable items always drop, be preserved, or fall to further processing?
                     Example: Skulls
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: IGNORE""")
-            public TypeBehavior otherEquippables = TypeBehavior.IGNORE;
+                    Options: drop, preserve, ignore
+                    Default: ignore""")
+            public TypeBehavior otherEquippables = TypeBehavior.ignore;
 
             @Comment("""
                     Should sword-type items always drop, be preserved, or fall to further processing?
                     Example: Wooden Sword
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior swords = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior swords = TypeBehavior.preserve;
 
             @Comment("""
                     Should trident-type items always drop, be preserved, or fall to further processing?
                     Example: Wooden Sword
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior tridents = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior tridents = TypeBehavior.preserve;
 
             @Comment("""
                     Should bow-type items always drop, be preserved, or fall to further processing?
                     Example: Bow
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior bows = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior bows = TypeBehavior.preserve;
 
             @Comment("""
                     Should crossbow-type items always drop, be preserved, or fall to further processing?
                     Example: Crossbow
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior crossbows = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior crossbows = TypeBehavior.preserve;
 
             @Comment("""
                     Should other projectile-launching items always drop, be preserved, or fall to further processing?
                     Example: <None in Vanilla>
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior otherProjectileLaunchers = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior otherProjectileLaunchers = TypeBehavior.preserve;
 
             @Comment("""
                     Should pickaxe-type items always drop, be preserved, or fall to further processing?
                     Example: Netherite Pickaxe
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior pickaxes = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior pickaxes = TypeBehavior.preserve;
 
             @Comment("""
                     Should shovel-type items always drop, be preserved, or fall to further processing?
                     Example: Iron Shovel
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior shovels = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior shovels = TypeBehavior.preserve;
 
             @Comment("""
                     Should axe-type items always drop, be preserved, or fall to further processing?
                     Example: Diamond Axe
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior axes = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior axes = TypeBehavior.preserve;
 
             @Comment("""
                     Should hoe-type items always drop, be preserved, or fall to further processing?
                     Example: Golden Hoe
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior hoes = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior hoes = TypeBehavior.preserve;
 
             @Comment("""
                     Should other digging items not in the above categories always drop, be preserved, or fall to further
                     processing?
                     Example: <None in Vanilla>
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior otherDiggingItems = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior otherDiggingItems = TypeBehavior.preserve;
 
             @Comment("""
                     Should tools not in the above categories always drop, be preserved, or fall to further processing?
                     Example: Brush, Spyglass, Goat Horn
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior otherTools = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior otherTools = TypeBehavior.preserve;
 
             @Comment("""
                     Should buckets always drop, be preserved, or fall to further processing?
                     Example: Bucket, Bucket of Water, Bucket of Lava
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior buckets = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior buckets = TypeBehavior.preserve;
 
             @Comment("""
                     Should food items always drop, be preserved, or fall to further processing?
                     Example: Cooked Steak, Mushroom Stew
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior food = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior food = TypeBehavior.preserve;
 
             @Comment("""
                     Should potion items always drop, be preserved, or fall to further processing?
                     Example: Water Bottle, Potion of Instant Health II
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: PRESERVE""")
-            public TypeBehavior potions = TypeBehavior.PRESERVE;
+                    Options: drop, preserve, ignore
+                    Default: preserve""")
+            public TypeBehavior potions = TypeBehavior.preserve;
 
             @Comment("""
                     Should shulker boxes always drop, be preserved, or fall to further processing?
                     Note: Items contained within won't be checked, so this may be used to cheese other settings.
                     Example: Shulker Box
-                    Options: DROP, PRESERVE, IGNORE
-                    Default: IGNORE""")
-            public TypeBehavior shulkerBoxes = TypeBehavior.IGNORE;
+                    Options: drop, preserve, ignore
+                    Default: ignore""")
+            public TypeBehavior shulkerBoxes = TypeBehavior.ignore;
 
             public enum TypeBehavior {
-                DROP,
-                PRESERVE,
-                IGNORE;
+                drop,
+                preserve,
+                ignore;
 
                 public TypeBehavior and(TypeBehavior other) {
                     if (this.ordinal() > other.ordinal()) return other;
                     return this;
                 }
             }
+        }
+    }
+
+    public enum PerPlayerEnabled {
+        yes(p -> true),
+        per_player(p -> ((PerPlayerDuck) p).lenientdeath$isPerPlayerEnabled()),
+        no(p -> false);
+
+        private final Predicate<Player> test;
+
+        PerPlayerEnabled(Predicate<Player> test) {
+            this.test = test;
+        }
+
+        public boolean test(Player player) {
+            return test.test(player);
         }
     }
 
@@ -400,6 +412,7 @@ public class LenientDeathConfig {
 
         ManualAllowAndBlocklist.INSTANCE.refreshItems();
 
+        // update available in case of per player changes
         if (LenientDeath.getCurrentServer() != null) {
             for (ServerPlayer player : LenientDeath.getCurrentServer().getPlayerList().getPlayers()) {
                 LenientDeath.getCurrentServer().getCommands().sendCommands(player);

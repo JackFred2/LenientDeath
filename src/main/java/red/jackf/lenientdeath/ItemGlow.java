@@ -35,9 +35,9 @@ public class ItemGlow {
                 .onTick(ItemGlow::itemGlowLieTickCallback);
 
         switch (LenientDeathConfig.INSTANCE.get().droppedItemGlow.glowVisibility) {
-            case EVERYONE -> builder.createAndShow(player.server.getPlayerList().getPlayers());
-            case DEAD_PLAYER -> builder.createAndShow(player);
-            case DEAD_PLAYER_AND_TEAM -> builder.createAndShow(player.server.getPlayerList()
+            case everyone -> builder.createAndShow(player.server.getPlayerList().getPlayers());
+            case dead_player -> builder.createAndShow(player);
+            case dead_player_and_team -> builder.createAndShow(player.server.getPlayerList()
                                                                        .getPlayers()
                                                                        .stream()
                                                                        .filter(otherPlayer -> otherPlayer.getTeam() == player.getTeam())

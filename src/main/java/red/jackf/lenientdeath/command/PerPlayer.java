@@ -13,7 +13,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.command.permissions.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.preserveitems.LenientDeathServerPlayerDuck;
+import red.jackf.lenientdeath.PerPlayerDuck;
 
 import java.util.function.Predicate;
 
@@ -25,11 +25,11 @@ public class PerPlayer {
 
     private static boolean isEnabled() {
         var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
-        return config.enabled && config.perPlayer.enabled;
+        return config.enabled == LenientDeathConfig.PerPlayerEnabled.per_player;
     }
 
     private static boolean playersCanChangeTheirOwnSetting() {
-        return LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.perPlayer.playersCanChangeTheirOwnSetting;
+        return LenientDeathConfig.INSTANCE.get().perPlayer.playersCanChangeTheirOwnSetting;
     }
 
     private static final Predicate<CommandSourceStack> CHANGE_OTHERS_PREDICATE = Permissions.require(
@@ -57,10 +57,10 @@ public class PerPlayer {
             .requires(ignored -> isEnabled())
             .then(Commands.literal("check")
                 .requires(CHECK_SELF_PREDICATE)
-                .executes(ctx -> showCurrent(ctx, ctx.getSource().getPlayerOrException()))
+                .executes(ctx -> checkFor(ctx, ctx.getSource().getPlayerOrException()))
                 .then(Commands.argument("player", EntityArgument.player())
                     .requires(CHECK_OTHERS_PREDICATE)
-                    .executes(ctx -> showCurrent(ctx, EntityArgument.getPlayer(ctx, "player")))
+                    .executes(ctx -> checkFor(ctx, EntityArgument.getPlayer(ctx, "player")))
                 )
             ).then(Commands.literal("enable")
                 .requires(CHANGE_SELF_PREDICATE)
@@ -82,7 +82,7 @@ public class PerPlayer {
     private static boolean canChangeSettingFor(CommandContext<CommandSourceStack> ctx, ServerPlayer targetPlayer) {
         if (ctx.getSource().hasPermission(4)) return true; // admin
         return ctx.getSource().getPlayer() == targetPlayer
-                && LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.perPlayer.playersCanChangeTheirOwnSetting; // is own setting
+                && playersCanChangeTheirOwnSetting(); // is own setting
     }
 
     private static int enableFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
@@ -95,7 +95,7 @@ public class PerPlayer {
             return 0;
         }
 
-        boolean isEnabled = ((LenientDeathServerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+        boolean isEnabled = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
         if (isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
                 variable(player.getDisplayName().getString()),
@@ -105,7 +105,7 @@ public class PerPlayer {
             return 0;
         }
 
-        ((LenientDeathServerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(true);
+        ((PerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(true);
 
         Component message = CommandFormatting.success(
                 variable(player.getDisplayName().getString()),
@@ -127,7 +127,7 @@ public class PerPlayer {
             return 0;
         }
 
-        boolean isEnabled = ((LenientDeathServerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+        boolean isEnabled = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
         if (!isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
                     variable(player.getDisplayName().getString()),
@@ -137,7 +137,7 @@ public class PerPlayer {
             return 0;
         }
 
-        ((LenientDeathServerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(false);
+        ((PerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(false);
 
         Component message = CommandFormatting.error(
                 variable(player.getDisplayName().getString()),
@@ -149,11 +149,8 @@ public class PerPlayer {
         return 1;
     }
 
-    private static int showCurrent(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.perPlayer;
-
-        if (!config.enabled) return 0;
-        boolean perPlayerStatus = ((LenientDeathServerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+    private static int checkFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
+        boolean perPlayerStatus = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 variable(player.getDisplayName().getString()),
                 symbol(": "),

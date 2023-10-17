@@ -14,12 +14,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.preserveitems.LenientDeathServerPlayerDuck;
+import red.jackf.lenientdeath.PerPlayerDuck;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerEntityMixin extends Player implements LenientDeathServerPlayerDuck {
+public abstract class ServerPlayerEntityMixin extends Player implements PerPlayerDuck {
     @Unique
-    private boolean perPlayerEnabledForMe = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.perPlayer.defaultEnabledForPlayer;
+    private boolean perPlayerEnabledForMe = LenientDeathConfig.INSTANCE.get().perPlayer.defaultEnabledForPlayer;
 
     public ServerPlayerEntityMixin(
             Level level,

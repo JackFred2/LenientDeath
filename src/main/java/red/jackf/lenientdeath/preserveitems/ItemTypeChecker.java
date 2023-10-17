@@ -22,7 +22,7 @@ public class ItemTypeChecker {
         if (!config.enabled) return null;
 
         Item item = stack.getItem();
-        TypeBehavior result = TypeBehavior.IGNORE;
+        TypeBehavior result = TypeBehavior.ignore;
 
         if (item instanceof Equipable)
             if (item instanceof ArmorItem armor)
@@ -63,9 +63,9 @@ public class ItemTypeChecker {
             if (blockItem.getBlock() instanceof ShulkerBoxBlock) result = result.and(config.shulkerBoxes);
 
         return switch (result) {
-            case DROP -> false;
-            case PRESERVE -> true;
-            case IGNORE -> null;
+            case drop -> false;
+            case preserve -> true;
+            case ignore -> null;
         };
     }
 }

@@ -31,7 +31,7 @@ public class InventoryMixin {
             method = "dropAll()V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
     private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original) {
-        return LenientDeath.shouldKeepOnDeath(stack) || original.call(stack);
+        return LenientDeath.shouldKeepOnDeath(this.player, stack) || original.call(stack);
     }
 
     @ModifyExpressionValue(

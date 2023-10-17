@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.preserveitems.LenientDeathServerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 public class LenientDeath implements ModInitializer {
@@ -35,8 +35,8 @@ public class LenientDeath implements ModInitializer {
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
             copyOldInventory(oldPlayer, newPlayer, keepEverything);
 
-            ((LenientDeathServerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
-                    ((LenientDeathServerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
+            ((PerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
+                    ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
             );
         });
 
@@ -61,9 +61,9 @@ public class LenientDeath implements ModInitializer {
         newPlayer.getInventory().replaceWith(oldPlayer.getInventory());
     }
 
-    public static boolean shouldKeepOnDeath(ItemStack stack) {
-        if (LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.enabled)
-            return PreserveItems.INSTANCE.shouldPreserve(stack);
+    public static boolean shouldKeepOnDeath(Player player, ItemStack stack) {
+        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
+        if (config.enabled.test(player)) return PreserveItems.INSTANCE.shouldPreserve(stack);
         return false;
     }
 

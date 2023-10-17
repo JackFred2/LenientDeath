@@ -1,6 +1,6 @@
-package red.jackf.lenientdeath.preserveitems;
+package red.jackf.lenientdeath;
 
-public interface LenientDeathServerPlayerDuck {
+public interface PerPlayerDuck {
     boolean lenientdeath$isPerPlayerEnabled();
 
     void lenientdeath$setPerPlayerEnabled(boolean newValue);
