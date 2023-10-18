@@ -307,11 +307,17 @@ public class CommandConfig {
                 CommandFormatting.variable("command.commandNames"),
                 COLON
             ), false);
-            for (String name : getConfig().command.commandNames) {
+            if (getConfig().command.commandNames.isEmpty()) {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                    LIST_PREFIX,
-                    CommandFormatting.variable(name)
+                        Component.translatable("lenientdeath.command.config.listEmpty")
                 ), false);
+            } else {
+                for (String name : getConfig().command.commandNames) {
+                    ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            LIST_PREFIX,
+                            CommandFormatting.variable(name)
+                    ), false);
+                }
             }
 
             return 1;
@@ -497,11 +503,18 @@ public class CommandConfig {
                     COLON
                 ), false);
 
-                for (var itemId : listGet.apply(getConfig().preserveItemsOnDeath))
+                var list = listGet.apply(getConfig().preserveItemsOnDeath);
+                if (list.isEmpty()) {
                     ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                        LIST_PREFIX,
-                        CommandFormatting.variable(itemId.toString())
+                        Component.translatable("lenientdeath.command.config.listEmpty")
                     ), false);
+                } else {
+                    for (var itemId : list)
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                                LIST_PREFIX,
+                                CommandFormatting.variable(itemId.toString())
+                        ), false);
+                }
 
                 return 1;
             }).then(Commands.literal("add")

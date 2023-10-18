@@ -11,6 +11,7 @@
   "lenientdeath.command.perPlayer.noPermissionToChangeSelf": "You are not allowed to change your own settings",
   "lenientdeath.command.perPlayer.noPermissionToChangeOthers": "You are not allowed to change others' settings",
   "lenientdeath.command.config.unchanged": "(unchanged)",
+  "lenientdeath.command.config.listEmpty": "(empty)",
   "lenientdeath.command.config.requiresWorldReload": "Requires a world reload / server restart to take effect.",
   "lenientdeath.command.config.alreadyInList": "Already contains %s",
   "lenientdeath.command.config.notInList": "Does not contain %s",
