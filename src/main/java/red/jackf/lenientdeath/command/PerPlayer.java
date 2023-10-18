@@ -1,6 +1,6 @@
 package red.jackf.lenientdeath.command;
 
-import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
@@ -39,7 +39,7 @@ public class PerPlayer {
 
     private static final Predicate<CommandSourceStack> CHANGE_SELF_PREDICATE = PermissionsExt.requireBool(
             PermissionKeys.PER_PLAYER_CHANGE_SELF,
-            PerPlayer::playersCanChangeTheirOwnSetting
+            () -> playersCanChangeTheirOwnSetting() && isEnabled()
     ).or(CHANGE_OTHERS_PREDICATE);
 
     private static final Predicate<CommandSourceStack> CHECK_OTHERS_PREDICATE = Permissions.require(
@@ -47,12 +47,12 @@ public class PerPlayer {
             4
     ).or(CHANGE_OTHERS_PREDICATE);
 
-    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
+    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = PermissionsExt.requireBool(
             PermissionKeys.PER_PLAYER_CHECK_SELF,
-            true
+            PerPlayer::isEnabled
     ).or(CHECK_OTHERS_PREDICATE).or(CHANGE_SELF_PREDICATE);
 
-    static ArgumentBuilder<CommandSourceStack, ?> createCommandNode() {
+    static LiteralArgumentBuilder<CommandSourceStack> createCommandNode() {
         return Commands.literal("perPlayer")
             .requires(ignored -> isEnabled())
             .then(Commands.literal("check")

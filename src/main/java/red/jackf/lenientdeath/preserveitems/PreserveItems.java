@@ -18,7 +18,7 @@ public class PreserveItems {
 
     public static boolean shouldKeepOnDeath(Player player, ItemStack stack) {
         var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
-        if (config.enabled.test(player)) return INSTANCE.shouldPreserve(stack);
+        if (config.enabled.test(player)) return INSTANCE.shouldPreserve(stack, true);
         return false;
     }
 
@@ -28,10 +28,11 @@ public class PreserveItems {
 
     /**
      * Whether a given ItemStack should be kept within a player's inventory on death.
-     * @param stack ItemStack to check
+     * @param stack ItemStack to check.
+     * @param doRandom Whether to try the random roll part of the config.
      * @return If the ItemStack should be kept in a player's inventory.
      */
-    public boolean shouldPreserve(ItemStack stack) {
+    public boolean shouldPreserve(ItemStack stack, boolean doRandom) {
         var nbtPreserveTest = NbtChecker.INSTANCE.shouldKeep(stack);
         if (nbtPreserveTest != null) return nbtPreserveTest;
 

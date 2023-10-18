@@ -7,4 +7,6 @@ public interface PermissionKeys {
     String PER_PLAYER_CHANGE_OTHERS = "lenientdeath.command.changeOthers";
 
     String CONFIG = "lenientdeath.command.config";
+
+    String UTILITY_SAFE_CHECK = "lenientdeath.command.utility.safe_check";
 }

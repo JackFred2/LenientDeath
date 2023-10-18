@@ -17,13 +17,15 @@ public class LenientDeathCommand {
         var root = Commands.literal(commandNames.get(0));
         root.then(PerPlayer.createCommandNode());
         root.then(CommandConfig.createCommandNode(context));
-        root.requires(PerPlayer.CHECK_SELF_PREDICATE.or(CommandConfig.CHANGE_CONFIG_PREDICATE));
+        root.then(Utilities.createCommandNode(context));
+        root.requires(PerPlayer.CHECK_SELF_PREDICATE.or(CommandConfig.CHANGE_CONFIG_PREDICATE).or(Utilities.ANY_UTILITY_PREDICATE));
 
         var builtRoot = dispatcher.register(root);
 
         for (int i = 1; i < commandNames.size(); i++) {
             var aliasNode = Commands.literal(commandNames.get(i))
-                    .redirect(builtRoot);
+                    .redirect(builtRoot)
+                    .requires(PerPlayer.CHECK_SELF_PREDICATE.or(CommandConfig.CHANGE_CONFIG_PREDICATE).or(Utilities.ANY_UTILITY_PREDICATE));
 
             dispatcher.register(aliasNode);
         }
