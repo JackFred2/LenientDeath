@@ -9,4 +9,5 @@ public interface PermissionKeys {
     String CONFIG = "lenientdeath.command.config";
 
     String UTILITY_SAFE_CHECK = "lenientdeath.command.utility.safe_check";
+    String UTILITY_LIST_TAG_ITEMS = "lenientdeath.command.utility.list_tag_items";
 }

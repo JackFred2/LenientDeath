@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 @SuppressWarnings({"ExtractMethodRecommender", "SameParameterValue"})
 public class CommandConfig {
-    private static final CommandFormatting.Text LIST_PREFIX = CommandFormatting.symbol(" • ");
+    protected static final CommandFormatting.Text LIST_PREFIX = CommandFormatting.symbol(" • ");
     private static final CommandFormatting.Text COLON = CommandFormatting.symbol(": ");
     private static final CommandFormatting.Text SPACE = CommandFormatting.symbol(" ");
     private static final CommandFormatting.Text QUOTE = CommandFormatting.symbol("\"");
