@@ -11,6 +11,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.PerPlayerDuck;
+import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.permissions.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
@@ -97,6 +98,14 @@ public class PerPlayer {
             return 0;
         }
 
+        if (PerPlayerDuck.isHandledByPermission(player)) {
+            ctx.getSource().sendFailure(CommandFormatting.error(
+                translatable("lenientdeath.command.perPlayer.handledByPermissions",
+                    CommandFormatting.player(player).resolve(TextType.BLANK))));
+
+            return 0;
+        }
+
         boolean isEnabled = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
         if (isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
@@ -129,6 +138,14 @@ public class PerPlayer {
             return 0;
         }
 
+        if (PerPlayerDuck.isHandledByPermission(player)) {
+            ctx.getSource().sendFailure(CommandFormatting.error(
+                translatable("lenientdeath.command.perPlayer.handledByPermissions",
+                    CommandFormatting.player(player).resolve(TextType.BLANK))));
+
+            return 0;
+        }
+
         boolean isEnabled = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
         if (!isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
@@ -152,7 +169,7 @@ public class PerPlayer {
     }
 
     private static int checkFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
-        boolean perPlayerStatus = ((PerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+        boolean perPlayerStatus = PerPlayerDuck.isEnabledFor(player);
         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 variable(player.getDisplayName().getString()),
                 symbol(": "),
@@ -160,30 +177,39 @@ public class PerPlayer {
         ), false);
 
         boolean isShownPlayerCommandSource = player == ctx.getSource().getPlayer();
-        boolean shouldShowModifyButtons = canChangeSettingFor(ctx, player) && ctx.getSource().isPlayer();
-
-        String rootCommand = ctx.getInput().split(" ", 2)[0];
-
-        if (shouldShowModifyButtons) {
-            String baseCommand = "/" + rootCommand + " perPlayer ";
-            String playerSuffix = isShownPlayerCommandSource ? "" : " " + player.getDisplayName().getString();
-            Style disableStyle = suggests(Style.EMPTY.withColor(ERROR_COLOUR), baseCommand + "disable" + playerSuffix);
-            MutableComponent disableButton = Component.empty().withStyle(disableStyle)
-                    .append("[")
-                    .append(translatable("lenientdeath.command.perPlayer.disableButton"))
-                    .append("]");
-
-            Style enableStyle = suggests(Style.EMPTY.withColor(SUCCESS_COLOUR), baseCommand + "enable" + playerSuffix);
-            MutableComponent enableButton = Component.empty().withStyle(enableStyle)
-                    .append("[")
-                    .append(translatable("lenientdeath.command.perPlayer.enableButton"))
-                    .append("]");
-
-            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                    text(disableButton),
-                    symbol(" "),
-                    text(enableButton)
+        if (PerPlayerDuck.isHandledByPermission(player)) {
+            ctx.getSource().sendSuccess(() -> CommandFormatting.error(
+                translatable("lenientdeath.command.perPlayer.handledByPermissions",
+                    CommandFormatting.player(player).resolve(TextType.BLANK))
             ), false);
+        } else {
+            boolean shouldShowModifyButtons = canChangeSettingFor(ctx, player)
+                    && ctx.getSource().isPlayer();
+
+            if (shouldShowModifyButtons) {
+                String rootCommand = ctx.getInput().split(" ", 2)[0];
+                String baseCommand = "/" + rootCommand + " perPlayer ";
+
+                String playerSuffix = isShownPlayerCommandSource ? "" : " " + player.getDisplayName().getString();
+
+                Style disableStyle = suggests(Style.EMPTY.withColor(ERROR_COLOUR), baseCommand + "disable" + playerSuffix);
+                MutableComponent disableButton = Component.empty().withStyle(disableStyle)
+                                                          .append("[")
+                                                          .append(translatable("lenientdeath.command.perPlayer.disableButton"))
+                                                          .append("]");
+
+                Style enableStyle = suggests(Style.EMPTY.withColor(SUCCESS_COLOUR), baseCommand + "enable" + playerSuffix);
+                MutableComponent enableButton = Component.empty().withStyle(enableStyle)
+                                                         .append("[")
+                                                         .append(translatable("lenientdeath.command.perPlayer.enableButton"))
+                                                         .append("]");
+
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                        text(disableButton),
+                        symbol(" "),
+                        text(enableButton)
+                ), false);
+            }
         }
 
         return 1;

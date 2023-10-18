@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 import java.util.List;

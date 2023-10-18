@@ -439,7 +439,7 @@ public class LenientDeathConfig {
 
     public enum PerPlayerEnabled {
         yes(p -> true),
-        per_player(p -> ((PerPlayerDuck) p).lenientdeath$isPerPlayerEnabled()),
+        per_player(PerPlayerDuck::isEnabledFor),
         no(p -> false);
 
         private final Predicate<Player> test;

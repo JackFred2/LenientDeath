@@ -33,7 +33,7 @@ public class LenientDeath implements ModInitializer {
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
             ((PerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
-                    ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
+                ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
             );
 
             // skip if vanilla handled it

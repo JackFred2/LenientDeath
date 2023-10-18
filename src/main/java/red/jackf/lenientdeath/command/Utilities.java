@@ -17,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 import java.util.function.Predicate;

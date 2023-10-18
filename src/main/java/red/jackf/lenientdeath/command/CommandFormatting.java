@@ -5,6 +5,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.world.entity.player.Player;
 
 class CommandFormatting {
     private static final ChatFormatting TEXT_COLOUR = ChatFormatting.WHITE;
@@ -50,6 +51,10 @@ class CommandFormatting {
 
     static Text variable(String text) {
         return new Text.Plain(Component.literal(text).withStyle(VARIABLE_COLOUR));
+    }
+
+    static Text player(Player player) {
+        return variable(player.getDisplayName().getString());
     }
 
     static Text bool(boolean value) {
