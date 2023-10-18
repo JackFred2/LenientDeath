@@ -6,6 +6,18 @@ Server-sided Fabric & Quilt mod to make death less frustrating.
 
 Client-side GUI config
 
+Presets
+
+Enable Config Command for singleplayer hoster
+
+Immunities for item entities: Void, Fire
+
+Do Wiki Documentation
+
+Icon!
+
+Update Modrinth & Curse Pages
+
 ## Command
 
 Base command is `/lenientdeath`, default alias is `/ld`.
