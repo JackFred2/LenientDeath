@@ -619,6 +619,16 @@ public class CommandConfig {
                 config -> config.preserveItemsOnDeath.nbt.nbtKey,
                 (config, newVal) -> config.preserveItemsOnDeath.nbt.nbtKey = newVal));
 
+        var alwaysDropped = createItemTagNodes(context,
+            "alwaysDropped",
+            config -> config.alwaysDropped.items,
+            config -> config.alwaysDropped.tags);
+
+        var alwaysPreserved = createItemTagNodes(context,
+            "alwaysPreserved",
+            config -> config.alwaysPreserved.items,
+            config -> config.alwaysPreserved.tags);
+
         var itemType = Commands.literal("byItemType")
             .then(makeBoolean("enabled",
                 "preserveItemsOnDeath.byItemType.enabled",
@@ -648,17 +658,23 @@ public class CommandConfig {
         itemType.then(makeItemTypeNode("potions", types -> types.potions, (config, newVal) -> config.potions = newVal));
         itemType.then(makeItemTypeNode("shulkerBoxes", types -> types.shulkerBoxes, (config, newVal) -> config.shulkerBoxes = newVal));
 
-        root.then(nbt);
-        root.then(createItemTagNodes(context,
-                                     "alwaysDropped",
-                                     config -> config.alwaysDropped.items,
-                                     config -> config.alwaysDropped.tags));
+        var randomizer = Commands.literal("randomizer")
+            .then(makeBoolean("enabled",
+                "preserveItemsOnDeath.randomizer.enabled",
+                config -> config.preserveItemsOnDeath.randomizer.enabled,
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.enabled = newVal))
+            .then(makeIntRange("preservedPercentage",
+                "preserveItemsOnDeath.randomizer.preservedPercentage",
+                0,
+                100,
+                config -> config.preserveItemsOnDeath.randomizer.preservedPercentage,
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.preservedPercentage = newVal));
 
-        root.then(createItemTagNodes(context,
-                                     "alwaysPreserved",
-                                     config -> config.alwaysPreserved.items,
-                                     config -> config.alwaysPreserved.tags));
+        root.then(nbt);
+        root.then(alwaysDropped);
+        root.then(alwaysPreserved);
         root.then(itemType);
+        root.then(randomizer);
 
         return root;
     }
