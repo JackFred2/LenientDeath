@@ -56,7 +56,9 @@ public class LenientDeathConfig {
 
     @Comment("""
                 Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
-                to use the mod. Affects item and XP preservation on death.""")
+                to use the mod. Affects item and XP preservation on death.
+                Per-player mode can also be used with a permission plugin / mod, which will overwrite these settings.
+                See the wiki for more details.""")
     public PerPlayer perPlayer = new PerPlayer();
 
     public static class PerPlayer {
@@ -148,6 +150,7 @@ public class LenientDeathConfig {
     public static class PreserveExperienceOnDeath {
         @Comment("""
                 Should this feature be enabled?
+                Per-player mode can be overwritten by the appropriate permission, see the wiki for more details.
                 Options: yes, per_player, no
                 Default: no""")
         public PerPlayerEnabled enabled = PerPlayerEnabled.no;
@@ -170,6 +173,7 @@ public class LenientDeathConfig {
     public static class PreserveItemsOnDeath {
         @Comment("""
                 Should this feature be enabled?
+                Per-player mode can be overwritten by the appropriate permission, see the wiki for more details.
                 Options: yes, per_player, no
                 Default: yes""")
         public PerPlayerEnabled enabled = PerPlayerEnabled.yes;
