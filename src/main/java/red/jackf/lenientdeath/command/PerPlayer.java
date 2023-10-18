@@ -39,7 +39,7 @@ public class PerPlayer {
 
     private static final Predicate<CommandSourceStack> CHANGE_SELF_PREDICATE = PermissionsExt.requireBool(
             PermissionKeys.PER_PLAYER_CHANGE_SELF,
-            () -> playersCanChangeTheirOwnSetting() && isEnabled()
+            PerPlayer::playersCanChangeTheirOwnSetting
     ).or(CHANGE_OTHERS_PREDICATE);
 
     private static final Predicate<CommandSourceStack> CHECK_OTHERS_PREDICATE = Permissions.require(
@@ -47,14 +47,14 @@ public class PerPlayer {
             4
     ).or(CHANGE_OTHERS_PREDICATE);
 
-    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = PermissionsExt.requireBool(
+    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
             PermissionKeys.PER_PLAYER_CHECK_SELF,
-            PerPlayer::isEnabled
+            true
     ).or(CHECK_OTHERS_PREDICATE).or(CHANGE_SELF_PREDICATE);
 
     static LiteralArgumentBuilder<CommandSourceStack> createCommandNode() {
         return Commands.literal("perPlayer")
-            .requires(ignored -> isEnabled())
+            .requires(stack -> isEnabled() && CHECK_SELF_PREDICATE.test(stack)) // all other permissions require check self
             .then(Commands.literal("check")
                 .requires(CHECK_SELF_PREDICATE)
                 .executes(ctx -> checkFor(ctx, ctx.getSource().getPlayerOrException()))
@@ -80,9 +80,11 @@ public class PerPlayer {
     }
 
     private static boolean canChangeSettingFor(CommandContext<CommandSourceStack> ctx, ServerPlayer targetPlayer) {
-        if (ctx.getSource().hasPermission(4)) return true; // admin
-        return ctx.getSource().getPlayer() == targetPlayer
-                && playersCanChangeTheirOwnSetting(); // is own setting
+        if (ctx.getSource().getPlayer() == targetPlayer) {
+            return CHANGE_SELF_PREDICATE.test(ctx.getSource());
+        } else {
+            return CHANGE_OTHERS_PREDICATE.test(ctx.getSource());
+        }
     }
 
     private static int enableFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
