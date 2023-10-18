@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.command.permissions;
+package red.jackf.lenientdeath.command;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;

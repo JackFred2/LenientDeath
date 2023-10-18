@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.command;
+package red.jackf.lenientdeath.command.subcommand;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import red.jackf.lenientdeath.PermissionKeys;
+import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class CommandConfig {
     private static final CommandFormatting.Text ARROW = CommandFormatting.symbol(" -> ");
     private CommandConfig() {}
 
-    protected static final Predicate<CommandSourceStack> CHANGE_CONFIG_PREDICATE = Permissions.require(
+    public static final Predicate<CommandSourceStack> CHANGE_CONFIG_PREDICATE = Permissions.require(
             PermissionKeys.CONFIG,
             4
     );
@@ -271,7 +272,7 @@ public class CommandConfig {
     // NODES //
     ///////////
 
-    static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
         var root = Commands.literal("config")
                 .requires(CHANGE_CONFIG_PREDICATE);
 

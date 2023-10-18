@@ -4,6 +4,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import red.jackf.lenientdeath.command.subcommand.CommandConfig;
+import red.jackf.lenientdeath.command.subcommand.PerPlayer;
+import red.jackf.lenientdeath.command.subcommand.Utilities;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 public class LenientDeathCommand {

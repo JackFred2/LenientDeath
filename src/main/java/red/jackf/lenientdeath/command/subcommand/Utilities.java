@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.command;
+package red.jackf.lenientdeath.command.subcommand;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -18,6 +18,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.PermissionKeys;
+import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 import java.util.function.Predicate;
@@ -35,13 +36,13 @@ public class Utilities {
             4
     );
 
-    protected static final Predicate<CommandSourceStack> ANY_UTILITY_PREDICATE = SAFE_CHECK_PREDICATE.or(LIST_TAG_ITEMS_PREDICATE);
+    public static final Predicate<CommandSourceStack> ANY_UTILITY_PREDICATE = SAFE_CHECK_PREDICATE.or(LIST_TAG_ITEMS_PREDICATE);
 
     private static SuggestionProvider<CommandSourceStack> createTagSuggestor(CommandBuildContext context) {
         return (ctx, builder) -> SharedSuggestionProvider.suggestResource(context.holderLookup(Registries.ITEM).listTagIds().map(TagKey::location), builder);
     }
 
-    static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
         var root = Commands.literal("utilities");
         root.requires(ANY_UTILITY_PREDICATE);
 

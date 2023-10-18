@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.command;
+package red.jackf.lenientdeath.command.subcommand;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -12,7 +12,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.PermissionKeys;
-import red.jackf.lenientdeath.command.permissions.PermissionsExt;
+import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
 
@@ -48,12 +49,12 @@ public class PerPlayer {
             4
     ).or(CHANGE_OTHERS_PREDICATE);
 
-    protected static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
+    public static final Predicate<CommandSourceStack> CHECK_SELF_PREDICATE = Permissions.require(
             PermissionKeys.PER_PLAYER_CHECK_SELF,
             true
     ).or(CHECK_OTHERS_PREDICATE).or(CHANGE_SELF_PREDICATE);
 
-    static LiteralArgumentBuilder<CommandSourceStack> createCommandNode() {
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommandNode() {
         return Commands.literal("perPlayer")
             .requires(stack -> isEnabled() && CHECK_SELF_PREDICATE.test(stack)) // all other permissions require check self
             .then(Commands.literal("check")
@@ -178,7 +179,7 @@ public class PerPlayer {
 
         boolean isShownPlayerCommandSource = player == ctx.getSource().getPlayer();
         if (PerPlayerDuck.isHandledByPermission(player)) {
-            ctx.getSource().sendSuccess(() -> CommandFormatting.error(
+            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 translatable("lenientdeath.command.perPlayer.handledByPermissions",
                     CommandFormatting.player(player).resolve(TextType.BLANK))
             ), false);
