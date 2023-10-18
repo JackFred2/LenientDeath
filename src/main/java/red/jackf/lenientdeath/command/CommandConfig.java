@@ -41,9 +41,10 @@ public class CommandConfig {
         return LenientDeathConfig.INSTANCE.get();
     }
 
-    private static void verifyAndSave() {
+    private static void verifySafeAndLoad() {
         getConfig().verify();
         LenientDeathConfig.INSTANCE.save();
+        getConfig().onLoad(null);
     }
 
     //////////////
@@ -76,7 +77,7 @@ public class CommandConfig {
                         return 0;
                     } else {
                         set.accept(getConfig(), true);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
                             COLON,
@@ -102,7 +103,7 @@ public class CommandConfig {
                         return 0;
                     } else {
                         set.accept(getConfig(), false);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
                             COLON,
@@ -149,7 +150,7 @@ public class CommandConfig {
                         return 0;
                     } else {
                         set.accept(getConfig(), constant);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
                             COLON,
@@ -198,7 +199,7 @@ public class CommandConfig {
                         return 0;
                     } else {
                         set.accept(getConfig(), newValue);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
                             COLON,
@@ -246,7 +247,7 @@ public class CommandConfig {
                         return 0;
                     } else {
                         set.accept(getConfig(), newValue);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                             CommandFormatting.variable(fullName),
                             COLON,
@@ -342,7 +343,7 @@ public class CommandConfig {
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                                 Component.translatable("lenientdeath.command.config.requiresWorldReload")
                         ), false);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         return 1;
                     }
                 })
@@ -375,7 +376,7 @@ public class CommandConfig {
                         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                                 Component.translatable("lenientdeath.command.config.requiresWorldReload")
                         ), false);
-                        verifyAndSave();
+                        verifySafeAndLoad();
                         return 1;
                     }
                 })
@@ -492,14 +493,14 @@ public class CommandConfig {
         return Commands.literal(name)
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                        CommandFormatting.variable(fullName),
-                        COLON
+                    CommandFormatting.variable(fullName),
+                    COLON
                 ), false);
 
                 for (var itemId : listGet.apply(getConfig().preserveItemsOnDeath))
                     ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                            LIST_PREFIX,
-                            CommandFormatting.variable(itemId.toString())
+                        LIST_PREFIX,
+                        CommandFormatting.variable(itemId.toString())
                     ), false);
 
                 return 1;
@@ -511,6 +512,18 @@ public class CommandConfig {
                     })
                     .executes(ctx -> {
                         var id = ResourceLocationArgument.getId(ctx, singular);
+
+                        // if not a valid ID
+                        if (resourceIds.get().filter(existing -> existing.equals(id)).findAny().isEmpty()) {
+                            ctx.getSource().sendFailure(CommandFormatting.error(
+                                Component.translatable("lenientdeath.command.config.unknownId",
+                                    CommandFormatting.variable(id.toString())
+                                        .resolve(CommandFormatting.TextType.BLANK))
+                            ));
+
+                            return 0;
+                        }
+
                         var list = listGet.apply(getConfig().preserveItemsOnDeath);
                         if (list.contains(id)) {
                             ctx.getSource().sendFailure(CommandFormatting.error(
@@ -525,7 +538,7 @@ public class CommandConfig {
                             return 0;
                         } else {
                             list.add(id);
-                            verifyAndSave();
+                            verifySafeAndLoad();
                             ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                                 CommandFormatting.variable(fullName),
                                 COLON,
@@ -558,7 +571,7 @@ public class CommandConfig {
                              return 0;
                         } else {
                             list.remove(id);
-                            verifyAndSave();
+                            verifySafeAndLoad();
                             ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                                 CommandFormatting.variable(fullName),
                                 COLON,
@@ -599,16 +612,6 @@ public class CommandConfig {
                 config -> config.preserveItemsOnDeath.byItemType.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
 
-        root.then(createItemTagNodes(context,
-                                     "alwaysDropped",
-                                     config -> config.alwaysDropped.items,
-                                     config -> config.alwaysDropped.tags));
-
-        root.then(createItemTagNodes(context,
-                                     "alwaysPreserved",
-                                     config -> config.alwaysPreserved.items,
-                                     config -> config.alwaysPreserved.tags));
-
         itemType.then(makeItemTypeNode("helmets", types -> types.helmets, (config, newVal) -> config.helmets = newVal));
         itemType.then(makeItemTypeNode("chestplates", types -> types.chestplates, (config, newVal) -> config.chestplates = newVal));
         itemType.then(makeItemTypeNode("elytras", types -> types.elytras, (config, newVal) -> config.elytras = newVal));
@@ -633,7 +636,15 @@ public class CommandConfig {
         itemType.then(makeItemTypeNode("shulkerBoxes", types -> types.shulkerBoxes, (config, newVal) -> config.shulkerBoxes = newVal));
 
         root.then(nbt);
-        // TODO item / tag adders/removers
+        root.then(createItemTagNodes(context,
+                                     "alwaysDropped",
+                                     config -> config.alwaysDropped.items,
+                                     config -> config.alwaysDropped.tags));
+
+        root.then(createItemTagNodes(context,
+                                     "alwaysPreserved",
+                                     config -> config.alwaysPreserved.items,
+                                     config -> config.alwaysPreserved.tags));
         root.then(itemType);
 
         return root;

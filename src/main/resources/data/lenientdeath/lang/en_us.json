@@ -14,6 +14,7 @@
   "lenientdeath.command.config.requiresWorldReload": "Requires a world reload / server restart to take effect.",
   "lenientdeath.command.config.alreadyInList": "Already contains %s",
   "lenientdeath.command.config.notInList": "Does not contain %s",
+  "lenientdeath.command.config.unknownId": "Unknown ID: %s",
   "lenientdeath.command.config.added": "Added %s",
   "lenientdeath.command.config.removed": "Removed %s"
 }
