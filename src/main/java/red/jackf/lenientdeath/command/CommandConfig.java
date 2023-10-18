@@ -418,7 +418,11 @@ public class CommandConfig {
                 "droppedItemGlow.glowVisibility",
                 LenientDeathConfig.DroppedItemGlow.Visibility.class,
                 config -> config.droppedItemGlow.glowVisibility,
-                (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal));
+                (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal))
+            .then(makeBoolean("noTeamIsValidTeam",
+               "droppedItemGlow.noTeamIsValidTeam",
+               config -> config.droppedItemGlow.noTeamIsValidTeam,
+               (config, newVal) -> config.droppedItemGlow.noTeamIsValidTeam = newVal));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createExtendedDeathItemLifetime() {

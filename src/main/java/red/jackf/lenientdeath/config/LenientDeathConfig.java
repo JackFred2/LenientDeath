@@ -87,11 +87,19 @@ public class LenientDeathConfig {
                 Options: true, false
                 Default: true""")
         public boolean enabled = true;
+
         @Comment("""
                 Who should we show a dead player's items' outlines to?
                 Options: dead_player, dead_player_and_team, everyone
                 Default: dead_player_and_team""")
         public Visibility glowVisibility = Visibility.dead_player_and_team;
+
+        @Comment("""
+                Only applies if glowVisibility is set to 'dead_player_and_team'. If a player who is not on a team dies,
+                should we show the item glow to other players not on a team?
+                Options: true, false
+                Default: true""")
+        public boolean noTeamIsValidTeam = true;
 
         public enum Visibility {
             dead_player,

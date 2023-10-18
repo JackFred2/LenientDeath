@@ -28,20 +28,27 @@ public class ItemGlow {
      * @param entity Item that was dropped.
      */
     public static void addItemGlow(ServerPlayer player, ItemEntity entity) {
-        if (!LenientDeathConfig.INSTANCE.get().droppedItemGlow.enabled) return;
+        var config = LenientDeathConfig.INSTANCE.get().droppedItemGlow;
+        if (!config.enabled) return;
 
         var builder = EntityGlowLie.builder(entity)
                 .colour(ChatFormatting.GREEN)
                 .onTick(ItemGlow::itemGlowLieTickCallback);
 
-        switch (LenientDeathConfig.INSTANCE.get().droppedItemGlow.glowVisibility) {
+        switch (config.glowVisibility) {
             case everyone -> builder.createAndShow(player.server.getPlayerList().getPlayers());
             case dead_player -> builder.createAndShow(player);
-            case dead_player_and_team -> builder.createAndShow(player.server.getPlayerList()
-                                                                       .getPlayers()
-                                                                       .stream()
-                                                                       .filter(otherPlayer -> otherPlayer.getTeam() == player.getTeam())
-                                                                       .toList());
+            case dead_player_and_team -> {
+                if (!config.noTeamIsValidTeam && player.getTeam() == null) {
+                    builder.createAndShow(player);
+                } else {
+                    builder.createAndShow(player.server.getPlayerList()
+                                                       .getPlayers()
+                                                       .stream()
+                                                       .filter(otherPlayer -> otherPlayer.getTeam() == player.getTeam())
+                                                       .toList());
+                }
+            }
         }
     }
 
