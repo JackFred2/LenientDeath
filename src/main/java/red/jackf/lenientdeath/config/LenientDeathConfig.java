@@ -155,7 +155,8 @@ public class LenientDeathConfig {
             When a dead player's inventory is dropped, certain items can be kept based on their type, NBT, or an
             allow or block-list. Can be used on as part of the per-player feature.
             
-            These rules are evaluated in the following order: NBT -> Always Dropped List -> Always Preserved List -> Item Type""")
+            These rules are evaluated in the following order:
+            NBT -> Always Dropped List -> Always Preserved List -> Item Type -> Randomizer""")
     public PreserveItemsOnDeath preserveItemsOnDeath = new PreserveItemsOnDeath();
 
     public static class PreserveItemsOnDeath {
@@ -185,6 +186,11 @@ public class LenientDeathConfig {
                 with mods which don't add their items to various tags. Items part of multiple types will use the first result
                 from the following order: drop > preserve > ignore.""")
         public ByItemType byItemType = new ByItemType();
+
+        @Comment("""
+                Allows you to preserve or drop items based on a random chance percentage. This is only applied to categories
+                that haven't been decided by other modules.""")
+        public Randomizer randomizer = new Randomizer();
 
         public static class Nbt {
             @Comment("""
@@ -406,6 +412,21 @@ public class LenientDeathConfig {
                 }
             }
         }
+
+        public static class Randomizer {
+            @Comment("""
+                    Whether preserving undecided items using RNG should be enabled.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment("""
+                     What percentage of a player's undecided items be preserved on death? This is an average, and does
+                     not guarantee a set amount of items.
+                     Options: [0, 100]
+                     Default: 25""")
+            public int preservedPercentage = 25;
+        }
     }
 
     public enum PerPlayerEnabled {
@@ -435,6 +456,9 @@ public class LenientDeathConfig {
 
         this.preserveExperienceOnDeath.preservedPercentage
                 = Mth.clamp(this.preserveExperienceOnDeath.preservedPercentage, 0, 100);
+
+        this.preserveItemsOnDeath.randomizer.preservedPercentage
+                = Mth.clamp(this.preserveItemsOnDeath.randomizer.preservedPercentage, 0, 100);
     }
 
     public void onLoad(@Nullable LenientDeathConfig old) {

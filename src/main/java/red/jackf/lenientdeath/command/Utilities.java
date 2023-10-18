@@ -105,7 +105,7 @@ public class Utilities {
     }
 
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
-        if (PreserveItems.INSTANCE.shouldPreserve(stack, false)) {
+        if (PreserveItems.INSTANCE.shouldPreserve(null, stack)) {
             ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                 Component.translatable("lenientdeath.command.utilies.safeCheck.success", stack.getDisplayName())
             ), false);
