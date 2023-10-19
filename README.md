@@ -8,8 +8,6 @@ Client-side GUI config
 
 Presets
 
-Enable Config Command for singleplayer hoster
-
 Immunities for item entities: Void, Fire
 
 Do Wiki Documentation
