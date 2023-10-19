@@ -143,7 +143,7 @@ public class LenientDeathConfig {
 
     @Comment("""
             In Vanilla, when a player dies they lose all of their experience, a small part of which is dropped as XP orbs.
-            This feature lets you keep all or a portion of your experience when yo die.  Can be used on as part of the
+            This feature lets you keep all or a portion of your experience when you die. Can be used on as part of the
             per-player feature.""")
     public PreserveExperienceOnDeath preserveExperienceOnDeath = new PreserveExperienceOnDeath();
 
@@ -200,7 +200,7 @@ public class LenientDeathConfig {
         public ByItemType byItemType = new ByItemType();
 
         @Comment("""
-                Allows you to preserve or drop items based on a random chance percentage. This is only applied to categories
+                Allows you to preserve items based on a random chance percentage. This is only applied to categories
                 that haven't been decided by other modules.""")
         public Randomizer randomizer = new Randomizer();
 
