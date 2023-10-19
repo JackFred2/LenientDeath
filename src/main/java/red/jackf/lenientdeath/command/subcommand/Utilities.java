@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 import java.util.function.Predicate;
@@ -36,7 +37,9 @@ public class Utilities {
             4
     );
 
-    public static final Predicate<CommandSourceStack> ANY_UTILITY_PREDICATE = SAFE_CHECK_PREDICATE.or(LIST_TAG_ITEMS_PREDICATE);
+    public static final Predicate<CommandSourceStack> ANY_UTILITY_PREDICATE = SAFE_CHECK_PREDICATE
+            .or(LIST_TAG_ITEMS_PREDICATE)
+            .or(LenientDeathCommand.IS_INTEGRATED_HOST_PREDICATE);
 
     private static SuggestionProvider<CommandSourceStack> createTagSuggestor(CommandBuildContext context) {
         return (ctx, builder) -> SharedSuggestionProvider.suggestResource(context.holderLookup(Registries.ITEM).listTagIds().map(TagKey::location), builder);

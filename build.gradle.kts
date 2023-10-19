@@ -82,6 +82,7 @@ loom {
 
 	mods {
 		create("lenientdeath") {
+			sourceSet(sourceSets["client"])
 			sourceSet(sourceSets["main"])
 		}
 	}

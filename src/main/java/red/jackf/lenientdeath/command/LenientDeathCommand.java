@@ -9,7 +9,15 @@ import red.jackf.lenientdeath.command.subcommand.PerPlayer;
 import red.jackf.lenientdeath.command.subcommand.Utilities;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
+import java.util.function.Predicate;
+
 public class LenientDeathCommand {
+    public static final Predicate<CommandSourceStack> IS_INTEGRATED_HOST_PREDICATE = stack -> {
+        var player = stack.getPlayer();
+        if (player == null) return false;
+        return stack.getServer().isSingleplayerOwner(player.getGameProfile());
+    };
+
     public LenientDeathCommand(
             CommandDispatcher<CommandSourceStack> dispatcher,
             CommandBuildContext context,

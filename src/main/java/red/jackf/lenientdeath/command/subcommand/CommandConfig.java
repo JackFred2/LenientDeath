@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 import java.util.List;
@@ -274,7 +275,7 @@ public class CommandConfig {
 
     public static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
         var root = Commands.literal("config")
-                .requires(CHANGE_CONFIG_PREDICATE);
+                .requires(CHANGE_CONFIG_PREDICATE.or(LenientDeathCommand.IS_INTEGRATED_HOST_PREDICATE));
 
         root.then(createConfigNode());
         root.then(createMetaNode());

@@ -13,6 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.PerPlayerDuck;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.command.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
@@ -37,7 +38,7 @@ public class PerPlayer {
     private static final Predicate<CommandSourceStack> CHANGE_OTHERS_PREDICATE = Permissions.require(
             PermissionKeys.PER_PLAYER_CHANGE_OTHERS,
             4
-    );
+    ).or(LenientDeathCommand.IS_INTEGRATED_HOST_PREDICATE);
 
     private static final Predicate<CommandSourceStack> CHANGE_SELF_PREDICATE = PermissionsExt.requireBool(
             PermissionKeys.PER_PLAYER_CHANGE_SELF,
