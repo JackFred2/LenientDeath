@@ -19,7 +19,10 @@ public class PreserveItems {
 
     public static boolean shouldKeepOnDeath(Player player, ItemStack stack) {
         var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
-        if (config.enabled.test(player)) return INSTANCE.shouldPreserve(player, stack);
+        if (config.enabled.test(player)) {
+            var test = INSTANCE.shouldPreserve(player, stack);
+            if (test != null) return test;
+        }
         return false;
     }
 
@@ -34,7 +37,7 @@ public class PreserveItems {
      * @param stack    ItemStack to check.
      * @return If the ItemStack should be kept in a player's inventory.
      */
-    public boolean shouldPreserve(@Nullable Player player, ItemStack stack) {
+    public @Nullable Boolean shouldPreserve(@Nullable Player player, ItemStack stack) {
         var nbtPreserveTest = NbtChecker.INSTANCE.shouldKeep(stack);
         if (nbtPreserveTest != null) return nbtPreserveTest;
 
@@ -44,11 +47,8 @@ public class PreserveItems {
         var itemTypeTest = ItemTypeChecker.INSTANCE.shouldKeep(stack);
         if (itemTypeTest != null) return itemTypeTest;
 
-        if (player != null) {
-            var randomizerTest = Randomizer.INSTANCE.shouldKeep(stack, player);
-            if (randomizerTest != null) return randomizerTest;
-        }
+        if (player != null) return Randomizer.INSTANCE.shouldKeep(stack, player);
 
-        return false;
+        return null;
     }
 }

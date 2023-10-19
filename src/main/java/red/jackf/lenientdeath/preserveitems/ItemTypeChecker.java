@@ -50,8 +50,8 @@ public class ItemTypeChecker {
             else if (item instanceof AxeItem) result = result.and(config.axes);
             else if (item instanceof HoeItem) result = result.and(config.hoes);
             else result = result.and(config.otherDiggingItems);
-
-        if (OTHER_TOOLS_ANIMS.contains(stack.getUseAnimation())) result = result.and(config.otherTools);
+        else
+            if (OTHER_TOOLS_ANIMS.contains(stack.getUseAnimation())) result = result.and(config.otherTools);
 
         if (item instanceof BucketItem) result = result.and(config.buckets);
 

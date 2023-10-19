@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
+import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 import java.util.function.Predicate;
@@ -110,16 +111,23 @@ public class Utilities {
     }
 
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
-        if (PreserveItems.INSTANCE.shouldPreserve(null, stack)) {
+        var test = PreserveItems.INSTANCE.shouldPreserve(null, stack);
+        var random = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.randomizer;
+        if (test != null && test) {
             ctx.getSource().sendSuccess(() -> CommandFormatting.success(
                 Component.translatable("lenientdeath.command.utilies.safeCheck.success", stack.getDisplayName())
             ), false);
 
             return 1;
+        } else if (test == null && random.enabled) {
+            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                    Component.translatable("lenientdeath.command.utilies.safeCheck.random", stack.getDisplayName(), random.preservedPercentage)
+            ), false);
+            return 1;
         } else {
-            ctx.getSource().sendFailure(CommandFormatting.error(
+            ctx.getSource().sendSuccess(() -> CommandFormatting.error(
                     Component.translatable("lenientdeath.command.utilies.safeCheck.failure", stack.getDisplayName())
-            ));
+            ), false);
 
             return 0;
         }
