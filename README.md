@@ -2,74 +2,32 @@
 
 Server-sided Fabric & Quilt mod to make death less frustrating.
 
+![A GIF showing a player dying and keeping their armour and tools, but not ores](https://i.imgur.com/dVXWpMb.gif)
+
+![An example of the item glow up close](https://i.imgur.com/Ps0mbnO.png)
+
+## Features
+
+All features are toggleable and highly configurable:
+
+- Preserve only some items on death - think of it as a _filtered_ `/gamerule keepInventory`.
+  - Multiple criteria, including a manual safe list, by item type, ad-hoc soulbound system, and optionally by pure chance.
+  - For more details, see [the wiki page](https://github.com/JackFred2/LenientDeath/wiki/Preserve-Items-on-Death).
+- Preserve some or all of your experience on death.
+- Item & XP drops can work on a per-player basis too - see [the wiki page on Per-Player mode](https://github.com/JackFred2/LenientDeath/wiki/Per-Player)
+- Give dropped items a glowing outline, helping you find your way back.
+- Give items an extended (or infinite!) lifespan, putting less pressure on players.
+
 ## Planned
 
-Client-side GUI config
+- Client-side GUI for configuring the mod - for now, use the command or a text editor.
 
-Presets
+- Presets
 
-Immunities for item entities: Void, Fire
+- Immunities for item entities: Void, Fire, Explosions, Mob Pickups, Cactus, etc.
 
-Do Wiki Documentation
+## TODO
 
 Icon!
 
 Update Modrinth & Curse Pages
-
-## Command
-
-Base command is `/lenientdeath`, default alias is `/ld`.
-
-Where noted, 'Operators' mean anyone with a permission level greater than or equal to 4.
-
-### Per Player
-
-**Command**: `/lenientdeath perPlayer`
-
-Manages a player's per-player item preservation setting. Only enabled if `preserveItemsOnDeath.perPlayer.enabled` is true.
-
-#### Check Self
-
-**Command**: `/lenientdeath perPlayer check`
-
-**Permission**: `lenientdeath.command.checkSelf`
-
-**Non-permissions access**: Everyone
-
-**Description**: Allows a player to check their own per-player status.
-
-#### Check Others
-
-**Command**: `/lenientdeath perPlayer check <player>`
-
-**Permission**: `lenientdeath.command.checkOthers`
-
-**Non-permissions access**: Operators
-
-**Description**: Allows a player to check other players' per-player status.
-
-**Implies**: Check Self
-
-#### Change Self
-
-**Command**: `/lenientdeath perPlayer <enable|disable>`
-
-**Permission**: `lenientdeath.command.changeSelf`
-
-**Non-permissions access**: Operators, or everyone if `preserveItemsOnDeath.perPlayer.playersCanChangeTheirOwnSetting` is true.
-
-**Description**: Allows a player to change their own per-player status.
-
-**Implies**: Check Self
-
-#### Change Others
-
-**Command**: `/lenientdeath perPlayer <enable|disable> <player>`
-
-**Permission**: `lenientdeath.command.changeOthers`
-
-**Non-permissions access**: Operators (permission >= 4)
-
-**Description**: Allows a player to change other players' per-player status.
-
-**Implies**: Change Self, Check Others
