@@ -1,5 +1,6 @@
 package red.jackf.lenientdeath.command.subcommand;
 
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -190,6 +191,52 @@ public class CommandConfig {
                 .executes(ctx -> {
                     var old = get.apply(getConfig());
                     var newValue = IntegerArgumentType.getInteger(ctx, name);
+                    if (old == newValue) {
+                        ctx.getSource().sendFailure(CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            COLON,
+                            CommandFormatting.variable(String.valueOf(newValue)),
+                            SPACE,
+                            CommandFormatting.text(Component.translatable("lenientdeath.command.config.unchanged"))
+                        ));
+
+                        return 0;
+                    } else {
+                        set.accept(getConfig(), newValue);
+                        verifySafeAndLoad();
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                            CommandFormatting.variable(fullName),
+                            COLON,
+                            CommandFormatting.variable(String.valueOf(old)),
+                            ARROW,
+                            CommandFormatting.variable(String.valueOf(newValue))
+                        ), true);
+
+                        return 1;
+                    }
+                })
+            );
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeFloatRange(String name,
+                                                                           String fullName,
+                                                                           float min,
+                                                                           float max,
+                                                                           Function<LenientDeathConfig, Float> get,
+                                                                           BiConsumer<LenientDeathConfig, Float> set) {
+        return Commands.literal(name)
+            .executes(ctx -> {
+                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+                    CommandFormatting.variable(fullName),
+                    COLON,
+                    CommandFormatting.variable(String.valueOf(get.apply(getConfig())))
+                ), false);
+
+                return 1;
+            }).then(Commands.argument(name, FloatArgumentType.floatArg(min, max))
+                .executes(ctx -> {
+                    var old = get.apply(getConfig());
+                    var newValue = FloatArgumentType.getFloat(ctx, name);
                     if (old == newValue) {
                         ctx.getSource().sendFailure(CommandFormatting.info(
                             CommandFormatting.variable(fullName),
@@ -675,7 +722,19 @@ public class CommandConfig {
                 0,
                 100,
                 config -> config.preserveItemsOnDeath.randomizer.preservedPercentage,
-                (config, newVal) -> config.preserveItemsOnDeath.randomizer.preservedPercentage = newVal));
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.preservedPercentage = newVal))
+            .then(makeIntRange("luckAdditiveFactor",
+                "preserveItemsOnDeath.randomizer.luckAdditiveFactor",
+                0,
+                200,
+                config -> config.preserveItemsOnDeath.randomizer.luckAdditiveFactor,
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.luckAdditiveFactor = newVal))
+            .then(makeFloatRange("luckMultiplierFactor",
+                "preserveItemsOnDeath.randomizer.luckMultiplierFactor",
+                0,
+                10,
+                config -> config.preserveItemsOnDeath.randomizer.luckMultiplierFactor,
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.luckMultiplierFactor = newVal));
 
         root.then(nbt);
         root.then(alwaysDropped);
