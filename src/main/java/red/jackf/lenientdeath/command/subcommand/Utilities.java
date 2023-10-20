@@ -22,6 +22,7 @@ import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
+import red.jackf.lenientdeath.preserveitems.Randomizer;
 
 import java.util.function.Predicate;
 
@@ -121,7 +122,7 @@ public class Utilities {
             return 1;
         } else if (test == null && random.enabled) {
             ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                    Component.translatable("lenientdeath.command.utilies.safeCheck.random", stack.getDisplayName(), random.preservedPercentage)
+                    Component.translatable("lenientdeath.command.utilies.safeCheck.random", stack.getDisplayName(), Randomizer.INSTANCE.getChanceToKeep(ctx.getSource().getPlayer()) * 100)
             ), false);
             return 1;
         } else {

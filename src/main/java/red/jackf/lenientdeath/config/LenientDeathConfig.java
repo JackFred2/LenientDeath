@@ -438,6 +438,32 @@ public class LenientDeathConfig {
                      Options: [0, 100]
                      Default: 25""")
             public int preservedPercentage = 25;
+
+            @Comment("""
+                    How much a player's luck attribute should add to the item preservation chance. Also applies to
+                    negative luck. For more information, see https://minecraft.wiki/w/Attribute#Attributes_for_players
+                    
+                    Set to 0 to have no effect. Recommended to only have one of loadAdditiveFactor and
+                    luckMultiplierFactor be above 0 at one time.
+                    
+                    The final preservation chance is calculated as follows:
+                    chance = (preservedPercentage * (1 + (luckMultiplierFactor * playerLuck)) + (luckAdditiveFactor * playerLuck).
+                    Options: [0, 200]
+                    Default: 20""")
+            public int luckAdditiveFactor = 20;
+
+            @Comment("""
+                    How much a player's luck attribute should multiply the item preservation chance. Also applies to
+                    negative luck. For more information, see https://minecraft.wiki/w/Attribute#Attributes_for_players
+                    
+                    Set to 0 to have no effect. Recommended to only have one of loadAdditiveFactor and
+                    luckMultiplierFactor be above 0 at one time.
+                    
+                    The final preservation chance is calculated as follows:
+                    chance = (preservedPercentage * (1 + (luckMultiplierFactor * playerLuck)) + (luckAdditiveFactor * playerLuck).
+                    Options: [0, 10]
+                    Default: 0""")
+            public float luckMultiplierFactor = 0f;
         }
     }
 
@@ -471,6 +497,12 @@ public class LenientDeathConfig {
 
         this.preserveItemsOnDeath.randomizer.preservedPercentage
                 = Mth.clamp(this.preserveItemsOnDeath.randomizer.preservedPercentage, 0, 100);
+
+        this.preserveItemsOnDeath.randomizer.luckAdditiveFactor
+                = Mth.clamp(this.preserveItemsOnDeath.randomizer.luckAdditiveFactor, 0, 200);
+
+        this.preserveItemsOnDeath.randomizer.luckMultiplierFactor
+                = Mth.clamp(this.preserveItemsOnDeath.randomizer.luckMultiplierFactor, 0, 10);
     }
 
     public void onLoad(@Nullable LenientDeathConfig old) {
