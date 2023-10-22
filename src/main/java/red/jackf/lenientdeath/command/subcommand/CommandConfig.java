@@ -332,8 +332,22 @@ public class CommandConfig {
         root.then(createExtendedDeathItemLifetime());
         root.then(createPreserveExperienceOnDeathNode());
         root.then(createPreserveItemsOnDeath(context));
+        root.then(createItemResilience(context));
 
         root.then(createPresetsNode());
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createItemResilience(CommandBuildContext context) {
+        var root = Commands.literal("itemResilience");
+
+        root.then(makeBoolean(
+                "allDeathItemsAreFireproof",
+                "itemResilience.allDeathItemsAreFireproof",
+                config -> config.itemResilience.allDeathItemsAreFireproof,
+                (config, newValue) -> config.itemResilience.allDeathItemsAreFireproof = newValue
+        ));
 
         return root;
     }

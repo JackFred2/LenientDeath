@@ -1,5 +1,6 @@
 package red.jackf.lenientdeath.mixins.itemresilience;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -26,7 +27,7 @@ public class ItemEntityMixin implements LDItemEntityDuck {
         return this.isDeathDropItem;
     }
 
-
+    // persistence over chunk load/unload
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$saveIsDeathDrop(CompoundTag tag, CallbackInfo ci) {
         this.isDeathDropItem = tag.getBoolean(LDItemEntityDuck.IS_DEATH_DROP_ITEM);
@@ -36,6 +37,16 @@ public class ItemEntityMixin implements LDItemEntityDuck {
     private void lenientdeath$addPerPlayerToData(CompoundTag tag, CallbackInfo ci) {
         tag.putBoolean(LDItemEntityDuck.IS_DEATH_DROP_ITEM, this.isDeathDropItem);
     }
+
+    // dont merge non-death drop item with death drop item
+    @ModifyExpressionValue(method = "tryToMerge(Lnet/minecraft/world/entity/item/ItemEntity;)V",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/item/ItemEntity;areMergable(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"))
+    private boolean lenientdeath$onlyMergeIfBothDeathDrops(boolean original, ItemEntity other) {
+        return original && this.isDeathDropItem == ((LDItemEntityDuck) other).lenientdeath$isDeathDropItem();
+    }
+
+    // features
 
     @ModifyReturnValue(method = "fireImmune()Z", at = @At("RETURN"))
     private boolean lenientdeath$forceFireImmuneIfNeeded(boolean original) {
