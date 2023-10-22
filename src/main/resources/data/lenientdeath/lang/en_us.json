@@ -11,6 +11,7 @@
   "lenientdeath.command.perPlayer.handledByPermissions": "%s is handled by a permission plugin",
   "lenientdeath.command.perPlayer.noPermissionToChangeSelf": "You are not allowed to change your own settings",
   "lenientdeath.command.perPlayer.noPermissionToChangeOthers": "You are not allowed to change others' settings",
+  "lenientdeath.command.config.presetApplied": "Applied preset %s",
   "lenientdeath.command.config.unchanged": "(unchanged)",
   "lenientdeath.command.config.listEmpty": "(empty)",
   "lenientdeath.command.config.requiresWorldReload": "Requires a world reload / server restart to take effect",

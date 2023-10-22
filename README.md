@@ -10,6 +10,7 @@ Server-sided Fabric & Quilt mod to make death less frustrating.
 
 All features are toggleable and highly configurable:
 
+- Several config presets to get you started - use `/ld config presets`. See [the wiki page](https://github.com/JackFred2/LenientDeath/wiki#presets)
 - Preserve only some items on death - think of it as a _filtered_ `/gamerule keepInventory`.
   - Multiple criteria, including a manual safe list, by item type, ad-hoc soulbound system, and optionally by pure chance.
   - For more details, see [the wiki page](https://github.com/JackFred2/LenientDeath/wiki/Preserve-Items-on-Death).
@@ -21,8 +22,6 @@ All features are toggleable and highly configurable:
 ## Planned
 
 - Client-side GUI for configuring the mod - for now, use the command or a text editor.
-
-- Presets
 
 - Immunities for item entities: Void, Fire, Explosions, Mob Pickups, Cactus, etc.
 

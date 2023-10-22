@@ -42,6 +42,17 @@ public class ConfigHandler {
         return instance;
     }
 
+    public void set(LenientDeathConfig newInstance) {
+        LOGGER.debug("Loading preset");
+
+        newInstance.verify();
+        var old = instance;
+        instance = newInstance;
+        instance.onLoad(old);
+
+        save();
+    }
+
     protected void load() {
         LenientDeathConfig old = instance;
 

@@ -19,6 +19,7 @@ import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.config.Presets;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -331,6 +332,27 @@ public class CommandConfig {
         root.then(createExtendedDeathItemLifetime());
         root.then(createPreserveExperienceOnDeathNode());
         root.then(createPreserveItemsOnDeath(context));
+
+        root.then(createPresetsNode());
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createPresetsNode() {
+        var root = Commands.literal("presets");
+
+        for (var preset : Presets.PRESETS.get().entrySet()) {
+            var node = Commands.literal(preset.getKey())
+                    .executes(ctx -> {
+                        LenientDeathConfig.INSTANCE.set(preset.getValue().get());
+                        ctx.getSource().sendSuccess(() -> CommandFormatting.success(
+                            Component.translatable("lenientdeath.command.config.presetApplied",
+                                CommandFormatting.variable(preset.getKey()).resolve(CommandFormatting.TextType.BLANK))
+                        ), true);
+                        return 1;
+                    });
+            root.then(node);
+        }
 
         return root;
     }
