@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.LenientDeath;
-import red.jackf.lenientdeath.PerPlayerDuck;
+import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
 
 import java.util.ArrayList;
@@ -139,6 +139,21 @@ public class LenientDeathConfig {
                 Options: true, false
                 Default: false""")
         public boolean deathDropItemsNeverDespawn = false;
+    }
+
+    @Comment("""
+            This feature allows you to give additional protection to item entities that were dropped on death, including
+            fire, cactus, void recovery, blanket damage protection and more.""")
+    public ItemResilience itemResilience = new ItemResilience();
+
+    public static class ItemResilience {
+
+        @Comment("""
+                Normally, items burn in lava unless they are specifically marked as fireproof. This feature allows you
+                to make all items dropped on death fire and lavaproof.
+                Options: true, false
+                Default: false""")
+        public boolean allDeathItemsAreFireproof = false;
     }
 
     @Comment("""
@@ -469,7 +484,7 @@ public class LenientDeathConfig {
 
     public enum PerPlayerEnabled {
         yes(p -> true),
-        per_player(PerPlayerDuck::isEnabledFor),
+        per_player(LDServerPlayerDuck::isEnabledFor),
         no(p -> false);
 
         private final Predicate<Player> test;

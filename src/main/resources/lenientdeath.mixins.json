@@ -7,7 +7,9 @@
     "InventoryMixin",
     "ItemEntityAccessor",
     "LivingEntityMixin",
-    "ServerPlayerEntityMixin"
+    "ServerPlayerMixin",
+    "itemresilience.EntityMixin",
+    "itemresilience.ItemEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

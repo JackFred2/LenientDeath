@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 public class LenientDeath implements ModInitializer {
@@ -32,8 +33,8 @@ public class LenientDeath implements ModInitializer {
         PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
-            ((PerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
-                ((PerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
+            ((LDServerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
+                ((LDServerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
             );
 
             // skip if vanilla handled it
