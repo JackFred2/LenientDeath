@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -25,6 +26,10 @@ public class LenientDeath implements ModInitializer {
     public static final String MODID = "lenientdeath";
 
     private static @Nullable MinecraftServer currentServer = null;
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MODID, path);
+    }
 
     @Override
     public void onInitialize() {

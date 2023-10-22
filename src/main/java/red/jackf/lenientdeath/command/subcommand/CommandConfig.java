@@ -343,10 +343,24 @@ public class CommandConfig {
         var root = Commands.literal("itemResilience");
 
         root.then(makeBoolean(
-                "allDeathItemsAreFireproof",
-                "itemResilience.allDeathItemsAreFireproof",
-                config -> config.itemResilience.allDeathItemsAreFireproof,
-                (config, newValue) -> config.itemResilience.allDeathItemsAreFireproof = newValue
+                "allDeathItemsAreFireProof",
+                "itemResilience.allDeathItemsAreFireProof",
+                config -> config.itemResilience.allDeathItemsAreFireProof,
+                (config, newValue) -> config.itemResilience.allDeathItemsAreFireProof = newValue
+        ));
+
+        root.then(makeBoolean(
+                "allDeathItemsAreCactusProof",
+                "itemResilience.allDeathItemsAreCactusProof",
+                config -> config.itemResilience.allDeathItemsAreCactusProof,
+                (config, newValue) -> config.itemResilience.allDeathItemsAreCactusProof = newValue
+        ));
+
+        root.then(makeBoolean(
+                "allDeathItemsAreExplosionProof",
+                "itemResilience.allDeathItemsAreExplosionProof",
+                config -> config.itemResilience.allDeathItemsAreExplosionProof,
+                (config, newValue) -> config.itemResilience.allDeathItemsAreExplosionProof = newValue
         ));
 
         return root;

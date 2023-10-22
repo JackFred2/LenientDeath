@@ -147,13 +147,23 @@ public class LenientDeathConfig {
     public ItemResilience itemResilience = new ItemResilience();
 
     public static class ItemResilience {
-
         @Comment("""
-                Normally, items burn in lava unless they are specifically marked as fireproof. This feature allows you
-                to make all items dropped on death fire and lavaproof.
+                Whether all items dropped from a player's death should be fire and lava-proof.
                 Options: true, false
                 Default: false""")
-        public boolean allDeathItemsAreFireproof = false;
+        public boolean allDeathItemsAreFireProof = false;
+
+        @Comment("""
+                Whether all items dropped from a player's death should be immune to cacti.
+                Options: true, false
+                Default: false""")
+        public boolean allDeathItemsAreCactusProof = false;
+
+        @Comment("""
+                Whether all items dropped from a player's death should be immune to explosions.
+                Options: true, false
+                Default: false""")
+        public boolean allDeathItemsAreExplosionProof = false;
     }
 
     @Comment("""
@@ -246,7 +256,7 @@ public class LenientDeathConfig {
                     Options: 0 or more Item IDs, in the form "minecraft:swords" without a '#'. If a tag by a given ID doesn't
                              exist, a warning will be logged to the console.
                     Default: 'lenientdeath:safe'""")
-            public List<ResourceLocation> tags = new ArrayList<>(List.of(new ResourceLocation(LenientDeath.MODID, "safe")));
+            public List<ResourceLocation> tags = new ArrayList<>(List.of(LenientDeath.id("safe")));
         }
 
         public static class AlwaysDropped {

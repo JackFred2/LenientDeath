@@ -3,19 +3,31 @@ package red.jackf.lenientdeath.mixins.itemresilience;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import red.jackf.lenientdeath.ItemResilience;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
 
 @Mixin(ItemEntity.class)
-public class ItemEntityMixin implements LDItemEntityDuck {
+public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck {
     @Unique
     private boolean isDeathDropItem = false;
+
+    public ItemEntityMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
 
     @Override
     public void lenientdeath$markDeathDropItem() {
@@ -48,8 +60,20 @@ public class ItemEntityMixin implements LDItemEntityDuck {
 
     // features
 
+    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
+    private void lenientdeath$makeImmuneToDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (this.isDeathDropItem) {
+            var config = LenientDeathConfig.INSTANCE.get().itemResilience;
+            if (config.allDeathItemsAreCactusProof && source.is(DamageTypes.CACTUS)
+                    || config.allDeathItemsAreExplosionProof && source.is(DamageTypeTags.IS_EXPLOSION)
+                    || ItemResilience.areItemsImmuneTo(source)) {
+                cir.setReturnValue(false);
+            }
+        }
+    }
+
     @ModifyReturnValue(method = "fireImmune()Z", at = @At("RETURN"))
     private boolean lenientdeath$forceFireImmuneIfNeeded(boolean original) {
-        return this.isDeathDropItem && LenientDeathConfig.INSTANCE.get().itemResilience.allDeathItemsAreFireproof || original;
+        return this.isDeathDropItem && LenientDeathConfig.INSTANCE.get().itemResilience.allDeathItemsAreFireProof || original;
     }
 }
