@@ -362,6 +362,13 @@ public class CommandConfig {
                 config -> config.itemResilience.allDeathItemsAreExplosionProof,
                 (config, newValue) -> config.itemResilience.allDeathItemsAreExplosionProof = newValue
         ));
+        root.then(makeEnum(
+                "voidRecoveryMode",
+                "itemResilience.voidRecoveryMode",
+                LenientDeathConfig.ItemResilience.VoidRecoveryMode.class,
+                config -> config.itemResilience.voidRecoveryMode,
+                (config, newValue) -> config.itemResilience.voidRecoveryMode = newValue
+        ));
 
         return root;
     }

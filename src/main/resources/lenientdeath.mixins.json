@@ -8,8 +8,8 @@
     "ItemEntityAccessor",
     "LivingEntityMixin",
     "ServerPlayerMixin",
-    "itemresilience.EntityMixin",
-    "itemresilience.ItemEntityMixin"
+    "EntityMixin",
+    "ItemEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

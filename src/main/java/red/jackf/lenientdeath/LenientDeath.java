@@ -66,6 +66,7 @@ public class LenientDeath implements ModInitializer {
         return currentServer;
     }
 
+    // Handles items that are dropped; i.e those that didn't pass the item preservation check
     public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item) {
         ItemGlow.addItemGlow(serverPlayer, item);
         ItemLifeExtender.extendItemLifetime(item);

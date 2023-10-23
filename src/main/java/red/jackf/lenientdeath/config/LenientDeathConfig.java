@@ -164,6 +164,21 @@ public class LenientDeathConfig {
                 Options: true, false
                 Default: false""")
         public boolean allDeathItemsAreExplosionProof = false;
+
+        @Comment("""
+                How death drop items that fall into the void should be handled?
+                Options:
+                  - disabled (despawn items as vanilla)
+                  - last_grounded_position (teleport to last position either the player or the item was on a solid block)
+                  - keep_in_inventory (preserve all items regardless of other settings)
+                Default: last_grounded_position""")
+        public VoidRecoveryMode voidRecoveryMode = VoidRecoveryMode.last_grounded_position;
+
+        public enum VoidRecoveryMode {
+            disabled,
+            last_grounded_position,
+            keep_in_inventory
+        }
     }
 
     @Comment("""

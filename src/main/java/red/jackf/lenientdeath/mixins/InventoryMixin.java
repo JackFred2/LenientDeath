@@ -38,7 +38,7 @@ public class InventoryMixin {
     @ModifyExpressionValue(
             method = "dropAll",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
-    private ItemEntity addOutlineToEntity(ItemEntity item) {
+    private ItemEntity handleItemEntity(ItemEntity item) {
         if (this.player instanceof ServerPlayer serverPlayer) {
             LenientDeath.handleItemEntity(serverPlayer, item);
         }
