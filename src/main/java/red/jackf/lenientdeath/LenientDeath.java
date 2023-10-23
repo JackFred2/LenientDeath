@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
 import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
@@ -58,6 +61,12 @@ public class LenientDeath implements ModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(server -> currentServer = server);
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> currentServer = null);
+
+        ServerTickEvents.END_WORLD_TICK.register(level -> {
+            for (ServerPlayer player : level.players())
+                player.mainSupportingBlockPos.ifPresent(pos ->
+                    ((LDGroundedPosHolder) player).lenientdeath$setLastGroundedPosition(GlobalPos.of(level.dimension(), pos)));
+        });
 
         CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);
     }
