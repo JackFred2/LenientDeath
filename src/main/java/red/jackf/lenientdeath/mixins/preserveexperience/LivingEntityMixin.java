@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.mixins;
+package red.jackf.lenientdeath.mixins.preserveexperience;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;

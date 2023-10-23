@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.mixins;
+package red.jackf.lenientdeath.mixins.itemresilience;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;

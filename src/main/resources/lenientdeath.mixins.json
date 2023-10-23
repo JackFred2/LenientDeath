@@ -5,11 +5,12 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "InventoryMixin",
-    "ItemEntityAccessor",
-    "LivingEntityMixin",
-    "ServerPlayerMixin",
-    "EntityMixin",
-    "ItemEntityMixin"
+    "itemresilience.ServerPlayerMixin",
+    "itemlifeextender.ItemEntityAccessor",
+    "itemresilience.EntityMixin",
+    "itemresilience.ItemEntityMixin",
+    "perplayer.ServerPlayerMixin",
+    "preserveexperience.LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

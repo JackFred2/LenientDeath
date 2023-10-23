@@ -18,7 +18,7 @@ import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
-import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
+import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
 public class LenientDeath implements ModInitializer {
@@ -42,8 +42,8 @@ public class LenientDeath implements ModInitializer {
         PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
-            ((LDServerPlayerDuck) newPlayer).lenientdeath$setPerPlayerEnabled(
-                ((LDServerPlayerDuck) oldPlayer).lenientdeath$isPerPlayerEnabled()
+            ((LDPerPlayer) newPlayer).lenientdeath$setPerPlayerEnabled(
+                ((LDPerPlayer) oldPlayer).lenientdeath$isPerPlayerEnabled()
             );
 
             // skip if vanilla handled it

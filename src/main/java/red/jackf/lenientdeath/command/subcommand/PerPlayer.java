@@ -10,13 +10,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.CommandFormatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.command.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
+import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 
 import java.util.function.Predicate;
 
@@ -100,7 +100,7 @@ public class PerPlayer {
             return 0;
         }
 
-        if (LDServerPlayerDuck.isHandledByPermission(player)) {
+        if (LDPerPlayer.isHandledByPermission(player)) {
             ctx.getSource().sendFailure(CommandFormatting.error(
                 translatable("lenientdeath.command.perPlayer.handledByPermissions",
                     CommandFormatting.player(player).resolve(TextType.BLANK))));
@@ -108,7 +108,7 @@ public class PerPlayer {
             return 0;
         }
 
-        boolean isEnabled = ((LDServerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+        boolean isEnabled = ((LDPerPlayer) player).lenientdeath$isPerPlayerEnabled();
         if (isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
                 variable(player.getDisplayName().getString()),
@@ -118,7 +118,7 @@ public class PerPlayer {
             return 0;
         }
 
-        ((LDServerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(true);
+        ((LDPerPlayer) player).lenientdeath$setPerPlayerEnabled(true);
 
         Component message = CommandFormatting.success(
                 variable(player.getDisplayName().getString()),
@@ -140,7 +140,7 @@ public class PerPlayer {
             return 0;
         }
 
-        if (LDServerPlayerDuck.isHandledByPermission(player)) {
+        if (LDPerPlayer.isHandledByPermission(player)) {
             ctx.getSource().sendFailure(CommandFormatting.error(
                 translatable("lenientdeath.command.perPlayer.handledByPermissions",
                     CommandFormatting.player(player).resolve(TextType.BLANK))));
@@ -148,7 +148,7 @@ public class PerPlayer {
             return 0;
         }
 
-        boolean isEnabled = ((LDServerPlayerDuck) player).lenientdeath$isPerPlayerEnabled();
+        boolean isEnabled = ((LDPerPlayer) player).lenientdeath$isPerPlayerEnabled();
         if (!isEnabled) {
             ctx.getSource().sendFailure(CommandFormatting.info(
                     variable(player.getDisplayName().getString()),
@@ -158,7 +158,7 @@ public class PerPlayer {
             return 0;
         }
 
-        ((LDServerPlayerDuck) player).lenientdeath$setPerPlayerEnabled(false);
+        ((LDPerPlayer) player).lenientdeath$setPerPlayerEnabled(false);
 
         Component message = CommandFormatting.error(
                 variable(player.getDisplayName().getString()),
@@ -171,7 +171,7 @@ public class PerPlayer {
     }
 
     private static int checkFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
-        boolean perPlayerStatus = LDServerPlayerDuck.isEnabledFor(player);
+        boolean perPlayerStatus = LDPerPlayer.isEnabledFor(player);
         ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 variable(player.getDisplayName().getString()),
                 symbol(": "),
@@ -179,7 +179,7 @@ public class PerPlayer {
         ), false);
 
         boolean isShownPlayerCommandSource = player == ctx.getSource().getPlayer();
-        if (LDServerPlayerDuck.isHandledByPermission(player)) {
+        if (LDPerPlayer.isHandledByPermission(player)) {
             ctx.getSource().sendSuccess(() -> CommandFormatting.info(
                 translatable("lenientdeath.command.perPlayer.handledByPermissions",
                     CommandFormatting.player(player).resolve(TextType.BLANK))

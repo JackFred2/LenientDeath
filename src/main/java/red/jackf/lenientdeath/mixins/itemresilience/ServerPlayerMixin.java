@@ -1,4 +1,4 @@
-package red.jackf.lenientdeath.mixins;
+package red.jackf.lenientdeath.mixins.itemresilience;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
@@ -17,14 +17,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.lenientdeath.LenientDeath;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.mixinutil.DeathContext;
 import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements LDServerPlayerDuck {
-    @Unique
-    private boolean perPlayerEnabledForMe = LenientDeathConfig.INSTANCE.get().perPlayer.defaultEnabledForPlayer;
     /**
      * The last position that an entity was on the ground. Actively updated for a player, only copied for an item entity.
      */
@@ -38,16 +35,6 @@ public abstract class ServerPlayerMixin extends Player implements LDServerPlayer
 
     public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {
         super(level, pos, yRot, gameProfile);
-    }
-
-    @Override
-    public boolean lenientdeath$isPerPlayerEnabled() {
-        return perPlayerEnabledForMe;
-    }
-
-    @Override
-    public void lenientdeath$setPerPlayerEnabled(boolean newValue) {
-        this.perPlayerEnabledForMe = newValue;
     }
 
     // last grounded pos
@@ -73,7 +60,6 @@ public abstract class ServerPlayerMixin extends Player implements LDServerPlayer
 
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$getModData(CompoundTag tag, CallbackInfo ci) {
-        this.perPlayerEnabledForMe = tag.getBoolean(LDServerPlayerDuck.PER_PLAYER_TAG_KEY);
         if (tag.contains(LAST_GROUNDED_POS, Tag.TAG_COMPOUND))
             this.lastGroundedPos = GlobalPos.CODEC.parse(NbtOps.INSTANCE, tag.getCompound(LAST_GROUNDED_POS))
                                                   .resultOrPartial(LenientDeath.LOGGER::error)
@@ -82,7 +68,6 @@ public abstract class ServerPlayerMixin extends Player implements LDServerPlayer
 
     @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$addModData(CompoundTag tag, CallbackInfo ci) {
-        tag.putBoolean(LDServerPlayerDuck.PER_PLAYER_TAG_KEY, this.perPlayerEnabledForMe);
         if (this.lastGroundedPos != null)
             GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, this.lastGroundedPos)
                            .resultOrPartial(LenientDeath.LOGGER::error)

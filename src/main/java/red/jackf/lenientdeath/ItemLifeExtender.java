@@ -3,7 +3,7 @@ package red.jackf.lenientdeath;
 import net.minecraft.SharedConstants;
 import net.minecraft.world.entity.item.ItemEntity;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.mixins.ItemEntityAccessor;
+import red.jackf.lenientdeath.mixins.itemlifeextender.ItemEntityAccessor;
 
 public class ItemLifeExtender {
     private ItemLifeExtender() {}
