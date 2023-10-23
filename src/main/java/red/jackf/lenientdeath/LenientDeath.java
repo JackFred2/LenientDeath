@@ -65,7 +65,7 @@ public class LenientDeath implements ModInitializer {
         ServerTickEvents.END_WORLD_TICK.register(level -> {
             for (ServerPlayer player : level.players())
                 player.mainSupportingBlockPos.ifPresent(pos ->
-                    ((LDGroundedPosHolder) player).lenientdeath$setLastGroundedPosition(GlobalPos.of(level.dimension(), pos)));
+                    LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
         });
 
         CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);

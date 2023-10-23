@@ -25,12 +25,12 @@ public class ItemResilience {
     }
 
     public static void handle(ServerPlayer player, ItemEntity item) {
-        ((LDGroundedPosHolder) item).lenientdeath$setLastGroundedPosition(((LDGroundedPosHolder) player).lenientdeath$getLastGroundedPosition());
+        LDGroundedPosHolder.toItem(item, LDGroundedPosHolder.fromPlayer(player));
     }
 
+    // in
     public static boolean moveToSafety(ItemEntity item) {
-        //noinspection DataFlowIssue
-        var safePos = ((LDGroundedPosHolder) item).lenientdeath$getLastGroundedPosition();
+        var safePos = LDGroundedPosHolder.fromItem(item);
         //noinspection resource
         if (safePos != null && item.level() instanceof ServerLevel serverLevel) {
             var targetLevel = serverLevel.getServer().getLevel(safePos.dimension());

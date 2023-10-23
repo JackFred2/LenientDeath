@@ -23,11 +23,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import red.jackf.lenientdeath.ItemResilience;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck, LDGroundedPosHolder {
+public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck {
     @Unique private boolean isDeathDropItem = false;
     @Unique
     private @Nullable GlobalPos lastGroundedPos = null;
