@@ -61,6 +61,18 @@ public class Formatting {
         return value ? literal("true").withStyle(SUCCESS) : literal("false").withStyle(ERROR);
     }
 
+    public static Component integer(int value) {
+        return variable(String.valueOf(value));
+    }
+
+    public static Component floating(float value) {
+        return variable(String.valueOf(value));
+    }
+
+    public static Component string(String value) {
+        return variable(value);
+    }
+
     public static Component player(ServerPlayer player) {
         return variable(player.getDisplayName());
     }

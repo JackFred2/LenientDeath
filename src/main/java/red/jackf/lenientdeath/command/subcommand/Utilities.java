@@ -89,7 +89,7 @@ public class Utilities {
 
             if (items.isEmpty()) { // empty tag
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
-                        translatable("lenientdeath.command.config.listEmpty")
+                        translatable("lenientdeath.command.config.list.empty")
                 ), false);
 
                 return 0;

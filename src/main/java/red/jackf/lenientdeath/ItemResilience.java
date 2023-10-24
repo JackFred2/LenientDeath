@@ -11,7 +11,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
-import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.mixinutil.DeathContext;
 import red.jackf.lenientdeath.mixinutil.LDDeathContextHolder;
@@ -56,11 +56,12 @@ public class ItemResilience {
     public static void onPlayerDeath(ServerPlayer serverPlayer) {
         if (LenientDeathConfig.INSTANCE.get().itemResilience.voidRecovery.announce) {
             ifHandledVoidDeath(serverPlayer, (ctx, groundedPos, serverPlayer1) -> {
-                serverPlayer1.sendSystemMessage(CommandFormatting.info(
+                serverPlayer1.sendSystemMessage(Formatting.infoLine(
                         Component.translatable("lenientdeath.itemResilience.announce",
-                                               CommandFormatting.variable(groundedPos.pos().toShortString()).resolve(CommandFormatting.TextType.BLANK),
-                                               CommandFormatting.variable(groundedPos.dimension().location().toString()).resolve(CommandFormatting.TextType.BLANK))
+                                               Formatting.variable(groundedPos.pos().toShortString()),
+                                               Formatting.variable(groundedPos.dimension().location().toString()))
                 ));
+
                 return null;
             });
         }
