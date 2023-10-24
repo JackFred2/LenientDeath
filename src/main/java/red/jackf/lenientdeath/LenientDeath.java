@@ -2,6 +2,7 @@ package red.jackf.lenientdeath;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -75,6 +76,12 @@ public class LenientDeath implements ModInitializer {
                         baseAABB.maxZ
                 );
                 level.findSupportingBlock(player, supportBlockAABB).ifPresent(pos -> LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
+            }
+        });
+
+        ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
+            if (entity instanceof ServerPlayer serverPlayer) {
+                ItemResilience.onPlayerDeath(serverPlayer);
             }
         });
 

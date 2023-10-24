@@ -332,14 +332,14 @@ public class CommandConfig {
         root.then(createExtendedDeathItemLifetime());
         root.then(createPreserveExperienceOnDeathNode());
         root.then(createPreserveItemsOnDeath(context));
-        root.then(createItemResilience(context));
+        root.then(createItemResilience());
 
         root.then(createPresetsNode());
 
         return root;
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> createItemResilience(CommandBuildContext context) {
+    private static LiteralArgumentBuilder<CommandSourceStack> createItemResilience() {
         var root = Commands.literal("itemResilience");
 
         root.then(makeBoolean(

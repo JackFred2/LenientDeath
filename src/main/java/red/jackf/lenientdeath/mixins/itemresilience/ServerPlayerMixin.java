@@ -61,7 +61,7 @@ public abstract class ServerPlayerMixin extends Player implements LDGroundedPosH
 
     // add death source for future calls
     @Inject(method = "die", at = @At("HEAD"))
-    private void lenientdeath$rememberDeathSource(DamageSource damageSource, CallbackInfo ci) {
+    private void lenientdeath$rememberDeathSourceAndPossiblyAnnounce(DamageSource damageSource, CallbackInfo ci) {
         this.deathContext = new DeathContext(damageSource);
     }
 
