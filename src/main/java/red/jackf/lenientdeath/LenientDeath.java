@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +64,18 @@ public class LenientDeath implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> currentServer = null);
 
         ServerTickEvents.END_WORLD_TICK.register(level -> {
-            for (ServerPlayer player : level.players())
-                player.mainSupportingBlockPos.ifPresent(pos ->
-                    LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
+            for (ServerPlayer player : level.players()) {
+                var baseAABB = player.getBoundingBox();
+                var supportBlockAABB = new AABB(
+                        baseAABB.minX,
+                        baseAABB.minY - 1.0E-6,
+                        baseAABB.minZ,
+                        baseAABB.maxX,
+                        baseAABB.minY,
+                        baseAABB.maxZ
+                );
+                level.findSupportingBlock(player, supportBlockAABB).ifPresent(pos -> LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
+            }
         });
 
         CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);
