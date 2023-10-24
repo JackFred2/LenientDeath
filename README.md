@@ -8,13 +8,13 @@ Server-sided Fabric & Quilt mod to make death less frustrating.
 
 ## Features
 
-All features are toggleable and highly configurable. Out of the box:
+All features are toggleable and highly configurable. Out of the box, you'll get:
 
 - Preserve only some items on death - think of it as a _filtered_ `/gamerule keepInventory`.
   - Multiple criteria, including a manual safe list, by item type, ad-hoc soulbound system, and optionally by pure chance.
   - For more details, see [the wiki page](https://github.com/JackFred2/LenientDeath/wiki/Preserve-Items-on-Death).
-- Give dropped items a glowing outline, helping you find your way back.
-- Void Immunity for items - they will be teleported to a safe place instead of despawning. (2023/10/22: TODO)
+- Give dropped items a glowing outline, helping you find your way back. Recommended to increase your Entity View Distance!
+- Void Immunity for items - they will be teleported to a safe place instead of despawning.
 
 Default disabled, but can be enabled:
 
@@ -28,7 +28,7 @@ Default disabled, but can be enabled:
 
 - Client-side GUI for configuring the mod - for now, use the command or a text editor.
 
-- Immunities for item entities: Void, Mob Pickups
+- Immunities for item entities: Mob Pickups (maybe)
 
 ## TODO
 

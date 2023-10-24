@@ -20,7 +20,7 @@ public class Presets {
         return map;
     }
 
-    // extends item despawn time, and enables XP saving
+    // extends item despawn time, enables XP saving, makes items immune to explosions and fire
     private static LenientDeathConfig makeGenerous() {
         var config = new LenientDeathConfig();
 
@@ -28,6 +28,9 @@ public class Presets {
         config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds = 10 * 60;
 
         config.preserveExperienceOnDeath.enabled = LenientDeathConfig.PerPlayerEnabled.yes;
+
+        config.itemResilience.allDeathItemsAreExplosionProof = true;
+        config.itemResilience.allDeathItemsAreFireProof = true;
 
         return config;
     }
@@ -38,6 +41,8 @@ public class Presets {
 
         config.preserveItemsOnDeath.byItemType.enabled = false;
 
+        config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
+
         return config;
     }
 
@@ -47,6 +52,8 @@ public class Presets {
 
         config.preserveItemsOnDeath.byItemType.enabled = false;
         config.preserveItemsOnDeath.randomizer.enabled = true;
+
+        config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
 
         return config;
     }
