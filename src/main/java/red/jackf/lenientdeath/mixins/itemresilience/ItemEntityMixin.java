@@ -23,10 +23,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import red.jackf.lenientdeath.ItemResilience;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
+import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
+import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
 
 @Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck {
+public abstract class ItemEntityMixin extends Entity implements LDDeathDropMarkable, LDGroundedPosHolder {
     @Unique private boolean isDeathDropItem = false;
     @Unique
     private @Nullable GlobalPos lastGroundedPos = null;
@@ -35,7 +36,7 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
         super(entityType, level);
     }
 
-    // mark as death drop
+    // death drop set/get
     @Override
     public void lenientdeath$markDeathDropItem() {
         this.isDeathDropItem = true;
@@ -46,7 +47,7 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
         return this.isDeathDropItem;
     }
 
-    // last grounded pos
+    // last grounded pos set/get
     @Override
     public @Nullable GlobalPos lenientdeath$getLastGroundedPosition() {
         return this.lastGroundedPos;
@@ -57,9 +58,9 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
         this.lastGroundedPos = pos;
     }
 
-    // persistence over chunk load/unload
+    // read grounded position
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
-    private void lenientdeath$saveModData(CompoundTag tag, CallbackInfo ci) {
+    private void lenientdeath$readModData(CompoundTag tag, CallbackInfo ci) {
         this.isDeathDropItem = tag.getBoolean(IS_DEATH_DROP_ITEM);
         if (tag.contains(LAST_GROUNDED_POS, Tag.TAG_COMPOUND))
             this.lastGroundedPos = GlobalPos.CODEC.parse(NbtOps.INSTANCE, tag.getCompound(LAST_GROUNDED_POS))
@@ -67,6 +68,7 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
                                                   .orElse(null);
     }
 
+    // save grounded position
     @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     private void lenientdeath$addModData(CompoundTag tag, CallbackInfo ci) {
         tag.putBoolean(IS_DEATH_DROP_ITEM, this.isDeathDropItem);
@@ -79,10 +81,14 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
     // dont merge non-death drop item with death drop item
     @ModifyExpressionValue(method = "tryToMerge(Lnet/minecraft/world/entity/item/ItemEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;areMergable(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"))
     private boolean lenientdeath$onlyMergeIfBothDeathDrops(boolean original, ItemEntity other) {
-        return original && this.isDeathDropItem == ((LDItemEntityDuck) other).lenientdeath$isDeathDropItem();
+        return original && this.isDeathDropItem == ((LDDeathDropMarkable) other).lenientdeath$isDeathDropItem();
     }
 
-    // item damages
+    //////////////
+    // FEATURES //
+    //////////////
+
+    // prevent cactus, explosion, or tag blacklisted damages
     @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
     private void lenientdeath$makeImmuneToDamage(
             DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
@@ -94,6 +100,7 @@ public abstract class ItemEntityMixin extends Entity implements LDItemEntityDuck
         }
     }
 
+    // prevent fire damage
     @ModifyReturnValue(method = "fireImmune()Z", at = @At("RETURN"))
     private boolean lenientdeath$forceFireImmuneIfNeeded(boolean original) {
         return this.isDeathDropItem && LenientDeathConfig.INSTANCE.get().itemResilience.allDeathItemsAreFireProof || original;

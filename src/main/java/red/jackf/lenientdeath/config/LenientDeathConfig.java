@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.LenientDeath;
-import red.jackf.lenientdeath.mixinutil.LDServerPlayerDuck;
+import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
 
 import java.util.ArrayList;
@@ -509,7 +509,7 @@ public class LenientDeathConfig {
 
     public enum PerPlayerEnabled {
         yes(p -> true),
-        per_player(LDServerPlayerDuck::isEnabledFor),
+        per_player(LDPerPlayer::isEnabledFor),
         no(p -> false);
 
         private final Predicate<Player> test;

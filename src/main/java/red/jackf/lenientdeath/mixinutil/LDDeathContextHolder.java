@@ -2,10 +2,6 @@ package red.jackf.lenientdeath.mixinutil;
 
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Used to keep track of a player's per-player status.
- */
-public interface LDServerPlayerDuck extends LDGroundedPosHolder {
-
+public interface LDDeathContextHolder {
     @Nullable DeathContext lenientdeath$getDeathContext();
 }

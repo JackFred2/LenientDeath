@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
-import red.jackf.lenientdeath.mixinutil.LDItemEntityDuck;
+import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
@@ -79,7 +79,7 @@ public class LenientDeath implements ModInitializer {
     public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item) {
         ItemGlow.addItemGlow(serverPlayer, item);
         ItemLifeExtender.extendItemLifetime(item);
-        ((LDItemEntityDuck) item).lenientdeath$markDeathDropItem();
+        ((LDDeathDropMarkable) item).lenientdeath$markDeathDropItem();
         ItemResilience.handle(serverPlayer, item);
     }
 }
