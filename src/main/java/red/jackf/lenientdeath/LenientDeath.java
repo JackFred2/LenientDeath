@@ -80,6 +80,5 @@ public class LenientDeath implements ModInitializer {
         ItemGlow.addItemGlow(serverPlayer, item);
         ItemLifeExtender.extendItemLifetime(item);
         ((LDDeathDropMarkable) item).lenientdeath$markDeathDropItem();
-        ItemResilience.handle(serverPlayer, item);
     }
 }

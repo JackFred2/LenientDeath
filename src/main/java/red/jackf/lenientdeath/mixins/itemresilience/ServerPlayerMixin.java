@@ -7,13 +7,17 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -25,8 +29,12 @@ import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements LDGroundedPosHolder, LDDeathContextHolder {
+    @Shadow
+    @Final
+    public MinecraftServer server;
+
     /**
-     * The last position that an entity was on the ground. Actively updated for a player, only copied for an item entity.
+     * The last position that an entity was on the ground.
      */
     @Unique
     private @Nullable GlobalPos lastGroundedPos = null;
@@ -66,7 +74,16 @@ public abstract class ServerPlayerMixin extends Player implements LDGroundedPosH
     @ModifyReceiver(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     private Level lenientdeath$moveIfVoidedAndEnabled(Level original, Entity entity) {
-
+        if (this.deathContext != null
+                && this.deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD)
+                && this.lastGroundedPos != null) {
+            if (!this.lastGroundedPos.dimension().equals(original.dimension())) {
+                LenientDeath.LOGGER.debug(this.lastGroundedPos.toString());
+                var targetLevel = this.server.getLevel(this.lastGroundedPos.dimension());
+                LenientDeath.LOGGER.debug(String.valueOf(targetLevel));
+                if (targetLevel != null) return targetLevel;
+            }
+        }
         return original;
     }
 
