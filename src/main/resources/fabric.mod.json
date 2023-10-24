@@ -10,7 +10,8 @@
 	"contact": {
 		"homepage": "https://modrinth.com/mod/lenient-death",
 		"sources": "https://github.com/JackFred2/LenientDeath",
-		"issues": "https://github.com/JackFred2/LenientDeath/issues"
+		"issues": "https://github.com/JackFred2/LenientDeath/issues",
+		"wiki": "https://github.com/JackFred2/LenientDeath/wiki"
 	},
 	"license": "LGPL-3.0-only",
 	"icon": "assets/lenientdeath/icon.png",
