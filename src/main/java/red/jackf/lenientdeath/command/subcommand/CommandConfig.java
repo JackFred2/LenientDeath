@@ -362,12 +362,28 @@ public class CommandConfig {
                 config -> config.itemResilience.allDeathItemsAreExplosionProof,
                 (config, newValue) -> config.itemResilience.allDeathItemsAreExplosionProof = newValue
         ));
+
+        root.then(makeVoidRecoveryNode());
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeVoidRecoveryNode() {
+        var root = Commands.literal("voidRecovery");
+
         root.then(makeEnum(
-                "voidRecoveryMode",
-                "itemResilience.voidRecoveryMode",
-                LenientDeathConfig.ItemResilience.VoidRecoveryMode.class,
-                config -> config.itemResilience.voidRecoveryMode,
-                (config, newValue) -> config.itemResilience.voidRecoveryMode = newValue
+                "mode",
+                "itemResilience.voidRecovery.mode",
+                LenientDeathConfig.ItemResilience.VoidRecovery.Mode.class,
+                config -> config.itemResilience.voidRecovery.mode,
+                (config, newValue) -> config.itemResilience.voidRecovery.mode = newValue
+        ));
+
+        root.then(makeBoolean(
+                "announce",
+                "itemResilience.voidRecovery.announce",
+                config -> config.itemResilience.voidRecovery.announce,
+                (config, newValue) -> config.itemResilience.voidRecovery.announce = newValue
         ));
 
         return root;

@@ -166,18 +166,35 @@ public class LenientDeathConfig {
         public boolean allDeathItemsAreExplosionProof = false;
 
         @Comment("""
+                Features related to handling item drops when a player dies to the void; for example if they fall off the
+                end island, or are playing SkyBlock.""")
+        public VoidRecovery voidRecovery = new VoidRecovery();
+
+        public static class VoidRecovery {
+
+            @Comment("""
                 How death drop items that fall into the void should be handled?
                 Options:
                   - disabled (despawn items as vanilla)
                   - last_grounded_position (teleport to last position either the player or the item was on a solid block)
-                  - keep_in_inventory (preserve all items regardless of other settings)
+                  - preserve (keep items in the inventory even if they wouldn't normally; applies to everyone)
                 Default: last_grounded_position""")
-        public VoidRecoveryMode voidRecoveryMode = VoidRecoveryMode.last_grounded_position;
+            public Mode mode = Mode.last_grounded_position;
 
-        public enum VoidRecoveryMode {
-            disabled,
-            last_grounded_position,
-            keep_in_inventory
+            @Comment("""
+                    When a player dies to the void, should Lenient Death notify them where their items were moved to? Only
+                    applies if mode = last_grounded_position.
+                    This option exists because players who may not be aware of this feature probably would not look for
+                    their items otherwise.
+                    Options: true, false
+                    Default: true""")
+            public boolean announce = true;
+
+            public enum Mode {
+                disabled,
+                last_grounded_position,
+                preserve
+            }
         }
     }
 
