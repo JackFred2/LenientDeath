@@ -58,7 +58,7 @@ public class ItemResilience {
             ifHandledVoidDeath(serverPlayer, (ctx, groundedPos, serverPlayer1) -> {
                 serverPlayer1.sendSystemMessage(Formatting.infoLine(
                         Component.translatable("lenientdeath.itemResilience.announce",
-                                               Formatting.variable(groundedPos.pos().toShortString()),
+                                               Formatting.variable(groundedPos.pos().above().toShortString()),
                                                Formatting.variable(groundedPos.dimension().location().toString()))
                 ));
 

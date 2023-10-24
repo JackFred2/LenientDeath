@@ -166,7 +166,7 @@ public class PerPlayer {
 
         ((LDPerPlayer) player).lenientdeath$setPerPlayerEnabled(false);
 
-        var message = Formatting.successLine(
+        var message = Formatting.errorLine(
                 translatable("lenientdeath.command.perPlayer.setPlayerDisabled",
                              Formatting.player(player))
         );
