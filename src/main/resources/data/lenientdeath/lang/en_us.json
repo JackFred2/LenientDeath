@@ -22,6 +22,7 @@
   "lenientdeath.command.config.list.added": "%s: Added %s",
   "lenientdeath.command.config.list.removed": "%s: Removed %s",
   "lenientdeath.command.config.requiresWorldReload": "Requires a world reload / server restart to take effect",
+  "lenientdeath.command.config.clickToOpenWiki": "Click to open the wiki page for this option",
   "lenientdeath.command.utilies.safeCheck.success": "%s will be preserved",
   "lenientdeath.command.utilies.safeCheck.random": "%s will be preserved with a %d%% chance",
   "lenientdeath.command.utilies.safeCheck.failure": "%s will not be preserved",

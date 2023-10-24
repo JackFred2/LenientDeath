@@ -11,7 +11,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -22,6 +22,7 @@ import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.Presets;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -31,9 +32,26 @@ import java.util.stream.Stream;
 import static net.minecraft.network.chat.Component.literal;
 import static net.minecraft.network.chat.Component.translatable;
 
-@SuppressWarnings({"ExtractMethodRecommender", "SameParameterValue"})
+@SuppressWarnings({"SameParameterValue"})
 public class CommandConfig {
     private CommandConfig() {}
+
+    private static final String BASE_WIKI_URL = "https://github.com/JackFred2/LenientDeath/wiki/";
+
+    private static String makeWikiLink(String basePage, String optionName) {
+        return BASE_WIKI_URL + basePage + "#" + optionName.toLowerCase(Locale.ROOT).replace(".", "");
+    }
+
+    private interface WikiPage {
+        String ITEM_RESILIENCE = "Item-Resilience";
+        String CONFIG = "Home";
+        String COMMAND = "Command";
+        String PER_PLAYER = "Per-Player";
+        String DROPPED_ITEM_GLOW = "Dropped-Item-Glow";
+        String EXTENDED_DEATH_ITEM_LIFETIME = "Extended-Death-Item-Lifetime";
+        String PRESERVE_EXPERIENCE_ON_DEATH = "Preserve-Experience-on-Death";
+        String PRESERVE_ITEMS_ON_DEATH = "Preserve-Items-on-Death";
+    }
 
     public static final Predicate<CommandSourceStack> CHANGE_CONFIG_PREDICATE = Permissions.require(
             PermissionKeys.CONFIG,
@@ -50,18 +68,31 @@ public class CommandConfig {
         getConfig().onLoad(null);
     }
 
+    private static Component optionTitle(String name, String fullName, String baseWikiPage) {
+        return Formatting.variable(literal(name).withStyle(Style.EMPTY.withHoverEvent(
+                new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                               Component.empty()
+                                        .append(Formatting.variable("$." + fullName))
+                                        .append(CommonComponents.NEW_LINE)
+                                        .append(translatable("lenientdeath.command.config.clickToOpenWiki")))
+        ).withClickEvent(
+                new ClickEvent(ClickEvent.Action.OPEN_URL, makeWikiLink(baseWikiPage, fullName))
+        )));
+    }
+
     //////////////
     // BUILDERS //
     //////////////
     private static LiteralArgumentBuilder<CommandSourceStack> makeBoolean(String name,
                                                                           String fullName,
+                                                                          String baseWikiPage,
                                                                           Function<LenientDeathConfig, Boolean> get,
                                                                           BiConsumer<LenientDeathConfig, Boolean> set) {
         return Commands.literal(name)
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
-                                     Formatting.variable(fullName),
+                                     optionTitle(name, fullName, baseWikiPage),
                                      Formatting.bool(get.apply(getConfig())))
                 ), false);
 
@@ -71,7 +102,7 @@ public class CommandConfig {
                     if (get.apply(getConfig())) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                             translatable("lenientdeath.command.config.unchanged",
-                                         Formatting.variable(fullName),
+                                         optionTitle(name, fullName, baseWikiPage),
                                          Formatting.bool(true))
                         ));
 
@@ -81,7 +112,7 @@ public class CommandConfig {
                         verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.bool(false),
                                              Formatting.bool(true))
                         ), true);
@@ -94,7 +125,7 @@ public class CommandConfig {
                     if (!get.apply(getConfig())) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.unchanged",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.bool(false))
                         ));
 
@@ -104,7 +135,7 @@ public class CommandConfig {
                         verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.bool(true),
                                              Formatting.bool(false))
                         ), true);
@@ -117,6 +148,7 @@ public class CommandConfig {
 
     private static <E extends Enum<E>> LiteralArgumentBuilder<CommandSourceStack> makeEnum(String name,
                                                                           String fullName,
+                                                                          String baseWikiPage,
                                                                           Class<E> enumClass,
                                                                           Function<LenientDeathConfig, E> get,
                                                                           BiConsumer<LenientDeathConfig, E> set) {
@@ -124,7 +156,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
-                                     Formatting.variable(fullName),
+                                     optionTitle(name, fullName, baseWikiPage),
                                      Formatting.string(get.apply(getConfig()).name()))
                 ), false);
 
@@ -138,7 +170,7 @@ public class CommandConfig {
                     if (old == constant) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.unchanged",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(constant.name()))
                         ));
 
@@ -148,7 +180,7 @@ public class CommandConfig {
                         verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(old.name()),
                                              Formatting.string(constant.name()))
                         ), true);
@@ -164,6 +196,7 @@ public class CommandConfig {
 
     private static LiteralArgumentBuilder<CommandSourceStack> makeIntRange(String name,
                                                                            String fullName,
+                                                                           String baseWikiPage,
                                                                            int min,
                                                                            int max,
                                                                            Function<LenientDeathConfig, Integer> get,
@@ -172,7 +205,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
-                                     Formatting.variable(fullName),
+                                     optionTitle(name, fullName, baseWikiPage),
                                      Formatting.integer(get.apply(getConfig())))
                 ), false);
 
@@ -184,7 +217,7 @@ public class CommandConfig {
                     if (old == newValue) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.unchanged",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.integer(old))
                         ));
 
@@ -194,7 +227,7 @@ public class CommandConfig {
                         verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.integer(old),
                                              Formatting.integer(newValue))
                         ), true);
@@ -206,16 +239,17 @@ public class CommandConfig {
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> makeFloatRange(String name,
-                                                                           String fullName,
-                                                                           float min,
-                                                                           float max,
-                                                                           Function<LenientDeathConfig, Float> get,
-                                                                           BiConsumer<LenientDeathConfig, Float> set) {
+                                                                             String fullName,
+                                                                             String baseWikiPage,
+                                                                             float min,
+                                                                             float max,
+                                                                             Function<LenientDeathConfig, Float> get,
+                                                                             BiConsumer<LenientDeathConfig, Float> set) {
         return Commands.literal(name)
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
-                                     Formatting.variable(fullName),
+                                     optionTitle(name, fullName, baseWikiPage),
                                      Formatting.floating(get.apply(getConfig())))
                 ), false);
 
@@ -227,7 +261,7 @@ public class CommandConfig {
                     if (old == newValue) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.unchanged",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.floating(old))
                         ));
 
@@ -237,7 +271,7 @@ public class CommandConfig {
                         verifySafeAndLoad();
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.floating(old),
                                              Formatting.floating(newValue))
                         ), true);
@@ -251,13 +285,14 @@ public class CommandConfig {
 
     private static LiteralArgumentBuilder<CommandSourceStack> makeWord(String name,
                                                                        String fullName,
+                                                                       String baseWikiPage,
                                                                        Function<LenientDeathConfig, String> get,
                                                                        BiConsumer<LenientDeathConfig, String> set) {
         return Commands.literal(name)
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
-                                     Formatting.variable(fullName),
+                                     optionTitle(name, fullName, baseWikiPage),
                                      Formatting.string(get.apply(getConfig())))
                 ), false);
 
@@ -269,7 +304,7 @@ public class CommandConfig {
                     if (old.equals(newValue)) {
                         ctx.getSource().sendFailure(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.unchanged",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(old))
                         ));
 
@@ -280,7 +315,7 @@ public class CommandConfig {
 
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
-                                             Formatting.variable(fullName),
+                                             optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(old),
                                              Formatting.string(newValue))
                         ), true);
@@ -319,6 +354,7 @@ public class CommandConfig {
         root.then(makeBoolean(
                 "allDeathItemsAreFireProof",
                 "itemResilience.allDeathItemsAreFireProof",
+                WikiPage.ITEM_RESILIENCE,
                 config -> config.itemResilience.allDeathItemsAreFireProof,
                 (config, newValue) -> config.itemResilience.allDeathItemsAreFireProof = newValue
         ));
@@ -326,6 +362,7 @@ public class CommandConfig {
         root.then(makeBoolean(
                 "allDeathItemsAreCactusProof",
                 "itemResilience.allDeathItemsAreCactusProof",
+                WikiPage.ITEM_RESILIENCE,
                 config -> config.itemResilience.allDeathItemsAreCactusProof,
                 (config, newValue) -> config.itemResilience.allDeathItemsAreCactusProof = newValue
         ));
@@ -333,6 +370,7 @@ public class CommandConfig {
         root.then(makeBoolean(
                 "allDeathItemsAreExplosionProof",
                 "itemResilience.allDeathItemsAreExplosionProof",
+                WikiPage.ITEM_RESILIENCE,
                 config -> config.itemResilience.allDeathItemsAreExplosionProof,
                 (config, newValue) -> config.itemResilience.allDeathItemsAreExplosionProof = newValue
         ));
@@ -348,6 +386,7 @@ public class CommandConfig {
         root.then(makeEnum(
                 "mode",
                 "itemResilience.voidRecovery.mode",
+                WikiPage.ITEM_RESILIENCE,
                 LenientDeathConfig.ItemResilience.VoidRecovery.Mode.class,
                 config -> config.itemResilience.voidRecovery.mode,
                 (config, newValue) -> config.itemResilience.voidRecovery.mode = newValue
@@ -356,6 +395,7 @@ public class CommandConfig {
         root.then(makeBoolean(
                 "announce",
                 "itemResilience.voidRecovery.announce",
+                WikiPage.ITEM_RESILIENCE,
                 config -> config.itemResilience.voidRecovery.announce,
                 (config, newValue) -> config.itemResilience.voidRecovery.announce = newValue
         ));
@@ -386,23 +426,27 @@ public class CommandConfig {
         return Commands.literal("config")
                 .then(makeBoolean("enableFileWatcher",
                                   "config.enableFileWatcher",
+                                  WikiPage.CONFIG,
                                   config -> config.config.enableFileWatcher,
                                   (config, newVal) -> config.config.enableFileWatcher = newVal))
                 .then(makeBoolean("stripComments",
                                   "config.stripComments",
+                                  WikiPage.CONFIG,
                                   config -> config.config.stripComments,
                                   (config, newVal) -> config.config.stripComments = newVal));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createMetaNode() {
         var root = Commands.literal("command");
-
         var names = Commands.literal("commandNames");
+
+        String name = "commandNames";
+        String fullName = "command.commandNames";
 
         names.executes(ctx -> {
             ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                     Component.empty()
-                             .append(Formatting.variable("command.commandNames"))
+                             .append(optionTitle(name, fullName, WikiPage.COMMAND))
                              .append(literal(":"))
             ), false);
 
@@ -411,9 +455,9 @@ public class CommandConfig {
                         translatable("lenientdeath.command.config.list.empty")
                 ), false);
             } else {
-                for (String name : getConfig().command.commandNames) {
+                for (String commandName : getConfig().command.commandNames) {
                     ctx.getSource().sendSuccess(() -> Formatting.infoLine(
-                            Formatting.listItem(Formatting.string(name))
+                            Formatting.listItem(Formatting.string(commandName))
                     ), false);
                 }
             }
@@ -424,23 +468,23 @@ public class CommandConfig {
         var add = Commands.literal("add")
             .then(Commands.argument("commandName", StringArgumentType.word())
                 .executes(ctx -> {
-                    var name = StringArgumentType.getString(ctx, "commandName");
+                    var commandName = StringArgumentType.getString(ctx, "commandName");
                     var config = getConfig().command;
-                    if (config.commandNames.contains(name)) {
+                    if (config.commandNames.contains(commandName)) {
                         ctx.getSource().sendFailure(Formatting.errorLine(
                                 translatable("lenientdeath.command.config.list.alreadyContains",
-                                             Formatting.variable("command.commandNames"),
-                                             Formatting.string(name))
+                                             optionTitle(name, fullName, WikiPage.COMMAND),
+                                             Formatting.string(commandName))
                         ));
 
                         return 0;
                     } else {
-                        config.commandNames.add(name);
+                        config.commandNames.add(commandName);
 
                         ctx.getSource().sendSuccess(() -> Formatting.successLine(
                                 translatable("lenientdeath.command.config.list.added",
-                                             Formatting.variable("command.commandNames"),
-                                             Formatting.string(name))
+                                             optionTitle(name, fullName, WikiPage.COMMAND),
+                                             Formatting.string(commandName))
                         ), true);
 
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
@@ -457,23 +501,23 @@ public class CommandConfig {
             .then(Commands.argument("commandName", StringArgumentType.word())
                 .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(getConfig().command.commandNames, builder))
                 .executes(ctx -> {
-                    var name = StringArgumentType.getString(ctx, "commandName");
+                    var commandName = StringArgumentType.getString(ctx, "commandName");
                     var config = getConfig().command;
-                    if (!config.commandNames.contains(name)) {
+                    if (!config.commandNames.contains(commandName)) {
                         ctx.getSource().sendFailure(Formatting.errorLine(
                                 translatable("lenientdeath.command.config.list.doesNotContain",
-                                             Formatting.variable("command.commandNames"),
-                                             Formatting.string(name))
+                                             optionTitle(name, fullName, WikiPage.COMMAND),
+                                             Formatting.string(commandName))
                         ));
 
                         return 0;
                     } else {
-                        config.commandNames.remove(name);
+                        config.commandNames.remove(commandName);
 
                         ctx.getSource().sendSuccess(() -> Formatting.successLine(
                                 translatable("lenientdeath.command.config.list.removed",
-                                             Formatting.variable("command.commandNames"),
-                                             Formatting.string(name))
+                                             optionTitle(name, fullName, WikiPage.COMMAND),
+                                             Formatting.string(commandName))
                         ), true);
 
                         ctx.getSource().sendSuccess(() -> Formatting.infoLine(
@@ -498,10 +542,12 @@ public class CommandConfig {
         return Commands.literal("perPlayer")
             .then(makeBoolean("defaultEnabledForPlayer",
                 "perPlayer.defaultEnabledForPlayer",
+                WikiPage.PER_PLAYER,
                 config -> config.perPlayer.defaultEnabledForPlayer,
                 (config, newVal) -> config.perPlayer.defaultEnabledForPlayer = newVal))
             .then(makeBoolean("playersCanChangeTheirOwnSetting",
                 "perPlayer.playersCanChangeTheirOwnSetting",
+                WikiPage.PER_PLAYER,
                 config -> config.perPlayer.playersCanChangeTheirOwnSetting,
                 (config, newVal) -> config.perPlayer.playersCanChangeTheirOwnSetting = newVal));
     }
@@ -510,33 +556,39 @@ public class CommandConfig {
         return Commands.literal("droppedItemGlow")
             .then(makeBoolean("enabled",
                 "droppedItemGlow.enabled",
+                WikiPage.DROPPED_ITEM_GLOW,
                 config -> config.droppedItemGlow.enabled,
                 (config, newVal) -> config.droppedItemGlow.enabled = newVal))
             .then(makeEnum("glowVisibility",
                 "droppedItemGlow.glowVisibility",
+                WikiPage.DROPPED_ITEM_GLOW,
                 LenientDeathConfig.DroppedItemGlow.Visibility.class,
                 config -> config.droppedItemGlow.glowVisibility,
                 (config, newVal) -> config.droppedItemGlow.glowVisibility = newVal))
             .then(makeBoolean("noTeamIsValidTeam",
-               "droppedItemGlow.noTeamIsValidTeam",
-               config -> config.droppedItemGlow.noTeamIsValidTeam,
-               (config, newVal) -> config.droppedItemGlow.noTeamIsValidTeam = newVal));
+                "droppedItemGlow.noTeamIsValidTeam",
+                WikiPage.DROPPED_ITEM_GLOW,
+                config -> config.droppedItemGlow.noTeamIsValidTeam,
+                (config, newVal) -> config.droppedItemGlow.noTeamIsValidTeam = newVal));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createExtendedDeathItemLifetime() {
         return Commands.literal("extendedDeathItemLifetime")
             .then(makeBoolean("enabled",
                 "extendedDeathItemLifetime.enabled",
+                WikiPage.EXTENDED_DEATH_ITEM_LIFETIME,
                 config -> config.extendedDeathItemLifetime.enabled,
                 (config, newVal) -> config.extendedDeathItemLifetime.enabled = newVal))
             .then(makeIntRange("deathDropItemLifetimeSeconds",
                 "extendedDeathItemLifetime.deathDropItemLifetimeSeconds",
+                WikiPage.EXTENDED_DEATH_ITEM_LIFETIME,
                 0,
                 1800,
                 config -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds,
                 (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemLifetimeSeconds = newVal))
             .then(makeBoolean("deathDropItemsNeverDespawn",
                 "extendedDeathItemLifetime.deathDropItemsNeverDespawn",
+                WikiPage.EXTENDED_DEATH_ITEM_LIFETIME,
                 config -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn,
                 (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn = newVal));
     }
@@ -545,11 +597,13 @@ public class CommandConfig {
         return Commands.literal("preserveExperienceOnDeath")
             .then(makeEnum("enabled",
                 "preserveExperienceOnDeath.enabled",
+                WikiPage.PRESERVE_EXPERIENCE_ON_DEATH,
                 LenientDeathConfig.PerPlayerEnabled.class,
                 config -> config.preserveExperienceOnDeath.enabled,
                 (config, newVal) -> config.preserveExperienceOnDeath.enabled = newVal))
             .then(makeIntRange("preservedPercentage",
                 "preserveExperienceOnDeath.preservedPercentage",
+                WikiPage.PRESERVE_EXPERIENCE_ON_DEATH,
                 0,
                 100,
                 config -> config.preserveExperienceOnDeath.preservedPercentage,
@@ -563,6 +617,7 @@ public class CommandConfig {
             BiConsumer<LenientDeathConfig.PreserveItemsOnDeath.ByItemType, LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior> set) {
         return makeEnum(typeName,
                         "preserveItemsOnDeath.byItemType." + typeName,
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
                         LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior.class,
                         config -> get.apply(config.preserveItemsOnDeath.byItemType),
                         (config, newVal) -> set.accept(config.preserveItemsOnDeath.byItemType, newVal));
@@ -602,7 +657,7 @@ public class CommandConfig {
             .executes(ctx -> {
                 ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                         Component.empty()
-                                 .append(Formatting.variable(fullName))
+                                 .append(optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH))
                                  .append(literal(":"))
                 ), false);
 
@@ -644,7 +699,7 @@ public class CommandConfig {
                         if (list.contains(id)) {
                             ctx.getSource().sendFailure(Formatting.errorLine(
                                     translatable("lenientdeath.command.config.list.alreadyContains",
-                                                 fullName,
+                                                 optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))
                             ));
 
@@ -655,7 +710,7 @@ public class CommandConfig {
 
                             ctx.getSource().sendSuccess(() -> Formatting.successLine(
                                     translatable("lenientdeath.command.config.list.added",
-                                                 fullName,
+                                                 optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))
                             ), true);
 
@@ -673,7 +728,7 @@ public class CommandConfig {
                         if (!list.contains(id)) {
                             ctx.getSource().sendFailure(Formatting.errorLine(
                                     translatable("lenientdeath.command.config.list.doesNotContain",
-                                                 fullName,
+                                                 optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))
                             ));
 
@@ -684,7 +739,7 @@ public class CommandConfig {
 
                             ctx.getSource().sendSuccess(() -> Formatting.successLine(
                                     translatable("lenientdeath.command.config.list.removed",
-                                                 fullName,
+                                                 optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))
                             ), true);
 
@@ -699,6 +754,7 @@ public class CommandConfig {
         var root = Commands.literal("preserveItemsOnDeath")
             .then(makeEnum("enabled",
                 "preserveItemsOnDeath.enabled",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 LenientDeathConfig.PerPlayerEnabled.class,
                 config -> config.preserveItemsOnDeath.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.enabled = newVal));
@@ -706,10 +762,12 @@ public class CommandConfig {
         var nbt = Commands.literal("nbt")
             .then(makeBoolean("enabled",
                 "preserveItemsOnDeath.nbt.enabled",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 config -> config.preserveItemsOnDeath.nbt.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.nbt.enabled = newVal))
             .then(makeWord("nbtKey",
                 "preserveItemsOnDeath.nbt.nbtKey",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 config -> config.preserveItemsOnDeath.nbt.nbtKey,
                 (config, newVal) -> config.preserveItemsOnDeath.nbt.nbtKey = newVal));
 
@@ -726,6 +784,7 @@ public class CommandConfig {
         var itemType = Commands.literal("byItemType")
             .then(makeBoolean("enabled",
                 "preserveItemsOnDeath.byItemType.enabled",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 config -> config.preserveItemsOnDeath.byItemType.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
 
@@ -755,22 +814,26 @@ public class CommandConfig {
         var randomizer = Commands.literal("randomizer")
             .then(makeBoolean("enabled",
                 "preserveItemsOnDeath.randomizer.enabled",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 config -> config.preserveItemsOnDeath.randomizer.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.randomizer.enabled = newVal))
             .then(makeIntRange("preservedPercentage",
                 "preserveItemsOnDeath.randomizer.preservedPercentage",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 0,
                 100,
                 config -> config.preserveItemsOnDeath.randomizer.preservedPercentage,
                 (config, newVal) -> config.preserveItemsOnDeath.randomizer.preservedPercentage = newVal))
             .then(makeIntRange("luckAdditiveFactor",
                 "preserveItemsOnDeath.randomizer.luckAdditiveFactor",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 0,
                 200,
                 config -> config.preserveItemsOnDeath.randomizer.luckAdditiveFactor,
                 (config, newVal) -> config.preserveItemsOnDeath.randomizer.luckAdditiveFactor = newVal))
             .then(makeFloatRange("luckMultiplierFactor",
                 "preserveItemsOnDeath.randomizer.luckMultiplierFactor",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 0,
                 10,
                 config -> config.preserveItemsOnDeath.randomizer.luckMultiplierFactor,
