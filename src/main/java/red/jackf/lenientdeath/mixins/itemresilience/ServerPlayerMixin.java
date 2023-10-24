@@ -10,7 +10,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -22,6 +21,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import red.jackf.lenientdeath.ItemResilience;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.mixinutil.DeathContext;
 import red.jackf.lenientdeath.mixinutil.LDDeathContextHolder;
@@ -74,16 +74,14 @@ public abstract class ServerPlayerMixin extends Player implements LDGroundedPosH
     @ModifyReceiver(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     private Level lenientdeath$moveIfVoidedAndEnabled(Level original, Entity entity) {
-        if (this.deathContext != null
-                && this.deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD)
-                && this.lastGroundedPos != null) {
-            if (!this.lastGroundedPos.dimension().equals(original.dimension())) {
-                LenientDeath.LOGGER.debug(this.lastGroundedPos.toString());
-                var targetLevel = this.server.getLevel(this.lastGroundedPos.dimension());
-                LenientDeath.LOGGER.debug(String.valueOf(targetLevel));
-                if (targetLevel != null) return targetLevel;
+        var targetLevel = ItemResilience.ifHandledVoidDeath(this, (deathContext, lastGroundedPos, player) -> {
+            if (!lastGroundedPos.dimension().equals(original.dimension())) {
+                return this.server.getLevel(lastGroundedPos.dimension());
+            } else {
+                return null;
             }
-        }
+        });
+        if (targetLevel != null) return targetLevel;
         return original;
     }
 

@@ -7,6 +7,7 @@ import red.jackf.lenientdeath.mixins.itemlifeextender.ItemEntityAccessor;
 
 public class ItemLifeExtender {
     private ItemLifeExtender() {}
+
     public static void extendItemLifetime(ItemEntity item) {
         LenientDeathConfig.ExtendedDeathItemLifetime lifetimeConfig = LenientDeathConfig.INSTANCE.get().extendedDeathItemLifetime;
         if (lifetimeConfig.enabled) {
