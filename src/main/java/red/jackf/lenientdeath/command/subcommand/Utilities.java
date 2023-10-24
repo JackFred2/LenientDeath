@@ -12,19 +12,22 @@ import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.commands.arguments.item.ItemArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.PermissionKeys;
-import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 import red.jackf.lenientdeath.preserveitems.Randomizer;
 
 import java.util.function.Predicate;
+
+import static net.minecraft.network.chat.Component.translatable;
+import static red.jackf.lenientdeath.command.Formatting.listItem;
+import static red.jackf.lenientdeath.command.Formatting.variable;
 
 public class Utilities {
     private Utilities() {}
@@ -61,48 +64,7 @@ public class Utilities {
             .requires(LIST_TAG_ITEMS_PREDICATE)
             .then(Commands.argument("tag", ResourceLocationArgument.id())
                 .suggests(Utilities.createTagSuggestor(context))
-                .executes(ctx -> {
-                    ResourceLocation id = ResourceLocationArgument.getId(ctx, "tag");
-                    var tag = context.holderLookup(Registries.ITEM).get(TagKey.create(Registries.ITEM, id));
-
-                    // if valid tag
-                    if (tag.isPresent()) {
-                        // title
-                        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                            CommandFormatting.text(
-                                Component.translatable("lenientdeath.command.utilies.listItemsInTag",
-                                    CommandFormatting.variable("#" + id).resolve(CommandFormatting.TextType.BLANK)))
-                        ), false);
-
-                        var items = tag.get().stream().toList();
-
-                        if (items.isEmpty()) { // empty tag
-                            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                                Component.translatable("lenientdeath.command.config.listEmpty")
-                            ), false);
-
-                            return 0;
-                        } else { // non-empty tag
-                            for (Holder<Item> item : items) {
-                                var key = item.unwrapKey();
-                                key.ifPresent(itemResourceKey ->
-                                    ctx.getSource()
-                                    .sendSuccess(() -> CommandFormatting.info(
-                                        CommandConfig.LIST_PREFIX,
-                                        CommandFormatting.variable(itemResourceKey.location().toString())
-                                    ), false)
-                                );
-                            }
-                        }
-                        return 1;
-                    } else { // invalid tag
-                        ctx.getSource().sendFailure(CommandFormatting.error(
-                            Component.translatable("lenientdeath.command.config.unknownId",
-                                CommandFormatting.variable(String.valueOf(id)).resolve(CommandFormatting.TextType.BLANK))
-                        ));
-                        return 0;
-                    }
-                })
+                .executes(ctx -> listTagItems(ctx, context))
             );
 
         root.then(safeCheck);
@@ -111,23 +73,68 @@ public class Utilities {
         return root;
     }
 
+    private static int listTagItems(CommandContext<CommandSourceStack> ctx, CommandBuildContext context) {
+        ResourceLocation id = ResourceLocationArgument.getId(ctx, "tag");
+        var tag = context.holderLookup(Registries.ITEM).get(TagKey.create(Registries.ITEM, id));
+
+        // if valid tag
+        if (tag.isPresent()) {
+            // title
+            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                translatable("lenientdeath.command.utilies.listItemsInTag",
+                             Formatting.variable("#" + id))
+            ), false);
+
+            var items = tag.get().stream().toList();
+
+            if (items.isEmpty()) { // empty tag
+                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        translatable("lenientdeath.command.config.listEmpty")
+                ), false);
+
+                return 0;
+            } else { // non-empty tag
+                for (Holder<Item> item : items) {
+                    item.unwrapKey()
+                        .ifPresent(key ->
+                                   ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                                               listItem(variable(key.location().toString()))
+                                   ), false)
+                    );
+                }
+            }
+            return 1;
+        } else { // invalid tag
+            ctx.getSource().sendFailure(Formatting.errorLine(
+                    translatable("lenientdeath.command.config.unknownId",
+                                 variable(id.toString()))
+            ));
+            return 0;
+        }
+    }
+
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
         var test = PreserveItems.INSTANCE.shouldPreserve(null, stack);
         var random = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.randomizer;
         if (test != null && test) {
-            ctx.getSource().sendSuccess(() -> CommandFormatting.success(
-                Component.translatable("lenientdeath.command.utilies.safeCheck.success", stack.getDisplayName())
+            ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                translatable("lenientdeath.command.utilies.safeCheck.success",
+                             variable(stack.getHoverName()))
             ), false);
 
             return 1;
         } else if (test == null && random.enabled) {
-            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                    Component.translatable("lenientdeath.command.utilies.safeCheck.random", stack.getDisplayName(), Randomizer.INSTANCE.getChanceToKeep(ctx.getSource().getPlayer()) * 100)
+            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                translatable("lenientdeath.command.utilies.safeCheck.random",
+                             variable(stack.getHoverName()),
+                             variable(String.valueOf(Randomizer.INSTANCE.getChanceToKeep(ctx.getSource().getPlayer()) * 100)))
             ), false);
+
             return 1;
         } else {
-            ctx.getSource().sendSuccess(() -> CommandFormatting.error(
-                    Component.translatable("lenientdeath.command.utilies.safeCheck.failure", stack.getDisplayName())
+            ctx.getSource().sendSuccess(() -> Formatting.errorLine(
+                    translatable("lenientdeath.command.utilies.safeCheck.failure",
+                                 variable(stack.getHoverName()))
             ), false);
 
             return 0;

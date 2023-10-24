@@ -13,6 +13,7 @@ All features are toggleable and highly configurable. Out of the box, you'll get:
 - Preserve only some items on death - think of it as a _filtered_ `/gamerule keepInventory`.
   - Multiple criteria, including a manual safe list, by item type, ad-hoc soulbound system, and optionally by pure chance.
   - For more details, see [the wiki page](https://github.com/JackFred2/LenientDeath/wiki/Preserve-Items-on-Death).
+  - Inspired by Starbound's death system.
 - Give dropped items a glowing outline, helping you find your way back. Recommended to increase your Entity View Distance!
 - Void Immunity for items - they will be teleported to a safe place instead of despawning.
 

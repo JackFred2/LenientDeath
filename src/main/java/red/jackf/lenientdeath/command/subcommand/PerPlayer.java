@@ -6,12 +6,11 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.PermissionKeys;
-import red.jackf.lenientdeath.command.CommandFormatting;
+import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.command.PermissionsExt;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
@@ -21,7 +20,6 @@ import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import java.util.function.Predicate;
 
 import static net.minecraft.network.chat.Component.translatable;
-import static red.jackf.lenientdeath.command.CommandFormatting.*;
 
 public class PerPlayer {
     private PerPlayer() {}
@@ -93,38 +91,42 @@ public class PerPlayer {
     private static int enableFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         if (!canChangeSettingFor(ctx, player)) {
             if (ctx.getSource().getPlayer() == player) {
-                ctx.getSource().sendFailure(CommandFormatting.error(translatable("lenientdeath.command.perPlayer.noPermissionToChangeSelf")));
+                ctx.getSource().sendFailure(Formatting.errorLine(
+                        translatable("lenientdeath.command.perPlayer.noPermissionToChangeSelf")
+                ));
             } else {
-                ctx.getSource().sendFailure(CommandFormatting.error(translatable("lenientdeath.command.perPlayer.noPermissionToChangeOthers")));
+                ctx.getSource().sendFailure(Formatting.errorLine(
+                        translatable("lenientdeath.command.perPlayer.noPermissionToChangeOthers")
+                ));
             }
             return 0;
         }
 
         if (LDPerPlayer.isHandledByPermission(player)) {
-            ctx.getSource().sendFailure(CommandFormatting.error(
-                translatable("lenientdeath.command.perPlayer.handledByPermissions",
-                    CommandFormatting.player(player).resolve(TextType.BLANK))));
+            ctx.getSource().sendFailure(Formatting.errorLine(
+                    translatable("lenientdeath.command.perPlayer.handledByPermissions",
+                                 Formatting.player(player))
+            ));
 
             return 0;
         }
 
         boolean isEnabled = ((LDPerPlayer) player).lenientdeath$isPerPlayerEnabled();
         if (isEnabled) {
-            ctx.getSource().sendFailure(CommandFormatting.info(
-                variable(player.getDisplayName().getString()),
-                symbol(": "),
-                text(translatable("lenientdeath.command.perPlayer.setPlayerAlreadyEnabled"))
+            ctx.getSource().sendFailure(Formatting.infoLine(
+                    translatable("lenientdeath.command.perPlayer.setPlayerAlreadyEnabled",
+                                 Formatting.player(player))
             ));
             return 0;
         }
 
         ((LDPerPlayer) player).lenientdeath$setPerPlayerEnabled(true);
 
-        Component message = CommandFormatting.success(
-                variable(player.getDisplayName().getString()),
-                symbol(": "),
-                text(translatable("lenientdeath.command.perPlayer.setPlayerEnabled"))
+        var message = Formatting.successLine(
+                translatable("lenientdeath.command.perPlayer.setPlayerEnabled",
+                             Formatting.player(player))
         );
+
         ctx.getSource().sendSuccess(() -> message, true);
         if (ctx.getSource().getPlayer() != player) player.sendSystemMessage(message);
         return 1;
@@ -133,38 +135,42 @@ public class PerPlayer {
     private static int disableFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         if (!canChangeSettingFor(ctx, player)) {
             if (ctx.getSource().getPlayer() == player) {
-                ctx.getSource().sendFailure(CommandFormatting.error(translatable("lenientdeath.command.perPlayer.noPermissionToChangeSelf")));
+                ctx.getSource().sendFailure(Formatting.errorLine(
+                        translatable("lenientdeath.command.perPlayer.noPermissionToChangeSelf")
+                ));
             } else {
-                ctx.getSource().sendFailure(CommandFormatting.error(translatable("lenientdeath.command.perPlayer.noPermissionToChangeOthers")));
+                ctx.getSource().sendFailure(Formatting.errorLine(
+                        translatable("lenientdeath.command.perPlayer.noPermissionToChangeOthers")
+                ));
             }
             return 0;
         }
 
         if (LDPerPlayer.isHandledByPermission(player)) {
-            ctx.getSource().sendFailure(CommandFormatting.error(
-                translatable("lenientdeath.command.perPlayer.handledByPermissions",
-                    CommandFormatting.player(player).resolve(TextType.BLANK))));
+            ctx.getSource().sendFailure(Formatting.errorLine(
+                    translatable("lenientdeath.command.perPlayer.handledByPermissions",
+                                 Formatting.player(player))
+            ));
 
             return 0;
         }
 
         boolean isEnabled = ((LDPerPlayer) player).lenientdeath$isPerPlayerEnabled();
         if (!isEnabled) {
-            ctx.getSource().sendFailure(CommandFormatting.info(
-                    variable(player.getDisplayName().getString()),
-                    symbol(": "),
-                    text(translatable("lenientdeath.command.perPlayer.setPlayerAlreadyDisabled"))
+            ctx.getSource().sendFailure(Formatting.infoLine(
+                    translatable("lenientdeath.command.perPlayer.setPlayerAlreadyDisabled",
+                                 Formatting.player(player))
             ));
             return 0;
         }
 
         ((LDPerPlayer) player).lenientdeath$setPerPlayerEnabled(false);
 
-        Component message = CommandFormatting.error(
-                variable(player.getDisplayName().getString()),
-                symbol(": "),
-                text(translatable("lenientdeath.command.perPlayer.setPlayerDisabled"))
+        var message = Formatting.successLine(
+                translatable("lenientdeath.command.perPlayer.setPlayerDisabled",
+                             Formatting.player(player))
         );
+
         ctx.getSource().sendSuccess(() -> message, true);
         if (ctx.getSource().getPlayer() != player) player.sendSystemMessage(message);
         return 1;
@@ -172,21 +178,27 @@ public class PerPlayer {
 
     private static int checkFor(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         boolean perPlayerStatus = LDPerPlayer.isEnabledFor(player);
-        ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                variable(player.getDisplayName().getString()),
-                symbol(": "),
-                text(translatable(perPlayerStatus ? "lenientdeath.command.perPlayer.playerEnabled" : "lenientdeath.command.perPlayer.playerDisabled"))
-        ), false);
+
+        if (perPlayerStatus) {
+            ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                    translatable("lenientdeath.command.perPlayer.playerEnabled",
+                                 Formatting.player(player))
+            ), false);
+        } else {
+            ctx.getSource().sendSuccess(() -> Formatting.errorLine(
+                    translatable("lenientdeath.command.perPlayer.playerDisabled",
+                                 Formatting.player(player))
+            ), false);
+        }
 
         boolean isShownPlayerCommandSource = player == ctx.getSource().getPlayer();
         if (LDPerPlayer.isHandledByPermission(player)) {
-            ctx.getSource().sendSuccess(() -> CommandFormatting.info(
+            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
                 translatable("lenientdeath.command.perPlayer.handledByPermissions",
-                    CommandFormatting.player(player).resolve(TextType.BLANK))
+                    Formatting.player(player))
             ), false);
         } else {
-            boolean shouldShowModifyButtons = canChangeSettingFor(ctx, player)
-                    && ctx.getSource().isPlayer();
+            boolean shouldShowModifyButtons = canChangeSettingFor(ctx, player) && ctx.getSource().isPlayer();
 
             if (shouldShowModifyButtons) {
                 String rootCommand = ctx.getInput().split(" ", 2)[0];
@@ -194,22 +206,19 @@ public class PerPlayer {
 
                 String playerSuffix = isShownPlayerCommandSource ? "" : " " + player.getDisplayName().getString();
 
-                Style disableStyle = suggests(Style.EMPTY.withColor(ERROR_COLOUR), baseCommand + "disable" + playerSuffix);
-                MutableComponent disableButton = Component.empty().withStyle(disableStyle)
-                                                          .append("[")
-                                                          .append(translatable("lenientdeath.command.perPlayer.disableButton"))
-                                                          .append("]");
+                Component disableButton = Formatting.commandButton(Formatting.ERROR,
+                                                                   translatable("lenientdeath.command.perPlayer.disableButton"),
+                                                                   baseCommand + "disable" + playerSuffix);
 
-                Style enableStyle = suggests(Style.EMPTY.withColor(SUCCESS_COLOUR), baseCommand + "enable" + playerSuffix);
-                MutableComponent enableButton = Component.empty().withStyle(enableStyle)
-                                                         .append("[")
-                                                         .append(translatable("lenientdeath.command.perPlayer.enableButton"))
-                                                         .append("]");
+                Component enableButton = Formatting.commandButton(Formatting.SUCCESS,
+                                                                   translatable("lenientdeath.command.perPlayer.enableButton"),
+                                                                   baseCommand + "enable" + playerSuffix);
 
-                ctx.getSource().sendSuccess(() -> CommandFormatting.info(
-                        text(disableButton),
-                        symbol(" "),
-                        text(enableButton)
+                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        Component.empty()
+                                 .append(disableButton)
+                                 .append(CommonComponents.SPACE)
+                                 .append(enableButton)
                 ), false);
             }
         }
