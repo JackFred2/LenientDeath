@@ -16,6 +16,7 @@ All features are toggleable and highly configurable. Out of the box, you'll get:
   - Inspired by Starbound's death system.
 - Give dropped items a glowing outline, helping you find your way back. Recommended to increase your Entity View Distance!
 - Void Immunity for items - they will be teleported to a safe place instead of despawning.
+- Announcement of your death coordinates.
 
 Default disabled, but can be enabled:
 
