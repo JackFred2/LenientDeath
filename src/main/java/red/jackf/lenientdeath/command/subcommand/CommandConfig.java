@@ -46,6 +46,7 @@ public class CommandConfig {
         String ITEM_RESILIENCE = "Item-Resilience";
         String CONFIG = "Home";
         String COMMAND = "Command";
+        String DEATH_COORDINATES = "Death-Coordinates";
         String PER_PLAYER = "Per-Player";
         String DROPPED_ITEM_GLOW = "Dropped-Item-Glow";
         String EXTENDED_DEATH_ITEM_LIFETIME = "Extended-Death-Item-Lifetime";
@@ -336,6 +337,7 @@ public class CommandConfig {
 
         root.then(createConfigNode());
         root.then(createMetaNode());
+        root.then(createDeathCoordinatesNode());
         root.then(createPerPlayerNode());
         root.then(createDroppedItemGlowNode());
         root.then(createExtendedDeathItemLifetime());
@@ -344,6 +346,20 @@ public class CommandConfig {
         root.then(createItemResilience());
 
         root.then(createPresetsNode());
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createDeathCoordinatesNode() {
+        var root = Commands.literal("deathCoordinates");
+
+        root.then(makeBoolean(
+                "enabled",
+                "deathCoordinates.enabled",
+                WikiPage.DEATH_COORDINATES,
+                config -> config.deathCoordinates.enabled,
+                (config, newValue) -> config.deathCoordinates.enabled = newValue
+        ));
 
         return root;
     }

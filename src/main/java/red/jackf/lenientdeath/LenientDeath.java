@@ -81,6 +81,7 @@ public class LenientDeath implements ModInitializer {
 
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
             if (entity instanceof ServerPlayer serverPlayer) {
+                DeathCoordinates.onPlayerDeath(serverPlayer);
                 ItemResilience.onPlayerDeath(serverPlayer);
             }
         });

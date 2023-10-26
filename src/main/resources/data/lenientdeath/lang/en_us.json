@@ -27,5 +27,6 @@
   "lenientdeath.command.utilies.safeCheck.random": "%s will be preserved with a %d%% chance",
   "lenientdeath.command.utilies.safeCheck.failure": "%s will not be preserved",
   "lenientdeath.command.utilies.listItemsInTag": "Items in %s:",
-  "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s."
+  "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s.",
+  "lenientdeath.deathCoordinates": "You died at %s, in %s."
 }

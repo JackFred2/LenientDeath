@@ -55,6 +55,19 @@ public class LenientDeathConfig {
     }
 
     @Comment("""
+            Lenient Death can print a player's death coordinates in chat when they die, allowing players without minimaps
+            to find their way back.""")
+    public DeathCoordinates deathCoordinates = new DeathCoordinates();
+
+    public static class DeathCoordinates {
+        @Comment("""
+                Whether a player's death coordinates should be printed on death.
+                Options: true, false
+                Default: true""")
+        public boolean enabled = true;
+    }
+
+    @Comment("""
                 Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
                 to use the mod. Affects item and XP preservation on death.
                 Per-player mode can also be used with a permission plugin / mod, which will overwrite these settings.
