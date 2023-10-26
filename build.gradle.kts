@@ -144,7 +144,7 @@ dependencies {
 	/*modImplementation("dev.isxander.yacl:yet-another-config-lib-fabric:${properties["yacl_version"]}") {
 		exclude(group = "com.terraformersmc", module = "modmenu")
 	}*/
-	implementation("blue.endless:jankson:${properties["jankson_version"]}")
+	include(implementation("blue.endless:jankson:${properties["jankson_version"]}")!!)
 
 	// COMPATIBILITY
 	modCompileRuntime("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
@@ -183,6 +183,7 @@ fun makeChangelogPrologue(): String {
 		|  - Apache Commons IO: ${properties["commons_io_version"]}
 		|  - Fabric Permissions API: ${properties["fabric_permissions_api_version"]}
 		|  - Server Translations API: ${properties["server_translations_api_version"]}
+		|  - Jankson: ${properties["jankson_version"]}
 		|  - JackFredLib: Base: ${properties["jflib_base_version"]}
 		|  - JackFredLib: Colour: ${properties["jflib_colour_version"]}
 		|  - JackFredLib: Lying: ${properties["jflib_lying_version"]}
