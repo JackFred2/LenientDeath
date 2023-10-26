@@ -252,7 +252,7 @@ if (lastTagVal != null && newTagVal != null) {
 							slug.set(it)
 						}
 					}
-					listOf("server-translation-api").forEach {
+					listOf("server-translation-api", "jankson").forEach {
 						embeds {
 							slug.set(it)
 						}
