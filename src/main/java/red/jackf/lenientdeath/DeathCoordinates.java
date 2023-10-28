@@ -15,33 +15,29 @@ public class DeathCoordinates {
         var config = LenientDeathConfig.INSTANCE.get().deathCoordinates;
         MinecraftServer server = deadPlayer.server;
 
-        if (config.enabled) {
-            BlockPos coordinates = deadPlayer.blockPosition();
+        BlockPos coordinates = deadPlayer.blockPosition();
 
-            //noinspection resource
-            Component playerMessage = Formatting.errorLine(
-                    Component.translatable("lenientdeath.deathCoordinates",
-                                           Formatting.variable(coordinates.above().toShortString()),
-                                           Formatting.variable(deadPlayer.level().dimension().location().toString()))
-            );
+        //noinspection resource
+        Component playerMessage = Formatting.errorLine(
+                Component.translatable("lenientdeath.deathCoordinates",
+                                       Formatting.variable(coordinates.above().toShortString()),
+                                       Formatting.variable(deadPlayer.level().dimension().location().toString()))
+        );
 
-            deadPlayer.sendSystemMessage(playerMessage);
+        if (config.sendToDeadPlayer) deadPlayer.sendSystemMessage(playerMessage);
 
-            Component othersMessage = Component.translatable(
-                    "chat.type.admin",
-                    deadPlayer.getDisplayName(),
-                    playerMessage
-            ).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
+        Component othersMessage = Component.translatable(
+                "chat.type.admin",
+                deadPlayer.getDisplayName(),
+                playerMessage
+        ).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
 
-            if (config.sendToServerLog) {
-                server.sendSystemMessage(othersMessage);
-            }
+        if (config.sendToServerLog) server.sendSystemMessage(othersMessage);
 
-            if (config.sendToOtherAdmins) {
-                for (var otherPlayer : server.getPlayerList().getPlayers()) {
-                    if (otherPlayer != deadPlayer && server.getPlayerList().isOp(otherPlayer.getGameProfile())) {
-                        otherPlayer.sendSystemMessage(othersMessage);
-                    }
+        if (config.sendToOtherAdmins) {
+            for (var otherPlayer : server.getPlayerList().getPlayers()) {
+                if (otherPlayer != deadPlayer && server.getPlayerList().isOp(otherPlayer.getGameProfile())) {
+                    otherPlayer.sendSystemMessage(othersMessage);
                 }
             }
         }

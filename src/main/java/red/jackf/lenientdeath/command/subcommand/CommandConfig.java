@@ -354,11 +354,11 @@ public class CommandConfig {
         var root = Commands.literal("deathCoordinates");
 
         root.then(makeBoolean(
-                "enabled",
-                "deathCoordinates.enabled",
+                "sendToDeadPlayer",
+                "deathCoordinates.sendToDeadPlayer",
                 WikiPage.DEATH_COORDINATES,
-                config -> config.deathCoordinates.enabled,
-                (config, newValue) -> config.deathCoordinates.enabled = newValue
+                config -> config.deathCoordinates.sendToDeadPlayer,
+                (config, newValue) -> config.deathCoordinates.sendToDeadPlayer = newValue
         ));
 
         root.then(makeBoolean(

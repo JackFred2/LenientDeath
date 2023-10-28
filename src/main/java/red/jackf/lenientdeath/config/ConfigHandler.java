@@ -3,7 +3,6 @@ package red.jackf.lenientdeath.config;
 import blue.endless.jankson.JsonElement;
 import blue.endless.jankson.JsonGrammar;
 import blue.endless.jankson.JsonObject;
-import blue.endless.jankson.api.DeserializationException;
 import blue.endless.jankson.api.SyntaxError;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
@@ -61,7 +60,7 @@ public class ConfigHandler {
 
             try {
                 JsonObject json = JANKSON.load(PATH.toFile());
-                instance = JANKSON.fromJsonCarefully(json, LenientDeathConfig.class);
+                instance = JANKSON.fromJson(json, LenientDeathConfig.class);
 
                 instance.verify();
 
@@ -77,8 +76,8 @@ public class ConfigHandler {
             } catch (SyntaxError ex) {
                 LOGGER.error(ex.getMessage());
                 LOGGER.error(ex.getLineMessage());
-            } catch (DeserializationException ex) {
-                LOGGER.error("Syntax error in config", ex);
+            //} catch (DeserializationException ex) {
+            //    LOGGER.error("Syntax error in config", ex);
             } finally {
                 if (instance == null) {
                     LOGGER.error("Using default config temporarily");
