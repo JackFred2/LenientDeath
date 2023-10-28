@@ -2,6 +2,7 @@ package red.jackf.lenientdeath.config;
 
 import blue.endless.jankson.Jankson;
 import blue.endless.jankson.JsonElement;
+import blue.endless.jankson.JsonObject;
 import blue.endless.jankson.JsonPrimitive;
 import blue.endless.jankson.api.DeserializationException;
 import blue.endless.jankson.api.Marshaller;
@@ -27,5 +28,21 @@ public class LenientDeathJankson {
 
     private static JsonElement serializeResLoc(ResourceLocation resourceLocation, Marshaller marshaller) {
         return new JsonPrimitive(resourceLocation.toString());
+    }
+
+    protected static JsonObject putAtTop(JsonObject oldObject, String key, JsonElement toPutAtTop, String comment) {
+        var newObject = new JsonObject();
+
+        newObject.put(key, toPutAtTop, comment);
+
+        for (var entry : oldObject.entrySet()) {
+            newObject.put(
+                    entry.getKey(),
+                    entry.getValue(),
+                    oldObject.getComment(entry.getKey())
+            );
+        }
+
+        return newObject;
     }
 }
