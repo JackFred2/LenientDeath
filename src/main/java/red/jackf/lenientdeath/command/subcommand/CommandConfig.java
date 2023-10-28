@@ -361,6 +361,22 @@ public class CommandConfig {
                 (config, newValue) -> config.deathCoordinates.enabled = newValue
         ));
 
+        root.then(makeBoolean(
+                "sendToServerLog",
+                "deathcoordinates.sendToServerLog",
+                WikiPage.DEATH_COORDINATES,
+                config -> config.deathCoordinates.sendToServerLog,
+                (config, newValue) -> config.deathCoordinates.sendToServerLog = newValue
+        ));
+
+        root.then(makeBoolean(
+                "sendToOtherAdmins",
+                "deathcoordinates.sendToOtherAdmins",
+                WikiPage.DEATH_COORDINATES,
+                config -> config.deathCoordinates.sendToOtherAdmins,
+                (config, newValue) -> config.deathCoordinates.sendToOtherAdmins = newValue
+        ));
+
         return root;
     }
 

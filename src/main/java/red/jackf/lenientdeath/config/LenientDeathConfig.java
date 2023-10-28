@@ -61,10 +61,22 @@ public class LenientDeathConfig {
 
     public static class DeathCoordinates {
         @Comment("""
-                Whether a player's death coordinates should be printed on death.
+                Whether a player's death coordinates should be sent to the player on death.
                 Options: true, false
                 Default: true""")
         public boolean enabled = true;
+
+        @Comment("""
+                Whether to log death coordinates to the main server console as well as to the player.
+                Options: true, false
+                Default: true""")
+        public boolean sendToServerLog = true;
+
+        @Comment("""
+                Whether to log death coordinates to the other admins on the server as well as to the dead player.
+                Options: true, false
+                Default: false""")
+        public boolean sendToOtherAdmins = false;
     }
 
     @Comment("""
