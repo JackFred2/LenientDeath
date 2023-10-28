@@ -1,5 +1,7 @@
 # Lenient Death
 
+For information on the legacy 1.x version, see the [branch README](https://github.com/JackFred2/LenientDeath/tree/legacy-1.x).
+
 Server-sided Fabric & Quilt mod to make death less frustrating.
 
 ![A GIF showing a player dying and keeping their armour and tools, but not ores](https://i.imgur.com/dVXWpMb.gif)
