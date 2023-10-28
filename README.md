@@ -1,6 +1,6 @@
 # Lenient Death
 
-For information on the legacy 1.x version, see the [branch README](https://github.com/JackFred2/LenientDeath/tree/legacy-1.x).
+For information on the legacy 0.x version, see the [branch README](https://github.com/JackFred2/LenientDeath/tree/legacy-1.x).
 
 Server-sided Fabric & Quilt mod to make death less frustrating.
 
