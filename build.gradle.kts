@@ -130,21 +130,15 @@ dependencies {
 	modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
 
 	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${properties["mixin_extras_version"]}")!!)!!)
-	include(implementation("commons-io:commons-io:${properties["commons_io_version"]}")!!)
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${properties["fabric_permissions_api_version"]}")!!)
 	include(modImplementation("xyz.nucleoid:server-translations-api:${properties["server_translations_api_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-base:${properties["jflib_base_version"]}")!!)
+	include(modImplementation("red.jackf.jackfredlib:jackfredlib-config:${properties["jflib_config_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-colour:${properties["jflib_colour_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-lying:${properties["jflib_lying_version"]}")!!)
 
 	modCompileRuntime("net.fabricmc.fabric-api:fabric-api:${properties["fabric-api_version"]}")
-
-	// Config
-	/*modImplementation("dev.isxander.yacl:yet-another-config-lib-fabric:${properties["yacl_version"]}") {
-		exclude(group = "com.terraformersmc", module = "modmenu")
-	}*/
-	include(implementation("blue.endless:jankson:${properties["jankson_version"]}")!!)
 
 	// COMPATIBILITY
 	modCompileRuntime("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
@@ -180,10 +174,9 @@ fun makeChangelogPrologue(): String {
 	return """
 		|Bundled:
 		|  - Mixin Extras: ${properties["mixin_extras_version"]}
-		|  - Apache Commons IO: ${properties["commons_io_version"]}
 		|  - Fabric Permissions API: ${properties["fabric_permissions_api_version"]}
 		|  - Server Translations API: ${properties["server_translations_api_version"]}
-		|  - Jankson: ${properties["jankson_version"]}
+		|  - JackFredLib: Config: ${properties["jankson_version"]}
 		|  - JackFredLib: Base: ${properties["jflib_base_version"]}
 		|  - JackFredLib: Colour: ${properties["jflib_colour_version"]}
 		|  - JackFredLib: Lying: ${properties["jflib_lying_version"]}
@@ -218,7 +211,7 @@ if (lastTagVal != null && newTagVal != null) {
 				tasks["remapSourcesJar"].outputs.files,
 			)
 
-			body.set(provider {
+			body.set(project.provider {
 				return@provider generateChangelogTask.get().changelogFile.get().asFile.readText()
 			})
 		}
@@ -230,7 +223,7 @@ if (lastTagVal != null && newTagVal != null) {
 
 	if (listOf("CURSEFORGE_TOKEN", "MODRINTH_TOKEN").any { System.getenv().containsKey(it) }) {
 		publishMods {
-			changelog.set(provider {
+			changelog.set(project.provider {
 				return@provider generateChangelogTask.get().changelogFile.get().asFile.readText()
 			})
 			type.set(ReleaseType.STABLE)
@@ -252,7 +245,7 @@ if (lastTagVal != null && newTagVal != null) {
 							slug.set(it)
 						}
 					}
-					listOf("server-translation-api", "jankson").forEach {
+					listOf("server-translation-api").forEach {
 						embeds {
 							slug.set(it)
 						}

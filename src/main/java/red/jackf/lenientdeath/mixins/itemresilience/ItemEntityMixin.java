@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import red.jackf.lenientdeath.ItemResilience;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
 
 @Mixin(ItemEntity.class)
@@ -66,7 +66,7 @@ public abstract class ItemEntityMixin extends Entity implements LDDeathDropMarka
     private void lenientdeath$makeImmuneToDamage(
             DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (this.isDeathDropItem) {
-            var config = LenientDeathConfig.INSTANCE.get().itemResilience;
+            var config = LenientDeath.CONFIG.instance().itemResilience;
             if (config.allDeathItemsAreCactusProof && source.is(DamageTypes.CACTUS) || config.allDeathItemsAreExplosionProof && source.is(DamageTypeTags.IS_EXPLOSION) || ItemResilience.areItemsImmuneTo(source)) {
                 cir.setReturnValue(false);
             }
@@ -76,6 +76,6 @@ public abstract class ItemEntityMixin extends Entity implements LDDeathDropMarka
     // prevent fire damage
     @ModifyReturnValue(method = "fireImmune()Z", at = @At("RETURN"))
     private boolean lenientdeath$forceFireImmuneIfNeeded(boolean original) {
-        return this.isDeathDropItem && LenientDeathConfig.INSTANCE.get().itemResilience.allDeathItemsAreFireProof || original;
+        return this.isDeathDropItem && LenientDeath.CONFIG.instance().itemResilience.allDeathItemsAreFireProof || original;
     }
 }

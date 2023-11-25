@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import red.jackf.jackfredlib.api.config.Config;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.ManualAllowAndBlocklist;
@@ -15,9 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
-public class LenientDeathConfig {
-    public static ConfigHandler INSTANCE = new ConfigHandler();
-
+public class LenientDeathConfig implements Config<LenientDeathConfig> {
     @Comment("""
             Options relating to handling this config file. Note that disabling any of these options might requires you
             to restart the server to enable changes.""")
@@ -565,7 +564,7 @@ public class LenientDeathConfig {
         }
     }
 
-    public void verify() {
+    public void validate() {
         var defaultInstance = new LenientDeathConfig();
 
         this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds
@@ -588,9 +587,6 @@ public class LenientDeathConfig {
     }
 
     public void onLoad(@Nullable LenientDeathConfig old) {
-        if (config.enableFileWatcher) ConfigChangeListener.INSTANCE.start();
-        else ConfigChangeListener.INSTANCE.stop();
-
         ManualAllowAndBlocklist.INSTANCE.refreshItems();
 
         // update available in case of per player changes
@@ -601,7 +597,11 @@ public class LenientDeathConfig {
         }
 
         // re-save for comment changes
-        if (old != null && old.config.stripComments != this.config.stripComments)
-            LenientDeathConfig.INSTANCE.save();
+        if (old != null && old.config.stripComments != this.config.stripComments) {
+            LenientDeath.CONFIG.changeGrammar(this.config.stripComments ? LenientDeathJankson.GRAMMAR_NO_COMMENT : LenientDeathJankson.GRAMMAR);
+            LenientDeath.CONFIG.save();
+        }
+
+        LenientDeath.CONFIG.useFileWatcher(this.config.enableFileWatcher);
     }
 }

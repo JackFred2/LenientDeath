@@ -9,11 +9,11 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.command.PermissionsExt;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PerPlayerEnabled;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 
@@ -25,12 +25,12 @@ public class PerPlayer {
     private PerPlayer() {}
 
     private static boolean isEnabled() {
-        var config = LenientDeathConfig.INSTANCE.get();
+        var config = LenientDeath.CONFIG.instance();
         return config.preserveExperienceOnDeath.enabled == PerPlayerEnabled.per_player || config.preserveItemsOnDeath.enabled == PerPlayerEnabled.per_player;
     }
 
     private static boolean playersCanChangeTheirOwnSetting() {
-        return LenientDeathConfig.INSTANCE.get().perPlayer.playersCanChangeTheirOwnSetting;
+        return LenientDeath.CONFIG.instance().perPlayer.playersCanChangeTheirOwnSetting;
     }
 
     private static final Predicate<CommandSourceStack> CHANGE_OTHERS_PREDICATE = Permissions.require(

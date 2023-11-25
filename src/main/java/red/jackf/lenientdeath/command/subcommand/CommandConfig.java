@@ -15,6 +15,7 @@ import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
@@ -60,12 +61,12 @@ public class CommandConfig {
     );
 
     private static LenientDeathConfig getConfig() {
-        return LenientDeathConfig.INSTANCE.get();
+        return LenientDeath.CONFIG.instance();
     }
 
     private static void verifySafeAndLoad() {
-        getConfig().verify();
-        LenientDeathConfig.INSTANCE.save();
+        getConfig().validate();
+        LenientDeath.CONFIG.save();
         getConfig().onLoad(null);
     }
 
@@ -441,7 +442,7 @@ public class CommandConfig {
         for (var preset : Presets.PRESETS.get().entrySet()) {
             var node = Commands.literal(preset.getKey())
                     .executes(ctx -> {
-                        LenientDeathConfig.INSTANCE.set(preset.getValue().get());
+                        LenientDeath.CONFIG.setInstance(preset.getValue().get());
                         ctx.getSource().sendSuccess(() -> Formatting.successLine(
                             translatable("lenientdeath.command.config.presetApplied",
                                 Formatting.string(preset.getKey()))

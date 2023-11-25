@@ -11,13 +11,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player implements LDPerPlayer {
     @Unique
-    private boolean perPlayerEnabledForMe = LenientDeathConfig.INSTANCE.get().perPlayer.defaultEnabledForPlayer;
+    private boolean perPlayerEnabledForMe = LenientDeath.CONFIG.instance().perPlayer.defaultEnabledForPlayer;
 
     public ServerPlayerMixin(
             Level level,

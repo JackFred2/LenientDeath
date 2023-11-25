@@ -56,7 +56,7 @@ public class ManualAllowAndBlocklist {
         this.alwaysPreserved.clear();
         this.alwaysDroppedItems.clear();
         if (this.itemRegistry == null) return;
-        LenientDeathConfig.PreserveItemsOnDeath config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
+        LenientDeathConfig.PreserveItemsOnDeath config = LenientDeath.CONFIG.instance().preserveItemsOnDeath;
 
         LOGGER.debug("Creating always preserved list");
 

@@ -6,13 +6,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import red.jackf.lenientdeath.command.Formatting;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 public class DeathCoordinates {
     private DeathCoordinates() {}
 
     public static void onPlayerDeath(ServerPlayer deadPlayer) {
-        var config = LenientDeathConfig.INSTANCE.get().deathCoordinates;
+        var config = LenientDeath.CONFIG.instance().deathCoordinates;
         MinecraftServer server = deadPlayer.server;
 
         BlockPos coordinates = deadPlayer.blockPosition();

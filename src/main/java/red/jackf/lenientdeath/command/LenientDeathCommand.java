@@ -4,10 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.command.subcommand.CommandConfig;
 import red.jackf.lenientdeath.command.subcommand.PerPlayer;
 import red.jackf.lenientdeath.command.subcommand.Utilities;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 import java.util.function.Predicate;
 
@@ -22,7 +22,7 @@ public class LenientDeathCommand {
             CommandDispatcher<CommandSourceStack> dispatcher,
             CommandBuildContext context,
             Commands.CommandSelection ignored) {
-        var commandNames = LenientDeathConfig.INSTANCE.get().command.commandNames;
+        var commandNames = LenientDeath.CONFIG.instance().command.commandNames;
         if (commandNames.isEmpty()) return;
 
         var root = Commands.literal(commandNames.get(0));

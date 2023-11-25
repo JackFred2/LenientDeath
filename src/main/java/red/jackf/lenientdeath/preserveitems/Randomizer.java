@@ -4,7 +4,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.LenientDeath;
 
 public class Randomizer {
     private Randomizer() {}
@@ -17,7 +17,7 @@ public class Randomizer {
      * @return Float value from 0 to 1 that an item should be kept.
      */
     public float getChanceToKeep(@Nullable Player player) {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.randomizer;
+        var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
         if (!config.enabled) return 0;
         float chance = config.preservedPercentage / 100f;
         if (player == null) return chance;

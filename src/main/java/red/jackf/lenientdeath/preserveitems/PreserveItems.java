@@ -4,7 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.LenientDeath;
 
 public class PreserveItems {
     public static final PreserveItems INSTANCE = new PreserveItems();
@@ -18,7 +18,7 @@ public class PreserveItems {
     }
 
     public static boolean shouldKeepOnDeath(Player player, ItemStack stack) {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath;
+        var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath;
         if (config.enabled.test(player)) {
             var test = INSTANCE.shouldPreserve(player, stack);
             if (test != null) return test;

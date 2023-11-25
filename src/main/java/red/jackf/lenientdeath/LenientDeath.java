@@ -16,10 +16,13 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import red.jackf.jackfredlib.api.config.ConfigHandler;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
-import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
+import red.jackf.lenientdeath.config.LenientDeathConfigMigrator;
+import red.jackf.lenientdeath.config.LenientDeathJankson;
 import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
+import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 
@@ -30,6 +33,12 @@ public class LenientDeath implements ModInitializer {
     public static final Logger LOGGER = getLogger("");
     public static final String MODID = "lenientdeath";
 
+    public static final ConfigHandler<LenientDeathConfig> CONFIG = ConfigHandler.builder(LenientDeathConfig.class)
+            .fileName("lenientdeath")
+            .modifyJankson(LenientDeathJankson::setup)
+            .withMigrator(LenientDeathConfigMigrator.create())
+            .build();
+
     private static @Nullable MinecraftServer currentServer = null;
 
     public static ResourceLocation id(String path) {
@@ -39,8 +48,7 @@ public class LenientDeath implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.debug("Setup Lenient Death");
-
-        LenientDeathConfig.INSTANCE.setup();
+        
         PreserveItems.INSTANCE.setup();
 
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, keepEverything) -> {
@@ -54,10 +62,10 @@ public class LenientDeath implements ModInitializer {
                 return;
 
             // check is done on the item preservation side, don't double check in case setting changes between respawn
-            //if (LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.enabled.test(oldPlayer))
+            //if (LenientDeath.CONFIG.instance().preserveItemsOnDeath.enabled.test(oldPlayer))
             PreserveItems.copyOldInventory(oldPlayer, newPlayer);
 
-            if (LenientDeathConfig.INSTANCE.get().preserveExperienceOnDeath.enabled.test(oldPlayer))
+            if (LenientDeath.CONFIG.instance().preserveExperienceOnDeath.enabled.test(oldPlayer))
                 PreserveExperience.copyExperience(oldPlayer, newPlayer);
         });
 

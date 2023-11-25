@@ -8,8 +8,8 @@ import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PreserveExperience;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 /**
  * Modify the amount of a player's dropped experience, to match reduction of xp preservation config
@@ -27,7 +27,7 @@ public abstract class LivingEntityMixin extends Entity {
     private int possiblyReduceXpAmount(int originalAmount) {
         // casting shenanigans
         // noinspection ConstantValue
-        if (((Object) this) instanceof Player player && LenientDeathConfig.INSTANCE.get().preserveExperienceOnDeath.enabled.test(player)) {
+        if (((Object) this) instanceof Player player && LenientDeath.CONFIG.instance().preserveExperienceOnDeath.enabled.test(player)) {
             return PreserveExperience.reduceXpOrbExperience(originalAmount);
         }
         return originalAmount;

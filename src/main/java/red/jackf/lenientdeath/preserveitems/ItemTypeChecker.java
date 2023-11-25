@@ -3,7 +3,7 @@ package red.jackf.lenientdeath.preserveitems;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.jetbrains.annotations.Nullable;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior;
 
 import java.util.Set;
@@ -18,7 +18,7 @@ public class ItemTypeChecker {
     private ItemTypeChecker() {}
 
     public @Nullable Boolean shouldKeep(ItemStack stack) {
-        var config = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.byItemType;
+        var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.byItemType;
         if (!config.enabled) return null;
 
         Item item = stack.getItem();

@@ -32,7 +32,7 @@ public class ItemResilience {
     public static <T> @Nullable T ifHandledVoidDeath(
             Object player,
             TriFunction<DeathContext, GlobalPos, ServerPlayer, T> ifTrue) {
-        if (LenientDeathConfig.INSTANCE.get().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.last_grounded_position
+        if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.last_grounded_position
                 && player instanceof ServerPlayer serverPlayer) {
             var deathContextHolder = (LDDeathContextHolder) serverPlayer;
             var groundedPosHolder = (LDGroundedPosHolder) serverPlayer;
@@ -46,7 +46,7 @@ public class ItemResilience {
     }
 
     public static boolean shouldForceKeep(Player player) {
-        if (LenientDeathConfig.INSTANCE.get().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.preserve) {
+        if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.preserve) {
             var deathContext = ((LDDeathContextHolder) player).lenientdeath$getDeathContext();
             return deathContext != null && deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD);
         }
@@ -54,7 +54,7 @@ public class ItemResilience {
     }
 
     public static void onPlayerDeath(ServerPlayer serverPlayer) {
-        if (LenientDeathConfig.INSTANCE.get().itemResilience.voidRecovery.announce) {
+        if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.announce) {
             ifHandledVoidDeath(serverPlayer, (ctx, groundedPos, serverPlayer1) -> {
                 serverPlayer1.sendSystemMessage(Formatting.infoLine(
                         Component.translatable("lenientdeath.itemResilience.announce",

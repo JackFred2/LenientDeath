@@ -1,13 +1,12 @@
 package red.jackf.lenientdeath;
 
 import net.minecraft.server.level.ServerPlayer;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 
 public class PreserveExperience {
     private PreserveExperience() {}
 
     private static float getFactor() {
-        return LenientDeathConfig.INSTANCE.get().preserveExperienceOnDeath.preservedPercentage / 100f;
+        return LenientDeath.CONFIG.instance().preserveExperienceOnDeath.preservedPercentage / 100f;
     }
 
     public static void copyExperience(ServerPlayer oldPlayer, ServerPlayer newPlayer) {

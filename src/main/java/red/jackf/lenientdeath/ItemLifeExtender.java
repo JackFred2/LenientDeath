@@ -9,7 +9,7 @@ public class ItemLifeExtender {
     private ItemLifeExtender() {}
 
     public static void extendItemLifetime(ItemEntity item) {
-        LenientDeathConfig.ExtendedDeathItemLifetime lifetimeConfig = LenientDeathConfig.INSTANCE.get().extendedDeathItemLifetime;
+        LenientDeathConfig.ExtendedDeathItemLifetime lifetimeConfig = LenientDeath.CONFIG.instance().extendedDeathItemLifetime;
         if (lifetimeConfig.enabled) {
             if (lifetimeConfig.deathDropItemsNeverDespawn) {
                 item.setUnlimitedLifetime();

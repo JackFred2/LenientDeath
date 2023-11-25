@@ -16,10 +16,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
-import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
 import red.jackf.lenientdeath.preserveitems.Randomizer;
 
@@ -115,7 +115,7 @@ public class Utilities {
 
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
         var test = PreserveItems.INSTANCE.shouldPreserve(null, stack);
-        var random = LenientDeathConfig.INSTANCE.get().preserveItemsOnDeath.randomizer;
+        var random = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
         if (test != null && test) {
             ctx.getSource().sendSuccess(() -> Formatting.successLine(
                 translatable("lenientdeath.command.utilies.safeCheck.success",
