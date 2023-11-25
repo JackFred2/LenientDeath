@@ -13,11 +13,28 @@ public class Presets {
         Map<String, Supplier<LenientDeathConfig>> map = new HashMap<>();
 
         map.put("default", LenientDeathConfig::new);
+        map.put("disabled", Presets::makeDisabled);
         map.put("onlyRandom", Presets::makeOnlyRandom);
         map.put("onlyVisuals", Presets::makeOnlyVisuals);
         map.put("generous", Presets::makeGenerous);
 
         return map;
+    }
+
+    // nothing enabled
+    private static LenientDeathConfig makeDisabled() {
+        var config = new LenientDeathConfig();
+
+        config.preserveItemsOnDeath.enabled = LenientDeathConfig.PerPlayerEnabled.no;
+
+        config.droppedItemGlow.enabled = false;
+
+        config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
+
+        config.deathCoordinates.sendToServerLog = false;
+        config.deathCoordinates.sendToDeadPlayer = false;
+
+        return config;
     }
 
     // extends item despawn time, enables XP saving, makes items immune to explosions and fire

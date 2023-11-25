@@ -36,6 +36,12 @@ Default disabled, but can be enabled:
 
 ## TODO
 
-Icon!
+- Icon, current one is bad
 
-Update Modrinth & Curse Pages
+- Update to:
+  - 1.20.1
+  - 1.19.4
+  - 1.20.3 (when STAPI is updated)
+
+- Move items back to original slots on pickup
+
