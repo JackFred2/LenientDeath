@@ -382,7 +382,7 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
 
             @Comment("""
                     Should other equippable items always drop, be preserved, or fall to further processing?
-                    Example: Skulls
+                    Example: Skulls, Carved Pumpkins
                     Options: drop, preserve, ignore
                     Default: ignore""")
             public TypeBehavior otherEquippables = TypeBehavior.ignore;

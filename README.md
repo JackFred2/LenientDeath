@@ -34,9 +34,7 @@ Default disabled, but can be enabled:
 
 - Immunities for item entities: Mob Pickups (maybe)
 
-## TODO
-
-- Icon, current one is bad
+## TODO (rough priority)
 
 - Update to:
   - 1.20.1
@@ -45,3 +43,8 @@ Default disabled, but can be enabled:
 
 - Move items back to original slots on pickup
 
+- Randomizer: stack splitting
+
+- Death Coordinates: send to team
+
+- Icon, current one is bad
