@@ -176,8 +176,8 @@ fun makeChangelogPrologue(): String {
 		|  - Mixin Extras: ${properties["mixin_extras_version"]}
 		|  - Fabric Permissions API: ${properties["fabric_permissions_api_version"]}
 		|  - Server Translations API: ${properties["server_translations_api_version"]}
-		|  - JackFredLib: Config: ${properties["jankson_version"]}
 		|  - JackFredLib: Base: ${properties["jflib_base_version"]}
+		|  - JackFredLib: Config: ${properties["jflib_config_version"]}
 		|  - JackFredLib: Colour: ${properties["jflib_colour_version"]}
 		|  - JackFredLib: Lying: ${properties["jflib_lying_version"]}
 		|  """.trimMargin()
