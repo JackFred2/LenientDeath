@@ -29,6 +29,8 @@ public class ItemResilience {
         return source.is(ITEMS_IMMUNE_TO);
     }
 
+    // below 1.20, this includes the /kill command. could fix by using a stack walker and checking for the KillCommand
+    // but it's not a problem for now
     public static <T> @Nullable T ifHandledVoidDeath(
             Object player,
             TriFunction<DeathContext, GlobalPos, ServerPlayer, T> ifTrue) {

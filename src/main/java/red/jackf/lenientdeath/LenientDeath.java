@@ -25,6 +25,7 @@ import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
 import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
+import red.jackf.lenientdeath.util.BlockCollisions;
 
 public class LenientDeath implements ModInitializer {
     public static Logger getLogger(String suffix) {
@@ -82,7 +83,8 @@ public class LenientDeath implements ModInitializer {
                         baseAABB.minY,
                         baseAABB.maxZ
                 );
-                level.findSupportingBlock(player, supportBlockAABB).ifPresent(pos -> LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
+                BlockCollisions.findSupportingBlock(level, player, supportBlockAABB)
+                               .ifPresent(pos -> LDGroundedPosHolder.toPlayer(player, GlobalPos.of(level.dimension(), pos)));
             }
         });
 
