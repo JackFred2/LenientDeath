@@ -12,7 +12,7 @@ public class LenientDeathJankson {
     protected static final JsonGrammar GRAMMAR = JsonGrammar.builder().printUnquotedKeys(true).bareSpecialNumerics(true)
                                                             .printTrailingCommas(true).withComments(true).build();
     protected static final JsonGrammar GRAMMAR_NO_COMMENT = JsonGrammar.builder().printUnquotedKeys(true)
-                                                                       .printTrailingCommas(true).build();
+                                                                       .printTrailingCommas(true).withComments(false).build();
 
     private static ResourceLocation deserializeResLoc(
             JsonPrimitive jsonPrimitive,
