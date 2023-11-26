@@ -92,7 +92,7 @@ public class CommandConfig {
                                                                           BiConsumer<LenientDeathConfig, Boolean> set) {
         return Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
                                      optionTitle(name, fullName, baseWikiPage),
                                      Formatting.bool(get.apply(getConfig())))
@@ -112,7 +112,7 @@ public class CommandConfig {
                     } else {
                         set.accept(getConfig(), true);
                         verifySafeAndLoad();
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.bool(false),
@@ -135,7 +135,7 @@ public class CommandConfig {
                     } else {
                         set.accept(getConfig(), false);
                         verifySafeAndLoad();
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.bool(true),
@@ -156,7 +156,7 @@ public class CommandConfig {
                                                                           BiConsumer<LenientDeathConfig, E> set) {
         var node = Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
                                      optionTitle(name, fullName, baseWikiPage),
                                      Formatting.string(get.apply(getConfig()).name()))
@@ -180,7 +180,7 @@ public class CommandConfig {
                     } else {
                         set.accept(getConfig(), constant);
                         verifySafeAndLoad();
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(old.name()),
@@ -205,7 +205,7 @@ public class CommandConfig {
                                                                            BiConsumer<LenientDeathConfig, Integer> set) {
         return Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
                                      optionTitle(name, fullName, baseWikiPage),
                                      Formatting.integer(get.apply(getConfig())))
@@ -227,7 +227,7 @@ public class CommandConfig {
                     } else {
                         set.accept(getConfig(), newValue);
                         verifySafeAndLoad();
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.integer(old),
@@ -249,7 +249,7 @@ public class CommandConfig {
                                                                              BiConsumer<LenientDeathConfig, Float> set) {
         return Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
                                      optionTitle(name, fullName, baseWikiPage),
                                      Formatting.floating(get.apply(getConfig())))
@@ -271,7 +271,7 @@ public class CommandConfig {
                     } else {
                         set.accept(getConfig(), newValue);
                         verifySafeAndLoad();
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.floating(old),
@@ -292,7 +292,7 @@ public class CommandConfig {
                                                                        BiConsumer<LenientDeathConfig, String> set) {
         return Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.check",
                                      optionTitle(name, fullName, baseWikiPage),
                                      Formatting.string(get.apply(getConfig())))
@@ -315,7 +315,7 @@ public class CommandConfig {
                         set.accept(getConfig(), newValue);
                         verifySafeAndLoad();
 
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.change",
                                              optionTitle(name, fullName, baseWikiPage),
                                              Formatting.string(old),
@@ -443,7 +443,7 @@ public class CommandConfig {
             var node = Commands.literal(preset.getKey())
                     .executes(ctx -> {
                         LenientDeath.CONFIG.setInstance(preset.getValue().get());
-                        ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                        ctx.getSource().sendSuccess(Formatting.successLine(
                             translatable("lenientdeath.command.config.presetApplied",
                                 Formatting.string(preset.getKey()))
                         ), true);
@@ -477,19 +477,19 @@ public class CommandConfig {
         String fullName = "command.commandNames";
 
         names.executes(ctx -> {
-            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+            ctx.getSource().sendSuccess(Formatting.infoLine(
                     Component.empty()
                              .append(optionTitle(name, fullName, WikiPage.COMMAND))
                              .append(literal(":"))
             ), false);
 
             if (getConfig().command.commandNames.isEmpty()) {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.list.empty")
                 ), false);
             } else {
                 for (String commandName : getConfig().command.commandNames) {
-                    ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                    ctx.getSource().sendSuccess(Formatting.infoLine(
                             Formatting.listItem(Formatting.string(commandName))
                     ), false);
                 }
@@ -514,13 +514,13 @@ public class CommandConfig {
                     } else {
                         config.commandNames.add(commandName);
 
-                        ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                        ctx.getSource().sendSuccess(Formatting.successLine(
                                 translatable("lenientdeath.command.config.list.added",
                                              optionTitle(name, fullName, WikiPage.COMMAND),
                                              Formatting.string(commandName))
                         ), true);
 
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.requiresWorldReload")
                         ), false);
 
@@ -547,13 +547,13 @@ public class CommandConfig {
                     } else {
                         config.commandNames.remove(commandName);
 
-                        ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                        ctx.getSource().sendSuccess(Formatting.successLine(
                                 translatable("lenientdeath.command.config.list.removed",
                                              optionTitle(name, fullName, WikiPage.COMMAND),
                                              Formatting.string(commandName))
                         ), true);
 
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 translatable("lenientdeath.command.config.requiresWorldReload")
                         ), false);
 
@@ -688,7 +688,7 @@ public class CommandConfig {
             String fullName) {
         return Commands.literal(name)
             .executes(ctx -> {
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         Component.empty()
                                  .append(optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH))
                                  .append(literal(":"))
@@ -697,12 +697,12 @@ public class CommandConfig {
                 var list = listGet.apply(getConfig().preserveItemsOnDeath);
 
                 if (list.isEmpty()) {
-                    ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                    ctx.getSource().sendSuccess(Formatting.infoLine(
                             translatable("lenientdeath.command.config.list.empty")
                     ), false);
                 } else {
                     for (var item : list) {
-                        ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                        ctx.getSource().sendSuccess(Formatting.infoLine(
                                 Formatting.listItem(Formatting.variable(item.toString()))
                         ), false);
                     }
@@ -741,7 +741,7 @@ public class CommandConfig {
                             list.add(id);
                             verifySafeAndLoad();
 
-                            ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                            ctx.getSource().sendSuccess(Formatting.successLine(
                                     translatable("lenientdeath.command.config.list.added",
                                                  optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))
@@ -770,7 +770,7 @@ public class CommandConfig {
                             list.remove(id);
                             verifySafeAndLoad();
 
-                            ctx.getSource().sendSuccess(() -> Formatting.successLine(
+                            ctx.getSource().sendSuccess(Formatting.successLine(
                                     translatable("lenientdeath.command.config.list.removed",
                                                  optionTitle(name, fullName, WikiPage.PRESERVE_ITEMS_ON_DEATH),
                                                  Formatting.variable(id.toString()))

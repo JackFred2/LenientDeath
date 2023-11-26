@@ -57,8 +57,7 @@ public class LenientDeath implements ModInitializer {
             );
 
             // skip if vanilla handled it
-            // noinspection resource
-            if (keepEverything || newPlayer.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) || oldPlayer.isSpectator())
+            if (keepEverything || newPlayer.getLevel().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) || oldPlayer.isSpectator())
                 return;
 
             // check is done on the item preservation side, don't double check in case setting changes between respawn

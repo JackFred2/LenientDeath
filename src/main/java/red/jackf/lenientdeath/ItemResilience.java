@@ -38,7 +38,7 @@ public class ItemResilience {
             var groundedPosHolder = (LDGroundedPosHolder) serverPlayer;
             var ctx = deathContextHolder.lenientdeath$getDeathContext();
             var groundedPos = groundedPosHolder.lenientdeath$getLastGroundedPosition();
-            if (ctx != null && groundedPos != null && ctx.source().is(DamageTypes.FELL_OUT_OF_WORLD)) {
+            if (ctx != null && groundedPos != null && ctx.source().is(DamageTypes.OUT_OF_WORLD)) {
                 return ifTrue.apply(ctx, groundedPos, serverPlayer);
             }
         }
@@ -48,7 +48,7 @@ public class ItemResilience {
     public static boolean shouldForceKeep(Player player) {
         if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.preserve) {
             var deathContext = ((LDDeathContextHolder) player).lenientdeath$getDeathContext();
-            return deathContext != null && deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD);
+            return deathContext != null && deathContext.source().is(DamageTypes.OUT_OF_WORLD);
         }
         return false;
     }

@@ -16,11 +16,10 @@ public class DeathCoordinates {
 
         BlockPos coordinates = deadPlayer.blockPosition();
 
-        //noinspection resource
         Component playerMessage = Formatting.errorLine(
                 Component.translatable("lenientdeath.deathCoordinates",
                                        Formatting.variable(coordinates.above().toShortString()),
-                                       Formatting.variable(deadPlayer.level().dimension().location().toString()))
+                                       Formatting.variable(deadPlayer.getLevel().dimension().location().toString()))
         );
 
         if (config.sendToDeadPlayer) deadPlayer.sendSystemMessage(playerMessage);

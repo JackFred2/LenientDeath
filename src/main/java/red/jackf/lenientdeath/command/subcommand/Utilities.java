@@ -80,7 +80,7 @@ public class Utilities {
         // if valid tag
         if (tag.isPresent()) {
             // title
-            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+            ctx.getSource().sendSuccess(Formatting.infoLine(
                 translatable("lenientdeath.command.utilies.listItemsInTag",
                              Formatting.variable("#" + id))
             ), false);
@@ -88,7 +88,7 @@ public class Utilities {
             var items = tag.get().stream().toList();
 
             if (items.isEmpty()) { // empty tag
-                ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                ctx.getSource().sendSuccess(Formatting.infoLine(
                         translatable("lenientdeath.command.config.list.empty")
                 ), false);
 
@@ -97,7 +97,7 @@ public class Utilities {
                 for (Holder<Item> item : items) {
                     item.unwrapKey()
                         .ifPresent(key ->
-                                   ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+                                   ctx.getSource().sendSuccess(Formatting.infoLine(
                                                listItem(variable(key.location().toString()))
                                    ), false)
                     );
@@ -117,14 +117,14 @@ public class Utilities {
         var test = PreserveItems.INSTANCE.shouldPreserve(null, stack);
         var random = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
         if (test != null && test) {
-            ctx.getSource().sendSuccess(() -> Formatting.successLine(
+            ctx.getSource().sendSuccess(Formatting.successLine(
                 translatable("lenientdeath.command.utilies.safeCheck.success",
                              variable(stack.getHoverName()))
             ), false);
 
             return 1;
         } else if (test == null && random.enabled) {
-            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+            ctx.getSource().sendSuccess(Formatting.infoLine(
                 translatable("lenientdeath.command.utilies.safeCheck.random",
                              variable(stack.getHoverName()),
                              variable(String.valueOf(Randomizer.INSTANCE.getChanceToKeep(ctx.getSource().getPlayer()) * 100)))
@@ -132,7 +132,7 @@ public class Utilities {
 
             return 1;
         } else {
-            ctx.getSource().sendSuccess(() -> Formatting.errorLine(
+            ctx.getSource().sendSuccess(Formatting.errorLine(
                     translatable("lenientdeath.command.utilies.safeCheck.failure",
                                  variable(stack.getHoverName()))
             ), false);
