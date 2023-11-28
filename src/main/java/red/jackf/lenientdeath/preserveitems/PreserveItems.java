@@ -1,5 +1,6 @@
 package red.jackf.lenientdeath.preserveitems;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +29,7 @@ public class PreserveItems {
 
     public void setup() {
         ManualAllowAndBlocklist.INSTANCE.setup();
+        if (FabricLoader.getInstance().isModLoaded("trinkets")) TrinketsCompat.setup();
     }
 
     /**

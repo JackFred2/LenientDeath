@@ -54,6 +54,7 @@ repositories {
 	}
 
 	maven {
+		name = "Sonatype Snapshots"
 		url = uri("https://oss.sonatype.org/content/repositories/snapshots")
 		content {
 			includeGroup("me.lucko")
@@ -142,6 +143,9 @@ dependencies {
 
 	// COMPATIBILITY
 	modCompileRuntime("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
+
+	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}")
+	// https://modrinth.com/mod/things
 
 	modLocalRuntime("dev.emi:emi-fabric:${properties["emi_version"]}")
 }

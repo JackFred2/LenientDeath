@@ -1,5 +1,6 @@
 package red.jackf.lenientdeath.preserveitems;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,8 @@ public class ItemTypeChecker {
             else if (item instanceof ElytraItem) result = result.and(config.elytras);
             else if (item instanceof ShieldItem) result = result.and(config.shields);
             else result = result.and(config.otherEquippables);
+
+        if (FabricLoader.getInstance().isModLoaded("trinkets") && TrinketsCompat.isTrinket(item)) result = result.and(config.trinkets);
 
         if (item instanceof SwordItem) result = result.and(config.swords);
         if (item instanceof TridentItem) result = result.and(config.tridents);
