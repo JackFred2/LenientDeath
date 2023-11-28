@@ -43,6 +43,16 @@ repositories {
 		}
 	}
 
+	/*
+	// Mixin Squared
+	maven {
+		name = "JitPack"
+		url = uri("https://jitpack.io")
+		content {
+			includeGroup("com.github.bawnorton.mixinsquared")
+		}
+	}*/
+
 	// Server Side Translations Lib
 	maven {
 		name = "NucleoidMC"
@@ -131,6 +141,7 @@ dependencies {
 	modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
 
 	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${properties["mixin_extras_version"]}")!!)!!)
+	//include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:${properties["mixin_squared_version"]}")!!)!!)
 
 	include(modImplementation("me.lucko:fabric-permissions-api:${properties["fabric_permissions_api_version"]}")!!)
 	include(modImplementation("xyz.nucleoid:server-translations-api:${properties["server_translations_api_version"]}")!!)
@@ -178,6 +189,7 @@ fun makeChangelogPrologue(): String {
 	return """
 		|Bundled:
 		|  - Mixin Extras: ${properties["mixin_extras_version"]}
+		|  - Mixin Squared: ${properties["mixin_squared_version"]}
 		|  - Fabric Permissions API: ${properties["fabric_permissions_api_version"]}
 		|  - Server Translations API: ${properties["server_translations_api_version"]}
 		|  - JackFredLib: Base: ${properties["jflib_base_version"]}

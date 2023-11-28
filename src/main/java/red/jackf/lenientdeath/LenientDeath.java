@@ -103,10 +103,10 @@ public class LenientDeath implements ModInitializer {
     }
 
     // Handles items that are dropped; i.e those that didn't pass the item preservation check
-    public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item, int slot) {
+    public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item, @Nullable Integer slot) {
         ItemGlow.addItemGlow(serverPlayer, item);
         ItemLifeExtender.extendItemLifetime(item);
         ((LDDeathDropMarkable) item).lenientdeath$markDeathDropItem();
-        MoveToOriginalSlots.saveSlot(item, slot);
+        if (slot != null) MoveToOriginalSlots.saveSlot(item, slot);
     }
 }
