@@ -60,6 +60,15 @@ repositories {
 		}
 	}
 
+	// Things for Trinkets Testing
+	maven {
+		name = "Modrinth"
+		url = uri("https://api.modrinth.com/maven")
+		content {
+			includeGroup("maven.modrinth")
+		}
+	}
+
 	/*
 	// Mixin Squared
 	maven {
@@ -173,7 +182,17 @@ dependencies {
 	// You may get errors about missing dependencies if in IDEA; it's adding modCompileOnly dependencies to the run configs.
 	// Instead, run it manually with ./gradlew runClient. If you have any idea why it happens, please let me know.
 	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}")
-	// https://modrinth.com/mod/things
+	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}") {
+		isTransitive = false
+	}
+	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}") {
+		isTransitive = false
+	}
+
+	modLocalRuntime("dev.emi:trinkets:${properties["trinkets_version"]}")
+	modLocalRuntime("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}")
+	modLocalRuntime("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}")
+	modLocalRuntime("maven.modrinth:charm-of-undying:${properties["charm-of-undying_version"]}") // needs spectrelib
 
 	modLocalRuntime("dev.emi:emi-fabric:${properties["emi_version"]}")
 }
