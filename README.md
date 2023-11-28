@@ -2,7 +2,7 @@
 
 For information on the legacy 0.x version, see the [branch README](https://github.com/JackFred2/LenientDeath/tree/legacy-1.x).
 
-Server-sided Fabric & Quilt mod to make death less frustrating.
+Server-sided alternative to gravestone mods, for the Fabric  & Quilt loaders.
 
 ![A GIF showing a player dying and keeping their armour and tools, but not ores](https://i.imgur.com/dVXWpMb.gif)
 
@@ -18,7 +18,9 @@ All features are toggleable and highly configurable. Out of the box, you'll get:
   - Inspired by Starbound's death system.
 - Give dropped items a glowing outline, helping you find your way back. Recommended to increase your Entity View Distance!
 - Void Immunity for items - they will be teleported to a safe place instead of despawning.
+- Moving of your items to their original slots.
 - Announcement of your death coordinates.
+- Small API for working with Lenient Death in your own mod.
 
 Default disabled, but can be enabled:
 
@@ -37,11 +39,7 @@ Default disabled, but can be enabled:
 ## TODO (rough priority)
 
 - Update to:
-  - 1.20.1
-  - 1.19.4
   - 1.20.3 (when STAPI is updated)
-
-- Move items back to original slots on pickup
 
 - Randomizer: stack splitting
 
