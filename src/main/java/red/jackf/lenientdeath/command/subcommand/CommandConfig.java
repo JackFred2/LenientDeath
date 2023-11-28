@@ -51,6 +51,7 @@ public class CommandConfig {
         String PER_PLAYER = "Per-Player";
         String DROPPED_ITEM_GLOW = "Dropped-Item-Glow";
         String EXTENDED_DEATH_ITEM_LIFETIME = "Extended-Death-Item-Lifetime";
+        String MOVE_TO_ORIGINAL_SLOTS = "Move-To-Original-Slots";
         String PRESERVE_EXPERIENCE_ON_DEATH = "Preserve-Experience-on-Death";
         String PRESERVE_ITEMS_ON_DEATH = "Preserve-Items-on-Death";
     }
@@ -342,6 +343,7 @@ public class CommandConfig {
         root.then(createPerPlayerNode());
         root.then(createDroppedItemGlowNode());
         root.then(createExtendedDeathItemLifetime());
+        root.then(createMoveToOriginalSlotMode());
         root.then(createPreserveExperienceOnDeathNode());
         root.then(createPreserveItemsOnDeath(context));
         root.then(createItemResilience());
@@ -624,6 +626,15 @@ public class CommandConfig {
                 WikiPage.EXTENDED_DEATH_ITEM_LIFETIME,
                 config -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn,
                 (config, newVal) -> config.extendedDeathItemLifetime.deathDropItemsNeverDespawn = newVal));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createMoveToOriginalSlotMode() {
+        return Commands.literal("moveToOriginalSlot")
+                .then(makeBoolean("enabled",
+                                  "moveToOriginalSlot.enabled",
+                                  WikiPage.MOVE_TO_ORIGINAL_SLOTS,
+                                  config -> config.moveToOriginalSlots.enabled,
+                                  (config, newVal) -> config.moveToOriginalSlots.enabled = newVal));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> createPreserveExperienceOnDeathNode() {
