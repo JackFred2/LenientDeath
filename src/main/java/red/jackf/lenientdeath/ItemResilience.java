@@ -8,7 +8,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.command.Formatting;
@@ -45,7 +44,7 @@ public class ItemResilience {
         return null;
     }
 
-    public static boolean shouldForceKeep(Player player) {
+    public static boolean shouldForceKeep(ServerPlayer player) {
         if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.preserve) {
             var deathContext = ((LDDeathContextHolder) player).lenientdeath$getDeathContext();
             return deathContext != null && deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD);
