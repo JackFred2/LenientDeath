@@ -832,6 +832,13 @@ public class CommandConfig {
                 config -> config.preserveItemsOnDeath.byItemType.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.byItemType.enabled = newVal));
 
+        var trinkets = Commands.literal("trinkets")
+            .then(makeBoolean("overrideDestroyRule",
+                "preserveItemsOnDeath.trinkets.overrideDestroyRule",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                config -> config.preserveItemsOnDeath.trinkets.overrideDestroyRule,
+                (config, newVal) -> config.preserveItemsOnDeath.trinkets.overrideDestroyRule = newVal));
+
         itemType.then(makeItemTypeNode("helmets", types -> types.helmets, (config, newVal) -> config.helmets = newVal));
         itemType.then(makeItemTypeNode("chestplates", types -> types.chestplates, (config, newVal) -> config.chestplates = newVal));
         itemType.then(makeItemTypeNode("elytras", types -> types.elytras, (config, newVal) -> config.elytras = newVal));
@@ -839,6 +846,7 @@ public class CommandConfig {
         itemType.then(makeItemTypeNode("boots", types -> types.boots, (config, newVal) -> config.boots = newVal));
         itemType.then(makeItemTypeNode("shields", types -> types.shields, (config, newVal) -> config.shields = newVal));
         itemType.then(makeItemTypeNode("otherEquippables", types -> types.otherEquippables, (config, newVal) -> config.otherEquippables = newVal));
+        itemType.then(makeItemTypeNode("trinkets", types -> types.trinkets, (config, newVal) -> config.trinkets = newVal));
         itemType.then(makeItemTypeNode("swords", types -> types.swords, (config, newVal) -> config.swords = newVal));
         itemType.then(makeItemTypeNode("tridents", types -> types.tridents, (config, newVal) -> config.tridents = newVal));
         itemType.then(makeItemTypeNode("bows", types -> types.bows, (config, newVal) -> config.bows = newVal));
@@ -886,6 +894,7 @@ public class CommandConfig {
         root.then(nbt);
         root.then(alwaysDropped);
         root.then(alwaysPreserved);
+        root.then(trinkets);
         root.then(itemType);
         root.then(randomizer);
 

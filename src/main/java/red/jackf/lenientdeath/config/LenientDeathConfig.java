@@ -288,6 +288,11 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
         public AlwaysPreserved alwaysPreserved = new AlwaysPreserved();
 
         @Comment("""
+                Configures various options relating to Trinkets (https://modrinth.com/mod/trinkets).
+                See also: $.preserveItemsOnDeath.byItemType.trinkets""")
+        public Trinkets trinkets = new Trinkets();
+
+        @Comment("""
                 Allows you to preserve or drop items based on their type (armour, weapon, food, etc). Has better compatibility
                 with mods which don't add their items to various tags. Items part of multiple types will use the first result
                 from the following order: drop > preserve > ignore.""")
@@ -342,6 +347,15 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
                              exist, a warning will be logged to the console.
                     Default: Empty list""")
             public List<ResourceLocation> tags = new ArrayList<>();
+        }
+
+        public static class Trinkets {
+            @Comment("""
+                    Some Trinkets are designed to be destroyed upon death instead of dropped; Lenient Death can (though disabled
+                    by default) override this to keep instead.
+                    Options: true, false
+                    Default: false""")
+            public boolean overrideDestroyRule = false;
         }
 
         public static class ByItemType {
@@ -399,6 +413,13 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
                     Options: drop, preserve, ignore
                     Default: ignore""")
             public TypeBehavior otherEquippables = TypeBehavior.ignore;
+
+            @Comment("""
+                    Should Trinkets (https://modrinth.com/mod/trinkets) always drop, be preserved, or fall to further
+                    processing? See $.preserveItemsOnDeath.trinkets for more compatibility options.
+                    Example: none in Vanilla; Totem of Undying if Charm of Undying (https://modrinth.com/mod/charm-of-undying) is installed.
+                    Default: preserve""")
+            public TypeBehavior trinkets = TypeBehavior.preserve;
 
             @Comment("""
                     Should sword-type items always drop, be preserved, or fall to further processing?
