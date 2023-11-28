@@ -223,6 +223,19 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
     }
 
     @Comment("""
+            This feature will keep track of which inventory slot a death item is dropped from, and try to move it back to that
+            slot on pickup. For example, dropped armour will be put back on.""")
+    public MoveToOriginalSlots moveToOriginalSlots = new MoveToOriginalSlots();
+
+    public static class MoveToOriginalSlots {
+        @Comment("""
+                Should this feature be enabled?
+                Options: true, false
+                Default: true""")
+        public boolean enabled = true;
+    }
+
+    @Comment("""
             In Vanilla, when a player dies they lose all of their experience, a small part of which is dropped as XP orbs.
             This feature lets you keep all or a portion of your experience when you die. Can be used on as part of the
             per-player feature.""")
