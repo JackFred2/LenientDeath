@@ -3,6 +3,7 @@
 import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
 import me.modmuss50.mpp.ReleaseType
 import net.fabricmc.loom.task.RemapJarTask
+import org.ajoberstar.grgit.Grgit
 import red.jackf.GenerateChangelogTask
 import red.jackf.UpdateDependenciesTask
 
@@ -14,8 +15,15 @@ plugins {
 	id("me.modmuss50.mod-publish-plugin") version "0.3.3"
 }
 
+@Suppress("RedundantNullableReturnType")
+val grgit: Grgit? = project.grgit
+
+fun getVersionSuffix(): String {
+	return grgit?.branch?.current()?.name ?: "nogit"
+}
+
 group = properties["maven_group"]!!
-version = "${properties["mod_version"]}+${properties["minecraft_version"]}"
+version = "${properties["mod_version"]}+${getVersionSuffix()}"
 
 val modReleaseType = properties["type"]?.toString() ?: "release"
 
@@ -33,13 +41,22 @@ repositories {
 		}
 	}
 
-	// Mod Menu, EMI
+	// Mod Menu, EMI, Trinkets
 	maven {
 		name = "TerraformersMC"
 		url = uri("https://maven.terraformersmc.com/releases/")
 		content {
 			includeGroup("com.terraformersmc")
 			includeGroup("dev.emi")
+		}
+	}
+
+	// CCA for Trinkets
+	maven {
+		name = "Ladysnake Mods"
+		url = uri("https://maven.ladysnake.org/releases")
+		content {
+			includeGroup("dev.onyxstudios.cardinal-components-api")
 		}
 	}
 
@@ -93,8 +110,8 @@ loom {
 
 	mods {
 		create("lenientdeath") {
-			sourceSet(sourceSets["client"])
 			sourceSet(sourceSets["main"])
+			sourceSet(sourceSets["client"])
 		}
 	}
 
@@ -107,7 +124,6 @@ loom {
 			runDir = "run"
 			source(sourceSets["client"])
 			ideConfigGenerated(true)
-			this.vmArgs.add("-Dlog4j.configurationFile=../log4j2.xml")
 			client()
 		}
 
@@ -117,7 +133,6 @@ loom {
 			runDir = "runServer"
 			source(sourceSets["main"])
 			ideConfigGenerated(true)
-			this.vmArgs.add("-Dlog4j.configurationFile=../log4j2.xml")
 			server()
 		}
 	}
@@ -155,6 +170,8 @@ dependencies {
 	// COMPATIBILITY
 	modCompileRuntime("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
 
+	// You may get errors about missing dependencies if in IDEA; it's adding modCompileOnly dependencies to the run configs.
+	// Instead, run it manually with ./gradlew runClient. If you have any idea why it happens, please let me know.
 	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}")
 	// https://modrinth.com/mod/things
 
@@ -212,7 +229,7 @@ if (lastTagVal != null && newTagVal != null) {
 		prefixFilters.set(properties["changelog_filter"]!!.toString().split(","))
 	}
 
-	if (System.getenv().containsKey("GITHUB_TOKEN")) {
+	if (System.getenv().containsKey("GITHUB_TOKEN") && grgit != null) {
 		tasks.named<GithubReleaseTask>("githubRelease") {
 			dependsOn(generateChangelogTask)
 
@@ -297,6 +314,8 @@ publishing {
 	}
 
 	repositories {
+		if (!System.getenv().containsKey("CI")) mavenLocal()
+
 		maven {
 			name = "JackFredMaven"
 			url = uri("https://maven.jackf.red/releases/")
