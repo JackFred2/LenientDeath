@@ -1,6 +1,7 @@
 package red.jackf.lenientdeath.preserveitems;
 
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +19,7 @@ public class ItemTypeChecker {
     );
     private ItemTypeChecker() {}
 
-    public @Nullable Boolean shouldKeep(ItemStack stack) {
+    public @Nullable Boolean shouldKeep(@Nullable Player player, ItemStack stack) {
         var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.byItemType;
         if (!config.enabled) return null;
 
@@ -37,7 +38,7 @@ public class ItemTypeChecker {
             else if (item instanceof ShieldItem) result = result.and(config.shields);
             else result = result.and(config.otherEquippables);
 
-        if (FabricLoader.getInstance().isModLoaded("trinkets") && TrinketsCompat.isTrinket(item)) result = result.and(config.trinkets);
+        if (FabricLoader.getInstance().isModLoaded("trinkets") && TrinketsCompat.isTrinket(player, stack)) result = result.and(config.trinkets);
 
         if (item instanceof SwordItem) result = result.and(config.swords);
         if (item instanceof TridentItem) result = result.and(config.tridents);

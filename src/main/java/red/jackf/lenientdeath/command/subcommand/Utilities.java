@@ -114,7 +114,7 @@ public class Utilities {
     }
 
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
-        var test = PreserveItems.INSTANCE.shouldPreserve(null, stack);
+        var test = PreserveItems.INSTANCE.shouldPreserve(ctx.getSource().getPlayer(), stack, true);
         var random = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
         if (test != null && test) {
             ctx.getSource().sendSuccess(() -> Formatting.successLine(
