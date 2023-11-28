@@ -10,17 +10,18 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.api.LenientDeathAPI;
 
 @Mixin(value = LivingEntity.class, priority = 1200)
 @Pseudo
 public class LivingEntityTrinketsMixin {
 
+    @SuppressWarnings({"UnresolvedMixinReference", "MixinAnnotationTarget", "UnnecessaryQualifiedMemberReference"})
     @Inject(method = "Lnet/minecraft/world/entity/LivingEntity;dropFromEntity(Lnet/minecraft/world/item/ItemStack;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;setDeltaMovement(DDD)V"),
             require = 0)
     private void lenientdeath$handleTrinketsItemEntities(ItemStack stack, CallbackInfo ci, @Local ItemEntity itemEntity) {
         if (((Object) this) instanceof ServerPlayer serverPlayer)
-            LenientDeath.handleItemEntity(serverPlayer, itemEntity, null);
+            LenientDeathAPI.INSTANCE.markDeathItem(serverPlayer, itemEntity, null);
     }
 }

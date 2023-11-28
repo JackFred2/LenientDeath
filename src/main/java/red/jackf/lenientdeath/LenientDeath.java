@@ -10,18 +10,17 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import red.jackf.jackfredlib.api.config.ConfigHandler;
+import red.jackf.lenientdeath.apiimpl.LenientDeathAPIImpl;
 import red.jackf.lenientdeath.command.LenientDeathCommand;
 import red.jackf.lenientdeath.config.LenientDeathConfig;
 import red.jackf.lenientdeath.config.LenientDeathConfigMigrator;
 import red.jackf.lenientdeath.config.LenientDeathJankson;
-import red.jackf.lenientdeath.mixinutil.LDDeathDropMarkable;
 import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 import red.jackf.lenientdeath.mixinutil.LDPerPlayer;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
@@ -96,17 +95,11 @@ public class LenientDeath implements ModInitializer {
         });
 
         CommandRegistrationCallback.EVENT.register(LenientDeathCommand::new);
+
+        LenientDeathAPIImpl.setup();
     }
 
     public static @Nullable MinecraftServer getCurrentServer() {
         return currentServer;
-    }
-
-    // Handles items that are dropped; i.e those that didn't pass the item preservation check
-    public static void handleItemEntity(ServerPlayer serverPlayer, ItemEntity item, @Nullable Integer slot) {
-        ItemGlow.addItemGlow(serverPlayer, item);
-        ItemLifeExtender.extendItemLifetime(item);
-        ((LDDeathDropMarkable) item).lenientdeath$markDeathDropItem();
-        if (slot != null) MoveToOriginalSlots.saveSlot(item, slot);
     }
 }

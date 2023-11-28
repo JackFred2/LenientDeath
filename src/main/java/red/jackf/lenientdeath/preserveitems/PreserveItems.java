@@ -9,6 +9,7 @@ import red.jackf.lenientdeath.LenientDeath;
 
 public class PreserveItems {
     public static final PreserveItems INSTANCE = new PreserveItems();
+
     private PreserveItems() {}
 
     /**
@@ -35,9 +36,10 @@ public class PreserveItems {
     /**
      * Whether a given ItemStack should be kept within a player's inventory on death.
      *
-     * @param player   Player to test against. If null, skips the random roll.
-     * @param stack    ItemStack to check.
-     * @return If the ItemStack should be kept in a player's inventory.
+     * @param player     Player to test against. If null, skips the random roll.
+     * @param stack      ItemStack to check.
+     * @param skipRandom Whether to use the randomizer check.
+     * @return If the ItemStack should be kept in a player's inventory. <code>null</code> if no answer.
      */
     public @Nullable Boolean shouldPreserve(Player player, ItemStack stack, boolean skipRandom) {
         var nbtPreserveTest = NbtChecker.INSTANCE.shouldKeep(stack);

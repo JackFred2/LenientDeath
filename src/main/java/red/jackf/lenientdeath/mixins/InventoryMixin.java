@@ -17,8 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.lenientdeath.ItemResilience;
-import red.jackf.lenientdeath.LenientDeath;
-import red.jackf.lenientdeath.preserveitems.PreserveItems;
+import red.jackf.lenientdeath.api.LenientDeathAPI;
 
 @Mixin(Inventory.class)
 public class InventoryMixin {
@@ -37,8 +36,9 @@ public class InventoryMixin {
             method = "dropAll()V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
     private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original) {
-        return PreserveItems.shouldKeepOnDeath(this.player, stack)
-                || ItemResilience.shouldForceKeep(this.player)
+        return this.player instanceof ServerPlayer serverPlayer
+                && (LenientDeathAPI.INSTANCE.shouldItemBePreserved(serverPlayer, stack)
+                   || ItemResilience.shouldForceKeep(serverPlayer))
                 || original.call(stack);
     }
 
@@ -57,7 +57,7 @@ public class InventoryMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
     private ItemEntity handleItemEntity(ItemEntity item, @Share("ldSlotCount") LocalIntRef slot) {
         if (this.player instanceof ServerPlayer serverPlayer) {
-            LenientDeath.handleItemEntity(serverPlayer, item, slot.get());
+            LenientDeathAPI.INSTANCE.markDeathItem(serverPlayer, item, slot.get());
         }
         return item;
     }

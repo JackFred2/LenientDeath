@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.api.LenientDeathAPI;
 
 import java.util.Map;
 
@@ -19,7 +20,7 @@ public class TrinketsCompat {
                 if (dropRule == TrinketEnums.DropRule.KEEP) return dropRule;
                 if (dropRule == TrinketEnums.DropRule.DESTROY && !LenientDeath.CONFIG.instance().preserveItemsOnDeath.trinkets.overrideDestroyRule) return dropRule;
 
-                var result = PreserveItems.shouldKeepOnDeath(serverPlayer, itemStack);
+                var result = LenientDeathAPI.INSTANCE.shouldItemBePreserved(serverPlayer, itemStack);
 
                 if (result) return TrinketEnums.DropRule.KEEP;
                 else return dropRule;
