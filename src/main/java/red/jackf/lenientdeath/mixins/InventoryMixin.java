@@ -3,6 +3,8 @@ package red.jackf.lenientdeath.mixins;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalIntRef;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -12,6 +14,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.lenientdeath.ItemResilience;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.preserveitems.PreserveItems;
@@ -38,12 +42,22 @@ public class InventoryMixin {
                 || original.call(stack);
     }
 
+    @Inject(method = "dropAll", at = @At("HEAD"))
+    private void startCount(CallbackInfo ci, @Share("ldSlotCount") LocalIntRef slot) {
+        slot.set(-1); // prevent off by one errors
+    }
+
+    @Inject(method = "dropAll", at = @At(value = "INVOKE", target = "Ljava/util/List;get(I)Ljava/lang/Object;", shift = At.Shift.BEFORE))
+    private void incrementCount(CallbackInfo ci, @Share("ldSlotCount") LocalIntRef slot) {
+        slot.set(slot.get() + 1);
+    }
+
     @ModifyExpressionValue(
             method = "dropAll",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
-    private ItemEntity handleItemEntity(ItemEntity item) {
+    private ItemEntity handleItemEntity(ItemEntity item, @Share("ldSlotCount") LocalIntRef slot) {
         if (this.player instanceof ServerPlayer serverPlayer) {
-            LenientDeath.handleItemEntity(serverPlayer, item);
+            LenientDeath.handleItemEntity(serverPlayer, item, slot.get());
         }
         return item;
     }
