@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "InventoryMixin",
+    "compat.LivingEntityTrinketsMixin",
     "itemlifeextender.ItemEntityAccessor",
     "itemresilience.ItemEntityMixin",
     "itemresilience.PlayerMixin",
@@ -14,6 +15,7 @@
     "perplayer.ServerPlayerMixin",
     "preserveexperience.LivingEntityMixin"
   ],
+  "plugin": "red.jackf.lenientdeath.mixinutil.LDMixinPlugin",
   "injectors": {
     "defaultRequire": 1
   }
