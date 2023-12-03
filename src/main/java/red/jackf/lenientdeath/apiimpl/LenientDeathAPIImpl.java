@@ -20,7 +20,12 @@ public class LenientDeathAPIImpl implements LenientDeathAPI {
 
     @Override
     public boolean shouldItemBePreserved(ServerPlayer deadPlayer, ItemStack item) {
-        return PreserveItems.shouldKeepOnDeath(deadPlayer, item);
+        return LenientDeathAPI.INSTANCE.howManyToPreserve(deadPlayer, item.copyWithCount(1)) > 0;
+    }
+
+    @Override
+    public int howManyToPreserve(ServerPlayer deadPlayer, ItemStack item) {
+        return PreserveItems.howManyToPreserve(deadPlayer, item);
     }
 
     @Override
@@ -34,9 +39,12 @@ public class LenientDeathAPIImpl implements LenientDeathAPI {
     public static void setup() {
         FabricLoader.getInstance().getObjectShare().put(
                 "lenientdeath:markDeathItem",
-                (TriConsumer<ServerPlayer, ItemEntity, @Nullable Integer>) LenientDeathAPIImpl.INSTANCE::markDeathItem);
+                (TriConsumer<ServerPlayer, ItemEntity, @Nullable Integer>) LenientDeathAPI.INSTANCE::markDeathItem);
         FabricLoader.getInstance().getObjectShare().put(
                 "lenientdeath:shouldItemBePreserved",
-                (BiFunction<ServerPlayer, ItemStack, Boolean>) INSTANCE::shouldItemBePreserved);
+                (BiFunction<ServerPlayer, ItemStack, Boolean>) LenientDeathAPI.INSTANCE::shouldItemBePreserved);
+        FabricLoader.getInstance().getObjectShare().put(
+                "lenientdeath:howManyToPreserve",
+                (BiFunction<ServerPlayer, ItemStack, Integer>) LenientDeathAPI.INSTANCE::howManyToPreserve);
     }
 }

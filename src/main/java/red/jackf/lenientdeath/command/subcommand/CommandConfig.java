@@ -869,6 +869,11 @@ public class CommandConfig {
                 WikiPage.PRESERVE_ITEMS_ON_DEATH,
                 config -> config.preserveItemsOnDeath.randomizer.enabled,
                 (config, newVal) -> config.preserveItemsOnDeath.randomizer.enabled = newVal))
+            .then(makeBoolean("splitStacks",
+                "preserveItemsOnDeath.randomizer.splitStacks",
+                WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                config -> config.preserveItemsOnDeath.randomizer.splitStacks,
+                (config, newVal) -> config.preserveItemsOnDeath.randomizer.splitStacks = newVal))
             .then(makeIntRange("preservedPercentage",
                 "preserveItemsOnDeath.randomizer.preservedPercentage",
                 WikiPage.PRESERVE_ITEMS_ON_DEATH,
