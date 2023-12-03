@@ -190,7 +190,7 @@ dependencies {
 	//modLocalRuntime("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}")
 	//modLocalRuntime("maven.modrinth:charm-of-undying:${properties["charm-of-undying_version"]}") // needs spectrelib
 
-	modLocalRuntime("dev.emi:emi-fabric:${properties["emi_version"]}")
+	//modLocalRuntime("dev.emi:emi-fabric:${properties["emi_version"]}")
 }
 
 tasks.withType<ProcessResources>().configureEach {
