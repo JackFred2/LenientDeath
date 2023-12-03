@@ -548,6 +548,13 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
             public boolean enabled = false;
 
             @Comment("""
+                    Whether to split stacks when randomly dropping items. If false, then a stack of 64 items will be treated as
+                    a whole, whereas if true then each item in the stack will be rolled.
+                    Options: true, false
+                    Default: true""")
+            public boolean splitStacks = true;
+
+            @Comment("""
                      What percentage of a player's undecided items be preserved on death? This is an average, and does
                      not guarantee a set amount of items.
                      Options: [0, 100]

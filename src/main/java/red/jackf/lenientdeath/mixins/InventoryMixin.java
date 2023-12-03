@@ -35,11 +35,19 @@ public class InventoryMixin {
     @WrapOperation(
             method = "dropAll()V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
-    private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original) {
-        return this.player instanceof ServerPlayer serverPlayer
-                && (LenientDeathAPI.INSTANCE.shouldItemBePreserved(serverPlayer, stack)
-                   || ItemResilience.shouldForceKeep(serverPlayer))
-                || original.call(stack);
+    private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original, @Share("ldSlotCount") LocalIntRef slot) {
+        if (!(this.player instanceof ServerPlayer deadPlayer)) return original.call(stack);
+
+        int preserved = LenientDeathAPI.INSTANCE.howManyToPreserve(deadPlayer, stack);
+        if (preserved == 0) {
+            return original.call(stack);
+        } else if (preserved == stack.getCount() || ItemResilience.shouldForceKeep(deadPlayer)) {
+            return true;
+        } else {
+            ItemStack dropped = stack.split(stack.getCount() - preserved);
+            LenientDeathAPI.INSTANCE.markDeathItem(deadPlayer, deadPlayer.drop(dropped, true, false), slot.get());
+            return true;
+        }
     }
 
     @Inject(method = "dropAll", at = @At("HEAD"))
