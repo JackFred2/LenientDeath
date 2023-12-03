@@ -3,7 +3,6 @@
 import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
 import me.modmuss50.mpp.ReleaseType
 import net.fabricmc.loom.task.RemapJarTask
-import org.ajoberstar.grgit.Grgit
 import red.jackf.GenerateChangelogTask
 import red.jackf.UpdateDependenciesTask
 
@@ -11,15 +10,15 @@ plugins {
 	id("maven-publish")
 	id("fabric-loom") version "1.4-SNAPSHOT"
 	id("com.github.breadmoirai.github-release") version "2.4.1"
-	id("org.ajoberstar.grgit") version "5.0.+"
+	id("org.ajoberstar.grgit") version "5.2.1"
 	id("me.modmuss50.mod-publish-plugin") version "0.3.3"
 }
 
-@Suppress("RedundantNullableReturnType")
-val grgit: Grgit? = project.grgit
+// it CAN be null if not in a git repo
+val grgit = runCatching { project.grgitService.service.get().grgit }.getOrNull()
 
 fun getVersionSuffix(): String {
-	return grgit?.branch?.current()?.name ?: "nogit"
+	return grgit?.branch?.current()?.name ?: "nogit+${properties["minecraft_version"]}"
 }
 
 group = properties["maven_group"]!!
@@ -149,8 +148,8 @@ loom {
 	//accessWidenerPath.set(file("src/main/resources/lenientdeath.accesswidener"))
 }
 
-// from WTHIT
-fun DependencyHandlerScope.modCompileRuntime(any: String, configure: ExternalModuleDependency.() -> Unit = {}) {
+// optional dependency that shouldn't be downstreamed in maven
+fun DependencyHandlerScope.modLocalImplementation(any: String, configure: ExternalModuleDependency.() -> Unit = {}) {
 	modCompileOnly(any, configure)
 	modLocalRuntime(any, configure)
 }
@@ -164,9 +163,6 @@ dependencies {
 	})
 	modImplementation("net.fabricmc:fabric-loader:${properties["loader_version"]}")
 
-	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${properties["mixin_extras_version"]}")!!)!!)
-	//include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:${properties["mixin_squared_version"]}")!!)!!)
-
 	include(modImplementation("me.lucko:fabric-permissions-api:${properties["fabric_permissions_api_version"]}")!!)
 	include(modImplementation("xyz.nucleoid:server-translations-api:${properties["server_translations_api_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-base:${properties["jflib_base_version"]}")!!)
@@ -174,10 +170,10 @@ dependencies {
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-colour:${properties["jflib_colour_version"]}")!!)
 	include(modImplementation("red.jackf.jackfredlib:jackfredlib-lying:${properties["jflib_lying_version"]}")!!)
 
-	modCompileRuntime("net.fabricmc.fabric-api:fabric-api:${properties["fabric-api_version"]}")
+	modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric-api_version"]}")
 
 	// COMPATIBILITY
-	modCompileRuntime("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
+	modLocalImplementation("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
 
 	// You may get errors about missing dependencies if in IDEA; it's adding modCompileOnly dependencies to the run configs.
 	// Instead, run it manually with ./gradlew runClient. If you have any idea why it happens, please let me know.
@@ -224,8 +220,6 @@ tasks.jar {
 fun makeChangelogPrologue(): String {
 	return """
 		|Bundled:
-		|  - Mixin Extras: ${properties["mixin_extras_version"]}
-		|  - Mixin Squared: ${properties["mixin_squared_version"]}
 		|  - Fabric Permissions API: ${properties["fabric_permissions_api_version"]}
 		|  - Server Translations API: ${properties["server_translations_api_version"]}
 		|  - JackFredLib: Base: ${properties["jflib_base_version"]}
@@ -239,84 +233,93 @@ println(makeChangelogPrologue())
 
 val lastTagVal = properties["lastTag"]?.toString()
 val newTagVal = properties["newTag"]?.toString()
-if (lastTagVal != null && newTagVal != null) {
-	val generateChangelogTask = tasks.register<GenerateChangelogTask>("generateChangelog") {
+
+var changelogText: Provider<String>
+var changelogTask: TaskProvider<GenerateChangelogTask>? = null
+
+changelogText = if (lastTagVal != null && newTagVal != null) {
+	changelogTask = tasks.register<GenerateChangelogTask>("generateChangelog") {
 		lastTag.set(lastTagVal)
 		newTag.set(newTagVal)
-		prologue.set(makeChangelogPrologue())
 		githubUrl.set(properties["github_url"]!!.toString())
 		prefixFilters.set(properties["changelog_filter"]!!.toString().split(","))
 	}
 
-	if (System.getenv().containsKey("GITHUB_TOKEN") && grgit != null) {
-		tasks.named<GithubReleaseTask>("githubRelease") {
-			dependsOn(generateChangelogTask)
+	project.provider {
+		return@provider changelogTask!!.get().changelogFile.get().asFile.readText()
+	}
+} else {
+	project.provider { "Could not generate changelog." }
+}
 
-			authorization.set(System.getenv("GITHUB_TOKEN")?.let { "Bearer $it" })
-			owner.set(properties["github_owner"]!!.toString())
-			repo.set(properties["github_repo"]!!.toString())
-			tagName.set(newTagVal)
-			releaseName.set("${properties["mod_name"]} $newTagVal")
-			targetCommitish.set(grgit.branch.current().name)
-			releaseAssets.from(
-				tasks["remapJar"].outputs.files,
-				tasks["remapSourcesJar"].outputs.files,
-			)
+if (System.getenv().containsKey("GITHUB_TOKEN") && grgit != null) {
+	tasks.named<GithubReleaseTask>("githubRelease") {
+		authorization.set(System.getenv("GITHUB_TOKEN")?.let { "Bearer $it" })
+		body.set(changelogText)
+		owner.set(properties["github_owner"]!!.toString())
+		repo.set(properties["github_repo"]!!.toString())
+		tagName.set(newTagVal)
+		releaseName.set("${properties["mod_name"]} $newTagVal")
+		targetCommitish.set(grgit.branch.current().name)
+		releaseAssets.from(
+			tasks["remapJar"].outputs.files,
+			tasks["remapSourcesJar"].outputs.files,
+		)
 
-			body.set(project.provider {
-				return@provider generateChangelogTask.get().changelogFile.get().asFile.readText()
-			})
+		changelogTask?.let {
+			this@named.dependsOn(it)
 		}
 	}
+}
 
-	tasks.named<DefaultTask>("publishMods") {
-		dependsOn(generateChangelogTask)
-	}
+tasks.named<DefaultTask>("publishMods") {
+	changelogTask?.let { this.dependsOn(changelogTask) }
+}
 
-	if (listOf("CURSEFORGE_TOKEN", "MODRINTH_TOKEN").any { System.getenv().containsKey(it) }) {
-		publishMods {
-			changelog.set(project.provider {
-				return@provider generateChangelogTask.get().changelogFile.get().asFile.readText()
-			})
-			type.set(ReleaseType.STABLE)
-			modLoaders.add("fabric")
-			modLoaders.add("quilt")
-			file.set(tasks.named<RemapJarTask>("remapJar").get().archiveFile)
-			// additionalFiles.from(tasks.named<RemapSourcesJarTask>("remapSourcesJar").get().archiveFile)
+if (listOf("CURSEFORGE_TOKEN", "MODRINTH_TOKEN").any { System.getenv().containsKey(it) }) {
+	publishMods {
+		changelog.set(changelogText)
+		type.set(when(properties["release_type"]) {
+			"release" -> ReleaseType.STABLE
+			"beta" -> ReleaseType.BETA
+			else -> ReleaseType.ALPHA
+		})
+		modLoaders.add("fabric")
+		modLoaders.add("quilt")
+		file.set(tasks.named<RemapJarTask>("remapJar").get().archiveFile)
 
-			if (System.getenv().containsKey("CURSEFORGE_TOKEN") || dryRun.get()) {
-				curseforge {
-					projectId.set("506536")
-					accessToken.set(System.getenv("CURSEFORGE_TOKEN"))
-					properties["game_versions"]!!.toString().split(",").forEach {
-						minecraftVersions.add(it)
+		if (System.getenv().containsKey("CURSEFORGE_TOKEN") || dryRun.get()) {
+			curseforge {
+				projectId.set("506536")
+				accessToken.set(System.getenv("CURSEFORGE_TOKEN"))
+				properties["game_versions_curse"]!!.toString().split(",").forEach {
+					minecraftVersions.add(it)
+				}
+				displayName.set("${properties["prefix"]!!} ${properties["mod_name"]!!} ${version.get()}")
+				listOf("fabric-api").forEach {
+					requires {
+						slug.set(it)
 					}
-					displayName.set("${properties["prefix"]!!} ${properties["mod_name"]!!} ${version.get()}")
-					listOf("fabric-api").forEach {
-						requires {
-							slug.set(it)
-						}
-					}
-					listOf("server-translation-api").forEach {
-						embeds {
-							slug.set(it)
-						}
+				}
+				listOf("server-translation-api").forEach {
+					embeds {
+						slug.set(it)
 					}
 				}
 			}
+		}
 
-			if (System.getenv().containsKey("MODRINTH_TOKEN") || dryRun.get()) {
-				modrinth {
-					accessToken.set(System.getenv("MODRINTH_TOKEN"))
-					projectId.set("Bfi1KBJV")
-					properties["game_versions"]!!.toString().split(",").forEach {
-						minecraftVersions.add(it)
-					}
-					displayName.set("${properties["mod_name"]!!} ${version.get()}")
-					listOf("fabric-api").forEach {
-						requires {
-							slug.set(it)
-						}
+		if (System.getenv().containsKey("MODRINTH_TOKEN") || dryRun.get()) {
+			modrinth {
+				accessToken.set(System.getenv("MODRINTH_TOKEN"))
+				projectId.set("Bfi1KBJV")
+				properties["game_versions_mr"]!!.toString().split(",").forEach {
+					minecraftVersions.add(it)
+				}
+				displayName.set("${properties["mod_name"]!!} ${version.get()}")
+				listOf("fabric-api").forEach {
+					requires {
+						slug.set(it)
 					}
 				}
 			}
