@@ -38,11 +38,6 @@ Default disabled, but can be enabled:
 
 ## TODO (rough priority)
 
-- Update to:
-  - 1.20.3 (when STAPI is updated)
-
-- Randomizer: stack splitting
-
 - Death Coordinates: send to team
 
 - Icon, current one is bad
