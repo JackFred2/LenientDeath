@@ -116,7 +116,7 @@ public class Utilities {
     private static int testItem(CommandContext<CommandSourceStack> ctx, ItemStack stack) {
         var test = PreserveItems.INSTANCE.shouldPreserve(ctx.getSource().getPlayer(), stack, true);
         var random = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
-        if (test != null && test) {
+        if (test != null && test == stack.getCount()) {
             ctx.getSource().sendSuccess(Formatting.successLine(
                 translatable("lenientdeath.command.utilies.safeCheck.success",
                              variable(stack.getHoverName()))
@@ -124,11 +124,21 @@ public class Utilities {
 
             return 1;
         } else if (test == null && random.enabled) {
-            ctx.getSource().sendSuccess(Formatting.infoLine(
-                translatable("lenientdeath.command.utilies.safeCheck.random",
-                             variable(stack.getHoverName()),
-                             variable(String.valueOf(Randomizer.INSTANCE.getChanceToKeep(ctx.getSource().getPlayer()) * 100)))
-            ), false);
+            if (random.splitStacks) {
+                ctx.getSource().sendSuccess(Formatting.infoLine(
+                        translatable("lenientdeath.command.utilies.safeCheck.random.splitting",
+                                     variable(String.valueOf(Randomizer.INSTANCE.getChanceToKeep(ctx.getSource()
+                                                                                                    .getPlayer()) * 100)),
+                                     variable(stack.getHoverName()))
+                ), false);
+            } else {
+                ctx.getSource().sendSuccess(Formatting.infoLine(
+                        translatable("lenientdeath.command.utilies.safeCheck.random.noSplitting",
+                                     variable(stack.getHoverName()),
+                                     variable(String.valueOf(Randomizer.INSTANCE.getChanceToKeep(ctx.getSource()
+                                                                                                    .getPlayer()) * 100)))
+                ), false);
+            }
 
             return 1;
         } else {

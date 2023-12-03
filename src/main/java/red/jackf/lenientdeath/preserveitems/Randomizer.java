@@ -1,6 +1,7 @@
 package red.jackf.lenientdeath.preserveitems;
 
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +30,24 @@ public class Randomizer {
         return Mth.clamp(chance * (1 + (luckMultiFactor * luck)) + (luckAddFactor * luck), 0, 1);
     }
 
-    public @Nullable Boolean shouldKeep(ItemStack ignored, Player player) {
-        var chance = getChanceToKeep(player);
-        if (chance == 1) return true;
-        if (chance > 0 && player.getRandom().nextFloat() < chance) return true;
-        return null;
+    public @Nullable Integer howManyToKeep(ItemStack stack, Player player) {
+        var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
+        float chance = getChanceToKeep(player);
+
+        if (chance == 1) return stack.getCount();
+        if (chance == 0) return 0;
+        if (config.splitStacks) {
+            return binomial(player.getRandom(), stack.getCount(), chance);
+        } else {
+            return player.getRandom().nextFloat() < chance ? stack.getCount() : null;
+        }
+    }
+
+    private static int binomial(RandomSource random, int trials, float probability) {
+        int successes = 0;
+        for (int i = 0; i < trials; i++) {
+            if (random.nextFloat() < probability) successes++;
+        }
+        return successes;
     }
 }
