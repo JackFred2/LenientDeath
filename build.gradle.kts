@@ -179,10 +179,10 @@ dependencies {
 	// You may get errors about missing dependencies if in IDEA; it's adding modCompileOnly dependencies to the run configs.
 	// Instead, run it manually with ./gradlew runClient. If you have any idea why it happens, please let me know.
 	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}")
-	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}") {
+	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cardinal-components-api_version"]}") {
 		isTransitive = false
 	}
-	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}") {
+	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cardinal-components-api_version"]}") {
 		isTransitive = false
 	}
 
