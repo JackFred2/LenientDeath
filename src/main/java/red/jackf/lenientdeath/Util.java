@@ -28,7 +28,7 @@ public interface Util {
 
     static void dropAsItem(ServerPlayer owner, ItemStack stack) {
         ItemEntity entity = new ItemEntity(owner.level(), owner.getX(), owner.getY(), owner.getZ(), stack, 0, 0, 0);
-        entity.setThrower(owner);
+        entity.setThrower(owner.getUUID());
         entity.setPickUpDelay(40); // 5 seconds
         owner.level().addFreshEntity(entity);
     }
