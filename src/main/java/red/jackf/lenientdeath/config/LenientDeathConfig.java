@@ -81,14 +81,14 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
     @Comment("""
             Sometimes stuff happens - Lenient Death remembers your inventories from previous deaths and allows admins to
             restore them if needed.""")
-    public InventoryRestore inventoryRestore = new InventoryRestore();
+    public RestoreInventory restoreInventory = new RestoreInventory();
 
-    public static class InventoryRestore {
+    public static class RestoreInventory {
         @Comment("""
                 The maximum amount of inventories to save. Set to 0 to disable.
                 Options: [0, 25]
                 Default: 10""")
-        public int maxInventoriesSaved = 10;
+        public int maxInventoriesSaved = 5;
 
         @Comment("""
                 Whether restoring inventories should also restore the experience value at the time of death.
@@ -630,8 +630,8 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
         this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds
                 = Mth.clamp(this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds, 0, 1800);
 
-        this.inventoryRestore.maxInventoriesSaved
-                = Mth.clamp(this.inventoryRestore.maxInventoriesSaved, 0, 25);
+        this.restoreInventory.maxInventoriesSaved
+                = Mth.clamp(this.restoreInventory.maxInventoriesSaved, 0, 25);
 
         this.preserveExperienceOnDeath.preservedPercentage
                 = Mth.clamp(this.preserveExperienceOnDeath.preservedPercentage, 0, 100);
