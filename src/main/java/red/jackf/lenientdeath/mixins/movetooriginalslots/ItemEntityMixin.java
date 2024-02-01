@@ -22,6 +22,7 @@ import java.util.OptionalInt;
 
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity implements LDRemembersSlot {
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Unique
     private OptionalInt slot = OptionalInt.empty();
 
@@ -66,7 +67,8 @@ public abstract class ItemEntityMixin extends Entity implements LDRemembersSlot 
             if (this.slot.getAsInt() < inventory.items.size()) {
                 return inventory.add(this.slot.getAsInt(), stack);
             } else {
-                inventory.setItem(slot.getAsInt(), stack);
+                // item pickup method uses an empty stack to know when to remove the item entity; it restores the count afterwards
+                inventory.setItem(slot.getAsInt(), stack.copyAndClear());
                 stack.setCount(0);
                 return true;
             }

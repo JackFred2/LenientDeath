@@ -1,0 +1,26 @@
+package red.jackf.lenientdeath;
+
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import red.jackf.lenientdeath.mixins.movetooriginalslots.InventoryAccessor;
+
+public interface Util {
+    private static boolean isValidSlot(Inventory inventory, int slot) {
+        int sum = 0;
+        for (var compartment : ((InventoryAccessor) inventory).getCompartments()) sum += compartment.size();
+        return slot >= 0 && slot < sum;
+    }
+
+    static boolean tryAddToInventory(Inventory target, ItemStack stack, int slot) {
+        if (isValidSlot(target, slot) && target.getItem(slot).isEmpty()) {
+            if (slot < target.items.size()) {
+                return target.add(slot, stack);
+            } else {
+                target.setItem(slot, stack.copyAndClear());
+                return true;
+            }
+        }
+
+        return target.add(stack);
+    }
+}
