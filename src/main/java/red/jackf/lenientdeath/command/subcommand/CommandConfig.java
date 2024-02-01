@@ -47,6 +47,7 @@ public class CommandConfig {
         String ITEM_RESILIENCE = "Item-Resilience";
         String CONFIG = "Home";
         String COMMAND = "Command";
+        String RESTORE_INVENTORY = "Restore-Inventory";
         String DEATH_COORDINATES = "Death-Coordinates";
         String PER_PLAYER = "Per-Player";
         String DROPPED_ITEM_GLOW = "Dropped-Item-Glow";
@@ -347,8 +348,29 @@ public class CommandConfig {
         root.then(createPreserveExperienceOnDeathNode());
         root.then(createPreserveItemsOnDeath(context));
         root.then(createItemResilience());
+        root.then(createRestoreInventory());
 
         root.then(createPresetsNode());
+
+        return root;
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> createRestoreInventory() {
+        var root = Commands.literal("restoreInventory");
+
+        root.then(makeIntRange("maxInventoriesSaved",
+                "restoreInventory.maxInventoriesSaved",
+                WikiPage.RESTORE_INVENTORY,
+                0,
+                25,
+                config -> config.restoreInventory.maxInventoriesSaved,
+                (config, newVal) -> config.restoreInventory.maxInventoriesSaved = newVal));
+
+        root.then(makeBoolean("restoreExperience",
+                "restoreInventory.restoreExperience",
+                WikiPage.RESTORE_INVENTORY,
+                config -> config.restoreInventory.restoreExperience,
+                (config, newVal) -> config.restoreInventory.restoreExperience = newVal));
 
         return root;
     }

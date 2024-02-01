@@ -41,7 +41,7 @@ public class RestoreInventory {
 
     public static LiteralArgumentBuilder<CommandSourceStack> createCommandNode(CommandBuildContext context) {
         var root = Commands.literal("deaths");
-        root.requires(RESTORE_INVENTORY_PREDICATE);
+        root.requires(stack -> LenientDeath.CONFIG.instance().restoreInventory.maxInventoriesSaved > 0 && RESTORE_INVENTORY_PREDICATE.test(stack));
 
         root.then(makeListNode(context));
         root.then(makeRestoreNode(context));
@@ -113,7 +113,7 @@ public class RestoreInventory {
 
         DeathRecord death = deaths.get(deathIndex);
 
-        if (LenientDeath.CONFIG.instance().inventoryRestore.restoreExperience) {
+        if (LenientDeath.CONFIG.instance().restoreInventory.restoreExperience) {
             player.setExperiencePoints(0);
             player.setExperienceLevels(0);
             player.giveExperiencePoints(death.experience());
