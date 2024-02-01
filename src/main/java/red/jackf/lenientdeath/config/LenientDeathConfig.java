@@ -79,6 +79,25 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
     }
 
     @Comment("""
+            Sometimes stuff happens - Lenient Death remembers your inventories from previous deaths and allows admins to
+            restore them if needed.""")
+    public InventoryRestore inventoryRestore = new InventoryRestore();
+
+    public static class InventoryRestore {
+        @Comment("""
+                The maximum amount of inventories to save. Set to 0 to disable.
+                Options: [0, 25]
+                Default: 10""")
+        public int maxInventoriesSaved = 10;
+
+        @Comment("""
+                Whether restoring inventories should also restore the experience value at the time of death.
+                Options: true, false
+                Default: false""")
+        public boolean restoreExperience = false;
+    }
+
+    @Comment("""
                 Allows you to use Lenient Death on a per-player basis. This can be used if only some of your players want
                 to use the mod. Affects item and XP preservation on death.
                 Per-player mode can also be used with a permission plugin / mod, which will overwrite these settings.
@@ -611,11 +630,14 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
         this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds
                 = Mth.clamp(this.extendedDeathItemLifetime.deathDropItemLifetimeSeconds, 0, 1800);
 
-        if (this.preserveItemsOnDeath.nbt.nbtKey.isBlank())
-            this.preserveItemsOnDeath.nbt.nbtKey = defaultInstance.preserveItemsOnDeath.nbt.nbtKey;
+        this.inventoryRestore.maxInventoriesSaved
+                = Mth.clamp(this.inventoryRestore.maxInventoriesSaved, 0, 25);
 
         this.preserveExperienceOnDeath.preservedPercentage
                 = Mth.clamp(this.preserveExperienceOnDeath.preservedPercentage, 0, 100);
+
+        if (this.preserveItemsOnDeath.nbt.nbtKey.isBlank())
+            this.preserveItemsOnDeath.nbt.nbtKey = defaultInstance.preserveItemsOnDeath.nbt.nbtKey;
 
         this.preserveItemsOnDeath.randomizer.preservedPercentage
                 = Mth.clamp(this.preserveItemsOnDeath.randomizer.preservedPercentage, 0, 100);
