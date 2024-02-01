@@ -1,8 +1,10 @@
 package red.jackf.lenientdeath.command.subcommand;
 
 import com.google.common.collect.Streams;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -11,8 +13,12 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PermissionKeys;
+import red.jackf.lenientdeath.Util;
 import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.restoreinventory.DeathRecord;
 
@@ -38,6 +44,26 @@ public class RestoreInventory {
         root.requires(RESTORE_INVENTORY_PREDICATE);
 
         root.then(makeListNode(context));
+        root.then(makeRestoreNode(context));
+
+        return root;
+    }
+
+    // /ld deaths restore <player> <death index> [replace]
+    private static LiteralArgumentBuilder<CommandSourceStack> makeRestoreNode(CommandBuildContext ignored) {
+        var root = Commands.literal("restore");
+
+        var playerArgument = Commands.argument("player", EntityArgument.player());
+
+        var deathIndexArgument = Commands.argument("deathIndex", IntegerArgumentType.integer(0));
+        deathIndexArgument.executes(ctx -> restoreInventory(ctx, false));
+
+        var replace = Commands.literal("replace");
+        replace.executes(ctx -> restoreInventory(ctx, true));
+
+        deathIndexArgument.then(replace);
+        playerArgument.then(deathIndexArgument);
+        root.then(playerArgument);
 
         return root;
     }
@@ -73,6 +99,44 @@ public class RestoreInventory {
             }
         }
         return deaths.size();
+    }
+
+    private static int restoreInventory(CommandContext<CommandSourceStack> ctx, boolean replace) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
+        int deathIndex = IntegerArgumentType.getInteger(ctx, "deathIndex");
+
+        List<DeathRecord> deaths = red.jackf.lenientdeath.restoreinventory.RestoreInventory.INSTANCE.getDeathHistory(player);
+        if (deathIndex >= deaths.size()) {
+            ctx.getSource().sendFailure(Formatting.errorLine(Component.translatable("lenientdeath.command.restoreInventory.indexOutOfRange", deathIndex)));
+            return 0;
+        }
+
+        DeathRecord death = deaths.get(deathIndex);
+
+        if (LenientDeath.CONFIG.instance().inventoryRestore.restoreExperience) {
+            player.setExperiencePoints(0);
+            player.setExperienceLevels(0);
+            player.giveExperiencePoints(death.experience());
+        }
+
+        if (replace) {
+            player.getInventory().replaceWith(death.inventory());
+        } else {
+            for (int slot = 0; slot < death.inventory().getContainerSize(); slot++) {
+                ItemStack item = death.inventory().getItem(slot);
+                if (item.isEmpty()) continue;
+
+                if (!Util.tryAddToInventory(player.getInventory(), item, slot)) {
+                    ItemEntity entity = new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), item, 0, 0, 0);
+                    entity.setThrower(player);
+                    entity.setPickUpDelay(100); // 5 seconds
+                    player.level().addFreshEntity(player);
+                }
+            }
+        }
+
+        ctx.getSource().sendSuccess(() -> Formatting.successLine(Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName())), true);
+        return 1;
     }
 
     private static Component formatTimeFromNow(Instant time) {
