@@ -6,7 +6,7 @@
   "mixins": [
     "InventoryMixin",
     "compat.LivingEntityTrinketsMixin",
-    "inventoryrestore.ServerPlayerMixin",
+    "restoreinventory.ServerPlayerMixin",
     "itemlifeextender.ItemEntityAccessor",
     "itemresilience.ItemEntityMixin",
     "itemresilience.PlayerMixin",

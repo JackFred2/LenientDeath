@@ -1,6 +1,7 @@
-package red.jackf.lenientdeath.inventoryrestore;
+package red.jackf.lenientdeath.restoreinventory;
 
 import net.minecraft.Util;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,8 +16,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InventoryRestore {
-    public static final InventoryRestore INSTANCE = new InventoryRestore();
+public class RestoreInventory {
+    public static final RestoreInventory INSTANCE = new RestoreInventory();
 
     private static final String DEATHS = "Deaths";
     private static final Logger LOGGER = LenientDeath.getLogger("Inventory Restore");
@@ -84,7 +85,7 @@ public class InventoryRestore {
                 player.getInventory(),
                 Instant.now(),
                 player.getCombatTracker().getDeathMessage(),
-                player.blockPosition(),
+                GlobalPos.of(player.level().dimension(), player.blockPosition()),
                 player.totalExperience
         );
 

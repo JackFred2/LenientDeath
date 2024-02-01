@@ -1,19 +1,19 @@
-package red.jackf.lenientdeath.inventoryrestore;
+package red.jackf.lenientdeath.restoreinventory;
 
 import com.mojang.serialization.DataResult;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 
 public record DeathRecord(Inventory inventory,
                           Instant timeOfDeath,
                           Component deathMessage,
-                          BlockPos location,
+                          GlobalPos location,
                           int experience) {
     private static final String INVENTORY = "Inventory";
     private static final String TIME_OF_DEATH = "TimeOfDeath";
@@ -25,7 +25,7 @@ public record DeathRecord(Inventory inventory,
         Inventory inventory;
         Instant timeOfDeath;
         Component deathMessage;
-        BlockPos location;
+        GlobalPos location;
 
         if (tag.contains(INVENTORY, CompoundTag.TAG_LIST)) {
             inventory = new Inventory(player);
@@ -34,11 +34,15 @@ public record DeathRecord(Inventory inventory,
             return DataResult.error(() -> "No inventory");
         }
 
-        if (tag.contains(TIME_OF_DEATH, Tag.TAG_STRING)) {
-            try {
-                timeOfDeath = Instant.parse(tag.getString(TIME_OF_DEATH));
-            } catch (DateTimeParseException ignored) {
-                return DataResult.error(() -> "Could not parse time of death");
+        if (tag.contains(TIME_OF_DEATH)) {
+            DataResult<Instant> timeOfDeathParsed = ExtraCodecs.INSTANT_ISO8601.parse(NbtOps.INSTANCE, tag.get(TIME_OF_DEATH));
+            if (timeOfDeathParsed.result().isPresent()) {
+                timeOfDeath = timeOfDeathParsed.result().get();
+            } else {
+                return timeOfDeathParsed.get()
+                        .right()
+                        .map(partial -> DataResult.<DeathRecord>error(() -> "Could not parse time of death: " + partial.message()))
+                        .orElseThrow();
             }
         } else {
             return DataResult.error(() -> "No time of death");
@@ -51,8 +55,8 @@ public record DeathRecord(Inventory inventory,
             return DataResult.error(() -> "No death message");
         }
 
-        if (tag.contains(LOCATION, Tag.TAG_INT_ARRAY)) {
-            DataResult<BlockPos> locationParsed = BlockPos.CODEC.parse(NbtOps.INSTANCE, tag.get(LOCATION));
+        if (tag.contains(LOCATION)) {
+            DataResult<GlobalPos> locationParsed = GlobalPos.CODEC.parse(NbtOps.INSTANCE, tag.get(LOCATION));
             if (locationParsed.result().isPresent()) {
                 location = locationParsed.result().get();
             } else {
@@ -77,10 +81,10 @@ public record DeathRecord(Inventory inventory,
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
 
-        ListTag inventory = this.inventory.save(new ListTag());
-        StringTag timeOfDeath = StringTag.valueOf(this.timeOfDeath.toString());
-        StringTag deathMessage = StringTag.valueOf(Component.Serializer.toJson(this.deathMessage));
-        Tag location = BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, this.location).result().orElseThrow();
+        Tag inventory = this.inventory.save(new ListTag());
+        Tag timeOfDeath = ExtraCodecs.INSTANT_ISO8601.encodeStart(NbtOps.INSTANCE, this.timeOfDeath).result().orElseThrow();
+        Tag deathMessage = StringTag.valueOf(Component.Serializer.toJson(this.deathMessage));
+        Tag location = GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, this.location).result().orElseThrow();
         Tag experience = IntTag.valueOf(this.experience);
 
         tag.put(INVENTORY, inventory);
