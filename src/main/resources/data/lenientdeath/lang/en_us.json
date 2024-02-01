@@ -28,6 +28,14 @@
   "lenientdeath.command.utilies.safeCheck.random.splitting": "%d%% of %s will be preserved",
   "lenientdeath.command.utilies.safeCheck.failure": "%s will not be preserved",
   "lenientdeath.command.utilies.listItemsInTag": "Items in %s:",
+  "lenientdeath.command.restoreInventory.empty": "%s has no deaths on record.",
+  "lenientdeath.command.restoreInventory.header": "Recorded deaths for %s:",
+  "lenientdeath.command.restoreInventory.timeAndPosition": "%s at %s in %s",
+  "lenientdeath.command.restoreInventory.restore": "Restore",
+  "lenientdeath.command.restoreInventory.restore.hover": "Restores the given inventory, dropping items that don't fit.",
+  "lenientdeath.command.restoreInventory.replace": "Replace",
+  "lenientdeath.command.restoreInventory.replace.hover": "Restores the given inventory & XP level, removing the player's current inventory.",
+  "lenientdeath.command.restoreInventory.itemsAndXp": "%d items | %d XP points",
   "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s.",
   "lenientdeath.deathCoordinates": "You died at %s, in %s."
 }
