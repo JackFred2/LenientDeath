@@ -50,7 +50,7 @@ public class ManualAllowAndBlocklist {
     }
 
     /**
-     * Load items from the current tag set and config.
+     * Load items fromTag the current tag set and config.
      */
     public void refreshItems() {
         this.alwaysPreserved.clear();
