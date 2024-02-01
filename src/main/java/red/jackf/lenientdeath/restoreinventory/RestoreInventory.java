@@ -38,7 +38,7 @@ public class RestoreInventory {
 
         if (Files.isRegularFile(playerPath)) {
             try {
-                data = NbtIo.readCompressed(playerPath, NbtAccounter.unlimitedHeap());
+                data = NbtIo.readCompressed(playerPath.toFile());
             } catch (IOException e) {
                 LOGGER.error("Error decoding player %s death history".formatted(player.getScoreboardName()), e);
             }
@@ -71,7 +71,7 @@ public class RestoreInventory {
             Path directory = getDeathHistoryDir(player.server);
             Files.createDirectories(directory);
             Path temp = Files.createTempFile(directory, player.getStringUUID() + "-", ".dat");
-            NbtIo.writeCompressed(root, temp);
+            NbtIo.writeCompressed(root, temp.toFile());
             Path realPath = directory.resolve(player.getStringUUID() + ".dat");
             Path backupPath = directory.resolve(player.getStringUUID() + ".dat_old");
             Util.safeReplaceFile(realPath, temp, backupPath);
