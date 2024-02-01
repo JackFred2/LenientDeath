@@ -93,7 +93,7 @@ public class RestoreInventory {
 
         history.add(0, record);
 
-        while (history.size() > LenientDeath.CONFIG.instance().inventoryRestore.maxInventoriesSaved)
+        while (history.size() > LenientDeath.CONFIG.instance().restoreInventory.maxInventoriesSaved)
             history.remove(history.size() - 1);
 
         saveDeathHistory(player, history);
