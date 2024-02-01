@@ -133,6 +133,7 @@ loom {
 			runDir = "run"
 			source(sourceSets["client"])
 			ideConfigGenerated(true)
+			programArgs.addAll("--username JackFred".split(" "))
 			client()
 		}
 
