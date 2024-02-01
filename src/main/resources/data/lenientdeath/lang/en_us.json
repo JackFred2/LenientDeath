@@ -36,6 +36,8 @@
   "lenientdeath.command.restoreInventory.replace": "Replace",
   "lenientdeath.command.restoreInventory.replace.hover": "Restores the given inventory & XP level, removing the player's current inventory.",
   "lenientdeath.command.restoreInventory.itemsAndXp": "%d items | %d XP points",
+  "lenientdeath.command.restoreInventory.indexOutOfRange": "Out of range death record: %d",
+  "lenientdeath.command.restoreInventory.success": "Successfully restored %d's inventory.",
   "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s.",
   "lenientdeath.deathCoordinates": "You died at %s, in %s."
 }
