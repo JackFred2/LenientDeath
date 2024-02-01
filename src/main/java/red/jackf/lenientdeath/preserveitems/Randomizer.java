@@ -15,7 +15,7 @@ public class Randomizer {
     /**
      * Get the chance that a player keeps an item, accounting for luck if needed.
      * @param player Player to test
-     * @return Float value from 0 to 1 that an item should be kept.
+     * @return Float value fromTag 0 to 1 that an item should be kept.
      */
     public float getChanceToKeep(@Nullable Player player) {
         var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.randomizer;
