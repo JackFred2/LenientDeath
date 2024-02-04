@@ -38,6 +38,11 @@
   "lenientdeath.command.restoreInventory.itemsAndXp": "%d items | %d XP points",
   "lenientdeath.command.restoreInventory.indexOutOfRange": "Out of range death record: %d",
   "lenientdeath.command.restoreInventory.success": "Successfully restored %d's inventory.",
+  "lenientdeath.command.restoreInventory.success.replace": "Successfully replaced %d's inventory.",
+  "lenientdeath.command.restoreInventory.time.secondsAgo": "%1$s second(s) ago",
+  "lenientdeath.command.restoreInventory.time.minutesAgo": "%1$s minute(s) ago",
+  "lenientdeath.command.restoreInventory.time.hoursAgo": "%1$s hour(s) ago",
+  "lenientdeath.command.restoreInventory.time.daysAgo": "%1$s day(s) ago",
   "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s.",
   "lenientdeath.deathCoordinates": "You died at %s, in %s."
 }
