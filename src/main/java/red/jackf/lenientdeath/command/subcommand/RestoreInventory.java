@@ -137,7 +137,11 @@ public class RestoreInventory {
             TrinketsCompat.restoreTrinkets(player, death.trinketsInventory().get().items(), replace);
         }
 
-        ctx.getSource().sendSuccess(() -> Formatting.successLine(Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName())), true);
+        MutableComponent line = replace ?
+                Component.translatable("lenientdeath.command.restoreInventory.success.replace", player.getDisplayName()) :
+                Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName()) ;
+
+        ctx.getSource().sendSuccess(() -> Formatting.successLine(line), true);
         return 1;
     }
 
@@ -146,10 +150,10 @@ public class RestoreInventory {
 
         MutableComponent component;
 
-        if (seconds < 60) component = Component.translatable("mco.time.secondsAgo", seconds);
-        else if (seconds < 3600) component = Component.translatable("mco.time.minutesAgo", seconds / 60);
-        else if (seconds < 86400) component = Component.translatable("mco.time.hoursAgo", seconds / 3600);
-        else component = Component.translatable("mco.time.daysAgo", seconds / 86400);
+        if (seconds < 60) component = Component.translatable("lenientdeath.command.restoreInventory.time.secondsAgo", seconds);
+        else if (seconds < 3600) component = Component.translatable("lenientdeath.command.restoreInventory.time.minutesAgo", seconds / 60);
+        else if (seconds < 86400) component = Component.translatable("lenientdeath.command.restoreInventory.time.hoursAgo", seconds / 3600);
+        else component = Component.translatable("lenientdeath.command.restoreInventory.time.daysAgo", seconds / 86400);
 
         component.setStyle(Formatting.VARIABLE.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal(HOVER_FORMAT.format(time)))));
 
