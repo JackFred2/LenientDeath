@@ -83,6 +83,7 @@ public class RestoreInventory {
     public void onDeath(ServerPlayer player) {
         DeathRecord record = new DeathRecord(
                 player.getInventory(),
+                TrinketsRecord.from(player),
                 Instant.now(),
                 player.getCombatTracker().getDeathMessage(),
                 GlobalPos.of(player.level().dimension(), player.blockPosition()),

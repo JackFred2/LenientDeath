@@ -1,5 +1,7 @@
 package red.jackf.lenientdeath;
 
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.mixins.movetooriginalslots.InventoryAccessor;
@@ -22,5 +24,12 @@ public interface Util {
         }
 
         return target.add(stack);
+    }
+
+    static void dropAsItem(ServerPlayer owner, ItemStack stack) {
+        ItemEntity entity = new ItemEntity(owner.level(), owner.getX(), owner.getY(), owner.getZ(), stack, 0, 0, 0);
+        entity.setThrower(owner);
+        entity.setPickUpDelay(40); // 5 seconds
+        owner.level().addFreshEntity(entity);
     }
 }
