@@ -6,6 +6,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -13,13 +14,13 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.*;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.PermissionKeys;
 import red.jackf.lenientdeath.Util;
 import red.jackf.lenientdeath.command.Formatting;
+import red.jackf.lenientdeath.compat.TrinketsCompat;
 import red.jackf.lenientdeath.restoreinventory.DeathRecord;
 
 import java.time.Instant;
@@ -127,12 +128,13 @@ public class RestoreInventory {
                 if (item.isEmpty()) continue;
 
                 if (!Util.tryAddToInventory(player.getInventory(), item, slot)) {
-                    ItemEntity entity = new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), item, 0, 0, 0);
-                    entity.setThrower(player);
-                    entity.setPickUpDelay(100); // 5 seconds
-                    player.level().addFreshEntity(player);
+                    Util.dropAsItem(player, item);
                 }
             }
+        }
+
+        if (FabricLoader.getInstance().isModLoaded("trinkets") && death.trinketsInventory().isPresent()) {
+            TrinketsCompat.restoreTrinkets(player, death.trinketsInventory().get().items(), replace);
         }
 
         ctx.getSource().sendSuccess(() -> Formatting.successLine(Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName())), true);

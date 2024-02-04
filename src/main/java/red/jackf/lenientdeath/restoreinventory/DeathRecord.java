@@ -9,13 +9,16 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public record DeathRecord(Inventory inventory,
+                          Optional<TrinketsRecord> trinketsInventory,
                           Instant timeOfDeath,
                           Component deathMessage,
                           GlobalPos location,
                           int experience) {
     private static final String INVENTORY = "Inventory";
+    private static final String TRINKETS_INVENTORY = "TrinketsInventory";
     private static final String TIME_OF_DEATH = "TimeOfDeath";
     private static final String DEATH_MESSAGE = "DeathMessage";
     private static final String LOCATION = "Location";
@@ -23,6 +26,7 @@ public record DeathRecord(Inventory inventory,
 
     public static DataResult<DeathRecord> fromTag(ServerPlayer player, CompoundTag tag) {
         Inventory inventory;
+        Optional<TrinketsRecord> trinkets;
         Instant timeOfDeath;
         Component deathMessage;
         GlobalPos location;
@@ -32,6 +36,20 @@ public record DeathRecord(Inventory inventory,
             inventory.load(tag.getList(INVENTORY, Tag.TAG_COMPOUND));
         } else {
             return DataResult.error(() -> "No inventory");
+        }
+
+        if (tag.contains(TRINKETS_INVENTORY, Tag.TAG_COMPOUND)) {
+            DataResult<TrinketsRecord> trinketsParsed = TrinketsRecord.CODEC.parse(NbtOps.INSTANCE, tag.get(TRINKETS_INVENTORY));
+            if (trinketsParsed.result().isPresent()) {
+                trinkets = trinketsParsed.result();
+            } else {
+                return trinketsParsed.get()
+                        .right()
+                        .map(partial -> DataResult.<DeathRecord>error(() -> "Could not parse trinkets inventory: " + partial.message()))
+                        .orElseThrow();
+            }
+        } else {
+            trinkets = Optional.empty();
         }
 
         if (tag.contains(TIME_OF_DEATH)) {
@@ -72,6 +90,7 @@ public record DeathRecord(Inventory inventory,
         int experience = tag.getInt(EXPERIENCE);
 
         return DataResult.success(new DeathRecord(inventory,
+                trinkets,
                 timeOfDeath,
                 deathMessage,
                 location,
@@ -81,17 +100,13 @@ public record DeathRecord(Inventory inventory,
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
 
-        Tag inventory = this.inventory.save(new ListTag());
-        Tag timeOfDeath = ExtraCodecs.INSTANT_ISO8601.encodeStart(NbtOps.INSTANCE, this.timeOfDeath).result().orElseThrow();
-        Tag deathMessage = StringTag.valueOf(Component.Serializer.toJson(this.deathMessage));
-        Tag location = GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, this.location).result().orElseThrow();
-        Tag experience = IntTag.valueOf(this.experience);
-
-        tag.put(INVENTORY, inventory);
-        tag.put(TIME_OF_DEATH, timeOfDeath);
-        tag.put(DEATH_MESSAGE, deathMessage);
-        tag.put(LOCATION, location);
-        tag.put(EXPERIENCE, experience);
+        tag.put(INVENTORY, this.inventory.save(new ListTag()));
+        this.trinketsInventory.ifPresent(trinketsRecord ->
+                tag.put(TRINKETS_INVENTORY, TrinketsRecord.CODEC.encodeStart(NbtOps.INSTANCE, trinketsRecord).result().orElseThrow()));
+        tag.put(TIME_OF_DEATH, ExtraCodecs.INSTANT_ISO8601.encodeStart(NbtOps.INSTANCE, this.timeOfDeath).result().orElseThrow());
+        tag.put(DEATH_MESSAGE, StringTag.valueOf(Component.Serializer.toJson(this.deathMessage)));
+        tag.put(LOCATION, GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, this.location).result().orElseThrow());
+        tag.put(EXPERIENCE, IntTag.valueOf(this.experience));
 
         return tag;
     }
