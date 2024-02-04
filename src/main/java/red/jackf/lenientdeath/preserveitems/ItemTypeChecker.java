@@ -6,6 +6,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import org.jetbrains.annotations.Nullable;
 import red.jackf.lenientdeath.LenientDeath;
+import red.jackf.lenientdeath.compat.TrinketsCompat;
 import red.jackf.lenientdeath.config.LenientDeathConfig.PreserveItemsOnDeath.ByItemType.TypeBehavior;
 
 import java.util.Set;
