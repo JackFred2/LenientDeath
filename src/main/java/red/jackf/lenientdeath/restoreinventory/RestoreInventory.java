@@ -86,7 +86,7 @@ public class RestoreInventory {
                 TrinketsRecord.from(player),
                 Instant.now(),
                 player.getCombatTracker().getDeathMessage(),
-                GlobalPos.of(player.level().dimension(), player.blockPosition()),
+                GlobalPos.of(player.getLevel().dimension(), player.blockPosition()),
                 player.totalExperience
         );
 

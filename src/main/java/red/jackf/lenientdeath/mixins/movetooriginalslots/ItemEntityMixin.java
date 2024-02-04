@@ -68,7 +68,7 @@ public abstract class ItemEntityMixin extends Entity implements LDRemembersSlot 
                 return inventory.add(this.slot.getAsInt(), stack);
             } else {
                 // item pickup method uses an empty stack to know when to remove the item entity; it restores the count afterwards
-                inventory.setItem(slot.getAsInt(), stack.copyAndClear());
+                inventory.setItem(slot.getAsInt(), stack.copy());
                 stack.setCount(0);
                 return true;
             }

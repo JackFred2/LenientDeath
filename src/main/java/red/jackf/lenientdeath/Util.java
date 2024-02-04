@@ -18,7 +18,8 @@ public interface Util {
             if (slot < target.items.size()) {
                 return target.add(slot, stack);
             } else {
-                target.setItem(slot, stack.copyAndClear());
+                target.setItem(slot, stack.copy());
+                stack.setCount(0);
                 return true;
             }
         }
@@ -27,9 +28,9 @@ public interface Util {
     }
 
     static void dropAsItem(ServerPlayer owner, ItemStack stack) {
-        ItemEntity entity = new ItemEntity(owner.level(), owner.getX(), owner.getY(), owner.getZ(), stack, 0, 0, 0);
+        ItemEntity entity = new ItemEntity(owner.getLevel(), owner.getX(), owner.getY(), owner.getZ(), stack, 0, 0, 0);
         entity.setThrower(owner.getUUID());
         entity.setPickUpDelay(40); // 5 seconds
-        owner.level().addFreshEntity(entity);
+        owner.getLevel().addFreshEntity(entity);
     }
 }

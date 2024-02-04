@@ -84,18 +84,18 @@ public class RestoreInventory {
     private static int listDeaths(CommandContext<CommandSourceStack> ctx, ServerPlayer player) {
         List<DeathRecord> deaths = red.jackf.lenientdeath.restoreinventory.RestoreInventory.INSTANCE.getDeathHistory(player);
         if (deaths.isEmpty()) {
-            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+            ctx.getSource().sendSuccess(Formatting.infoLine(
                     Component.translatable("lenientdeath.command.restoreInventory.empty", player.getDisplayName())
             ), false);
         } else {
-            ctx.getSource().sendSuccess(() -> Formatting.infoLine(
+            ctx.getSource().sendSuccess(Formatting.infoLine(
                     Component.translatable("lenientdeath.command.restoreInventory.header", player.getDisplayName())
             ), false);
 
             for (int i = 0; i < deaths.size(); i++) {
                 DeathRecord record = deaths.get(i);
                 for (MutableComponent line : formatRecord(i, player, record)) {
-                    ctx.getSource().sendSuccess(() -> Formatting.infoLine(line), false);
+                    ctx.getSource().sendSuccess(Formatting.infoLine(line), false);
                 }
             }
         }
@@ -137,7 +137,7 @@ public class RestoreInventory {
             TrinketsCompat.restoreTrinkets(player, death.trinketsInventory().get().items(), replace);
         }
 
-        ctx.getSource().sendSuccess(() -> Formatting.successLine(Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName())), true);
+        ctx.getSource().sendSuccess(Formatting.successLine(Component.translatable("lenientdeath.command.restoreInventory.success", player.getDisplayName())), true);
         return 1;
     }
 
