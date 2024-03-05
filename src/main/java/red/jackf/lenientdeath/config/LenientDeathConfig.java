@@ -87,7 +87,7 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
         @Comment("""
                 The maximum amount of inventories to save. Set to 0 to disable.
                 Options: [0, 25]
-                Default: 10""")
+                Default: 5""")
         public int maxInventoriesSaved = 5;
 
         @Comment("""
