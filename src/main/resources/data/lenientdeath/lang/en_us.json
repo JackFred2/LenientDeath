@@ -44,5 +44,6 @@
   "lenientdeath.command.restoreInventory.time.hoursAgo": "%1$s hour(s) ago",
   "lenientdeath.command.restoreInventory.time.daysAgo": "%1$s day(s) ago",
   "lenientdeath.itemResilience.announce": "Your items have been moved to %s, in %s.",
-  "lenientdeath.deathCoordinates": "You died at %s, in %s."
+  "lenientdeath.deathCoordinates": "You died at %s, in %s.",
+  "tag.item.lenientdeath.safe": "Kept upon death"
 }
