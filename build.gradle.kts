@@ -66,7 +66,8 @@ repositories {
 		name = "Ladysnake Mods"
 		url = uri("https://maven.ladysnake.org/releases")
 		content {
-			includeGroup("dev.onyxstudios.cardinal-components-api")
+			//includeGroup("dev.onyxstudios.cardinal-components-api")
+			includeGroup("org.ladysnake.cardinal-components-api")
 		}
 	}
 
@@ -159,12 +160,12 @@ dependencies {
 	// For some reason, trinkets (+CCA) gets added to the IDEA run configs even if it's just compileOnly. To mitigate this,
 	// use ./gradlew runClient. If you know why this happens, please let me know.
 	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}") {}
-	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cardinal-components-api_version"]}") {
+	/*modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cardinal-components-api_version"]}") {
 		isTransitive = false
 	}
 	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${properties["cardinal-components-api_version"]}") {
 		isTransitive = false
-	}
+	}*/
 
 	//modLocalRuntime("dev.emi:trinkets:${properties["trinkets_version"]}")
 	//modLocalRuntime("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}")
