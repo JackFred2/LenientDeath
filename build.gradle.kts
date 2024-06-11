@@ -117,31 +117,13 @@ loom {
 	mods {
 		create("lenientdeath") {
 			sourceSet(sourceSets["main"])
-			sourceSet(sourceSets["client"])
 		}
 	}
 
 	log4jConfigs.from(file("log4j2.xml"))
 
-	runs {
-		getByName("client") {
-			environment = "client"
-			configName = "Run Client"
-			runDir = "run"
-			source(sourceSets["client"])
-			ideConfigGenerated(true)
-			programArgs.addAll("--username JackFred".split(" "))
-			client()
-		}
-
-		getByName("server") {
-			environment = "server"
-			configName = "Run Server"
-			runDir = "runServer"
-			source(sourceSets["main"])
-			ideConfigGenerated(true)
-			server()
-		}
+	runConfigs.configureEach {
+		programArgs.addAll("--username JackFred".split(" "))
 	}
 
 	//accessWidenerPath.set(file("src/main/resources/lenientdeath.accesswidener"))
@@ -174,9 +156,9 @@ dependencies {
 	// COMPATIBILITY
 	modLocalImplementation("com.terraformersmc:modmenu:${properties["modmenu_version"]}")
 
-	// You may get errors about missing dependencies if in IDEA; it's adding modCompileOnly dependencies to the run configs.
-	// Instead, run it manually with ./gradlew runClient. If you have any idea why it happens, please let me know.
-	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}")
+	// For some reason, trinkets (+CCA) gets added to the IDEA run configs even if it's just compileOnly. To mitigate this,
+	// use ./gradlew runClient. If you know why this happens, please let me know.
+	modCompileOnly("dev.emi:trinkets:${properties["trinkets_version"]}") {}
 	modCompileOnly("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${properties["cardinal-components-api_version"]}") {
 		isTransitive = false
 	}
