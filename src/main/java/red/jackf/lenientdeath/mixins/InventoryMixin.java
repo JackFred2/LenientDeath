@@ -64,7 +64,7 @@ public class InventoryMixin {
             method = "dropAll",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;"))
     private ItemEntity handleItemEntity(ItemEntity item, @Share("ldSlotCount") LocalIntRef slot) {
-        if (this.player instanceof ServerPlayer serverPlayer) {
+        if (this.player instanceof ServerPlayer serverPlayer && item != null) {
             LenientDeathAPI.INSTANCE.markDeathItem(serverPlayer, item, slot.get());
         }
         return item;
