@@ -22,6 +22,7 @@ import red.jackf.lenientdeath.Util;
 import red.jackf.lenientdeath.command.Formatting;
 import red.jackf.lenientdeath.compat.TrinketsCompat;
 import red.jackf.lenientdeath.restoreinventory.DeathRecord;
+import red.jackf.lenientdeath.restoreinventory.TrinketsRecord;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -166,6 +167,20 @@ public class RestoreInventory {
                 .count();
     }
 
+    private static long countTrinkets(TrinketsRecord inventory) {
+        long count = 0;
+
+        for (var group : inventory.items().values()) {
+            for (var slot : group.values()) {
+                for (var item : slot) {
+                    if (!item.isEmpty()) count += 1;
+                }
+            }
+        }
+
+        return count;
+    }
+
     private static List<MutableComponent> formatRecord(int index, ServerPlayer player, DeathRecord record) {
         List<MutableComponent> lines = new ArrayList<>();
         String spacer = "   ";
@@ -207,9 +222,12 @@ public class RestoreInventory {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("lenientdeath.command.restoreInventory.replace.hover")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, replaceCommand)));
 
+        long mainCount = countItems(record.inventory());
+        long trinketsCount = record.trinketsInventory().map(RestoreInventory::countTrinkets).orElse(0L);
+
         MutableComponent thirdLine = Component.literal(spacer)
                 .append(Component.translatable("lenientdeath.command.restoreInventory.itemsAndXp",
-                        Component.literal("" + countItems(record.inventory())).withStyle(ChatFormatting.GREEN),
+                        Component.literal("" + (mainCount + trinketsCount)).withStyle(ChatFormatting.GREEN),
                         Component.literal("" + record.experience()).withStyle(ChatFormatting.GREEN)))
                 .append(CommonComponents.space())
                 .append(restoreButton)

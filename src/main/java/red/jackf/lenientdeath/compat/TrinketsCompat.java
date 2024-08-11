@@ -62,9 +62,14 @@ public class TrinketsCompat {
                 String slotName = slot.getKey();
                 List<ItemStack> items = new ArrayList<>(slot.getValue().getContainerSize());
                 for (int slotIndex = 0; slotIndex < slot.getValue().getContainerSize(); slotIndex++) {
-                    items.add(slot.getValue().getItem(slotIndex));
+                    ItemStack item = slot.getValue().getItem(slotIndex);
+                    if (!item.isEmpty()) {
+                        items.add(slot.getValue().getItem(slotIndex));
+                    }
                 }
-                trinkets.computeIfAbsent(groupName, k -> new HashMap<>()).put(slotName, items);
+                if (!items.isEmpty()) {
+                    trinkets.computeIfAbsent(groupName, k -> new HashMap<>()).put(slotName, items);
+                }
             }
         }
 
