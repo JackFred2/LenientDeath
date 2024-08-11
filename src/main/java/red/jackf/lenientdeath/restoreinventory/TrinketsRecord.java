@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public record TrinketsRecord(Map<String, Map<String, List<ItemStack>>> items) {
     public static Codec<TrinketsRecord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, ItemStack.CODEC.listOf())).fieldOf("items").forGetter(TrinketsRecord::items)
+            Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, ItemStack.OPTIONAL_CODEC.listOf())).fieldOf("items").forGetter(TrinketsRecord::items)
     ).apply(instance, TrinketsRecord::new));
 
     public static Optional<TrinketsRecord> from(ServerPlayer player) {
