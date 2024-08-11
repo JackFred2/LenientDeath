@@ -112,8 +112,8 @@ public record DeathRecord(Inventory inventory,
     }
 
     private static void encodeTrinket(CompoundTag tag, TrinketsRecord trinketsRecord) {
-        TrinketsRecord.CODEC.encodeStart(NbtOps.INSTANCE, trinketsRecord)
-                .ifSuccess(trinkets -> tag.put(TRINKETS_INVENTORY, trinkets))
-                .ifError(err -> LenientDeath.LOGGER.error("Error saving trinkets inventory: {}", err.message()));
+        TrinketsRecord.CODEC.encodeStart(NbtOps.INSTANCE, trinketsRecord).get()
+                .ifLeft(trinkets -> tag.put(TRINKETS_INVENTORY, trinkets))
+                .ifRight(err -> LenientDeath.LOGGER.error("Error saving trinkets inventory: {}", err.message()));
     }
 }
