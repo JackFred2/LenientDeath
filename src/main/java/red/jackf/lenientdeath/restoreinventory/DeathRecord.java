@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Inventory;
+import red.jackf.lenientdeath.LenientDeath;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -98,13 +99,18 @@ public record DeathRecord(Inventory inventory,
         CompoundTag tag = new CompoundTag();
 
         tag.put(INVENTORY, this.inventory.save(new ListTag()));
-        this.trinketsInventory.ifPresent(trinketsRecord ->
-                tag.put(TRINKETS_INVENTORY, TrinketsRecord.CODEC.encodeStart(NbtOps.INSTANCE, trinketsRecord).result().orElseThrow()));
+        this.trinketsInventory.ifPresent(record -> encodeTrinket(tag, record));
         tag.put(TIME_OF_DEATH, ExtraCodecs.INSTANT_ISO8601.encodeStart(NbtOps.INSTANCE, this.timeOfDeath).result().orElseThrow());
         tag.put(DEATH_MESSAGE, StringTag.valueOf(Component.Serializer.toJson(this.deathMessage, player.server.registryAccess())));
         tag.put(LOCATION, GlobalPos.CODEC.encodeStart(NbtOps.INSTANCE, this.location).result().orElseThrow());
         tag.put(EXPERIENCE, IntTag.valueOf(this.experience));
 
         return tag;
+    }
+
+    private static void encodeTrinket(CompoundTag tag, TrinketsRecord trinketsRecord) {
+        TrinketsRecord.CODEC.encodeStart(NbtOps.INSTANCE, trinketsRecord)
+                .ifSuccess(trinkets -> tag.put(TRINKETS_INVENTORY, trinkets))
+                .ifError(err -> LenientDeath.LOGGER.error("Error saving trinkets inventory: {}", err.message()));
     }
 }
