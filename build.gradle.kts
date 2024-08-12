@@ -166,9 +166,9 @@ dependencies {
 		isTransitive = false
 	}*/
 
-	modLocalRuntime("dev.emi:trinkets:${properties["trinkets_version"]}")
-	modLocalRuntime("org.ladysnake.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}")
-	modLocalRuntime("org.ladysnake.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}")
+	//modLocalRuntime("dev.emi:trinkets:${properties["trinkets_version"]}")
+	//modLocalRuntime("org.ladysnake.cardinal-components-api:cardinal-components-base:${properties["cca_version"]}")
+	//modLocalRuntime("org.ladysnake.cardinal-components-api:cardinal-components-entity:${properties["cca_version"]}")
 	//modLocalRuntime("maven.modrinth:charm-of-undying:${properties["charm-of-undying_version"]}") // needs spectrelib
 
 	//modLocalRuntime("dev.emi:emi-fabric:${properties["emi_version"]}")
