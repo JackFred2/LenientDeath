@@ -460,6 +460,7 @@ public class CommandConfig {
         return root;
     }
 
+
     private static LiteralArgumentBuilder<CommandSourceStack> createPresetsNode() {
         var root = Commands.literal("presets");
 
@@ -920,12 +921,60 @@ public class CommandConfig {
                 config -> config.preserveItemsOnDeath.randomizer.luckMultiplierFactor,
                 (config, newVal) -> config.preserveItemsOnDeath.randomizer.luckMultiplierFactor = newVal));
 
+        var itemdamage = Commands.literal("itemdamage")
+                .then(makeBoolean("enabled",
+                        "preserveItemsOnDeath.itemdamage.enabled",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        config -> config.preserveItemsOnDeath.itemdamage.enabled,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.enabled = newVal))
+                .then(makeIntRange("percentage",
+                        "preserveItemsOnDeath.itemdamage.percentage",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        0,
+                        100,
+                        config -> config.preserveItemsOnDeath.itemdamage.percentage,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.percentage = newVal))
+                .then(makeIntRange("baseDamagePercentage",
+                        "preserveItemsOnDeath.itemdamage.baseDamagePercentage",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        0,
+                        100,
+                        config -> config.preserveItemsOnDeath.itemdamage.baseDamagePercentage,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.baseDamagePercentage = newVal))
+                .then(makeIntRange("minimumItemHealth",
+                        "preserveItemsOnDeath.itemdamage.minimumItemHealth",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        0,
+                        100,
+                        config -> config.preserveItemsOnDeath.itemdamage.minimumItemHealth,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.minimumItemHealth = newVal))
+                .then(makeBoolean("percentageRandomness",
+                        "preserveItemsOnDeath.randomizer.percentageRandomness",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        config -> config.preserveItemsOnDeath.itemdamage.percentageRandomness,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.percentageRandomness = newVal))
+                .then(makeIntRange("randomizedPercentageMin",
+                        "preserveItemsOnDeath.itemdamage.randomizedPercentageMin",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        0,
+                        100,
+                        config -> config.preserveItemsOnDeath.itemdamage.randomizedPercentageMin,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.randomizedPercentageMin = newVal))
+                .then(makeIntRange("randomizedPercentageMax",
+                        "preserveItemsOnDeath.itemdamage.randomizedPercentageMax",
+                        WikiPage.PRESERVE_ITEMS_ON_DEATH,
+                        0,
+                        100,
+                        config -> config.preserveItemsOnDeath.itemdamage.randomizedPercentageMax,
+                        (config, newVal) -> config.preserveItemsOnDeath.itemdamage.randomizedPercentageMax = newVal));
+
         root.then(nbt);
         root.then(alwaysDropped);
         root.then(alwaysPreserved);
         root.then(trinkets);
         root.then(itemType);
         root.then(randomizer);
+        root.then(itemdamage);
 
         return root;
     }

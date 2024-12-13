@@ -17,7 +17,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import red.jackf.lenientdeath.ItemResilience;
+import red.jackf.lenientdeath.LenientDeath;
 import red.jackf.lenientdeath.api.LenientDeathAPI;
+import red.jackf.lenientdeath.preserveitems.ItemDamage;
 
 @Mixin(Inventory.class)
 public class InventoryMixin {
@@ -37,6 +39,8 @@ public class InventoryMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z"))
     private boolean onlyDropIfNotSafe(ItemStack stack, Operation<Boolean> original, @Share("ldSlotCount") LocalIntRef slot) {
         if (!(this.player instanceof ServerPlayer deadPlayer)) return original.call(stack);
+        var config = LenientDeath.CONFIG.instance().preserveItemsOnDeath.itemdamage;
+
 
         if (ItemResilience.shouldForceKeep(deadPlayer)) return true;
 
@@ -44,6 +48,9 @@ public class InventoryMixin {
         if (preserved == 0) {
             return original.call(stack);
         } else if (preserved == stack.getCount()) {
+            if(config.enabled) {
+                ItemDamage.applyItemDamage(deadPlayer, stack);
+            }
             return true;
         } else {
             ItemStack dropped = stack.split(stack.getCount() - preserved);

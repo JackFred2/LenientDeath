@@ -322,6 +322,11 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
                 that haven't been decided by other modules.""")
         public Randomizer randomizer = new Randomizer();
 
+        @Comment("""
+                Allows you to preserve items based on a random chance percentage. This is only applied to categories
+                that haven't been decided by other modules.""")
+        public ItemDamage itemdamage = new ItemDamage();
+
         public static class Nbt {
             @Comment("""
                     Whether preserving based off a certain item NBT tag should be enabled.
@@ -572,6 +577,55 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
                     return this;
                 }
             }
+        }
+
+        public static class ItemDamage {
+            @Comment("""
+                    Whether preserving items should be damaged.
+                    Options: true, false
+                    Default: false""")
+            public boolean enabled = false;
+
+            @Comment(""" 
+                    The percentage chance that an item will take damage upon death. 
+                    This setting defines the likelihood that an item in the player's inventory will be damaged. 
+                    Default: 75 """)
+            public int percentage = 75;
+
+            @Comment(""" 
+                    The base damage percentage that an item should always receive upon death. 
+                    This ensures that items take a minimum amount of damage. 
+                    Default: 10 """)
+            public int baseDamagePercentage = 10;
+
+            @Comment("""
+                What minimum damage value should be maintained for a player's items upon death? This setting defines the minimum
+                health of an item. If set to 0, items can be completely destroyed.
+                Default: 10
+            """)
+            public int minimumItemHealth = 10;
+
+            @Comment("""
+                Enable randomness in the damage percentage of a player's items upon death. This modifier introduces variability,
+                ensuring that the damage percentage falls within a specified range rather than a fixed value.
+                Options: [true, false]
+                Default: true
+            """)
+            public boolean percentageRandomness = true;
+
+            @Comment("""
+                Minimum damage percentage for a player's items upon death when randomness is enabled.
+                This sets the lower bound for the variability.
+                Default: 15
+            """)
+            public int randomizedPercentageMin = 15;
+
+            @Comment("""
+                Maximum damage percentage for a player's items upon death when randomness is enabled.
+                This sets the upper bound for the variability.
+                Default: 40
+            """)
+            public int randomizedPercentageMax = 40;
         }
 
         public static class Randomizer {
