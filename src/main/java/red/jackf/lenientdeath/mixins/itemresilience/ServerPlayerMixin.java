@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -98,23 +99,60 @@ public abstract class ServerPlayerMixin extends Player implements LDGroundedPosH
     @ModifyReceiver(method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"))
     private Level lenientdeath$moveIfVoidedAndEnabled(Level original, Entity entity) {
-        var targetLevel = ItemResilience.ifHandledVoidDeath(this, (deathContext, lastGroundedPos, player) -> {
+        ServerLevel targetLevel = null;
+
+        // Handling void death scenario
+        var voidTargetLevel = ItemResilience.ifHandledVoidDeath(this, (deathContext, lastGroundedPos, player) -> {
             if (!lastGroundedPos.dimension().equals(original.dimension())) {
                 return this.server.getLevel(lastGroundedPos.dimension());
             } else {
                 return null;
             }
         });
+
+        // Handling lava death scenario
+        var lavaTargetLevel = ItemResilience.ifHandledLavaDeath(this, (deathContext, lastGroundedPos, player) -> {
+            if (!lastGroundedPos.dimension().equals(original.dimension())) {
+                return this.server.getLevel(lastGroundedPos.dimension());
+            } else {
+                return null;
+            }
+        });
+
+        // Assigning the target level if any of the scenarios is met
+        if (voidTargetLevel != null) {
+            targetLevel = voidTargetLevel;
+        } else if (lavaTargetLevel != null) {
+            targetLevel = lavaTargetLevel;
+        }
+
         if (targetLevel != null) return targetLevel;
         return original;
     }
 
     @WrapOperation(method = "createItemStackToDrop", at = @At(value = "NEW", target = "(Lnet/minecraft/world/level/Level;DDDLnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/entity/item/ItemEntity;"))
     private ItemEntity spawnDeathItemAtDifferentPosition(Level level, double posX, double posY, double posZ, ItemStack itemStack, Operation<ItemEntity> original) {
-        ItemEntity item = ItemResilience.ifHandledVoidDeath(this, (deathContext, groundPos, player) -> {
+
+        ItemEntity item = null;
+
+        // Handling void death scenario
+        var voidDeathItem = ItemResilience.ifHandledVoidDeath(this, (deathContext, groundPos, player) -> {
             Vec3 pos = groundPos.pos().getCenter();
             return original.call(this.server.getLevel(groundPos.dimension()), pos.x(), pos.y() + 1, pos.z(), itemStack);
         });
+
+        // Handling lava death scenario
+        var lavaDeathItem = ItemResilience.ifHandledLavaDeath(this, (deathContext, groundPos, player) -> {
+            Vec3 pos = groundPos.pos().getCenter();
+            return original.call(this.server.getLevel(groundPos.dimension()), pos.x(), pos.y() + 1, pos.z(), itemStack);
+        });
+
+        // Assigning the item if any of the scenarios is met
+        if (voidDeathItem != null) {
+            item = voidDeathItem;
+        } else if (lavaDeathItem != null) {
+            item = lavaDeathItem;
+        }
 
         if (item == null) item = original.call(level, posX, posY, posZ, itemStack);
 
@@ -123,10 +161,19 @@ public abstract class ServerPlayerMixin extends Player implements LDGroundedPosH
 
     @ModifyReturnValue(method = "createItemStackToDrop", at = @At("RETURN"))
     private ItemEntity killDeathItemVelocity(ItemEntity original) {
+
+        // Handling void death scenario
         ItemResilience.ifHandledVoidDeath(this, (deathContext, groundPos, player) -> {
             if (original != null) original.setDeltaMovement(Vec3.ZERO);
             return null;
         });
+
+        // Handling lava death scenario
+        ItemResilience.ifHandledLavaDeath(this, (deathContext, groundPos, player) -> {
+            if (original != null) original.setDeltaMovement(Vec3.ZERO);
+            return null;
+        });
+
         return original;
     }
 }

@@ -209,6 +209,12 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
         public boolean allDeathItemsAreExplosionProof = false;
 
         @Comment("""
+                Dertermines the search range for getting the closest safe block when using LavaRecovery or when the last position of the VoidRecovery is invalid.
+                Options: Integer
+                Default: 256""")
+        public int closestSafeBlockSearchRange = 256;
+
+        @Comment("""
                 Features related to handling item drops when a player dies to the void; for example if they fall off the
                 end island, or are playing SkyBlock.""")
         public VoidRecovery voidRecovery = new VoidRecovery();
@@ -236,6 +242,37 @@ public class LenientDeathConfig implements Config<LenientDeathConfig> {
             public enum Mode {
                 disabled,
                 last_grounded_position,
+                preserve
+            }
+        }
+
+        @Comment("""
+                Features related to handling item drops when a player dies to swimming in lava; for example if they fall into a lava lake in the nether.""")
+        public LavaRecovery lavaRecovery = new LavaRecovery();
+
+        public static class LavaRecovery {
+
+            @Comment("""
+                How death drop items when the player is killed by lava should be handled?
+                Options:
+                  - disabled (keeps items position)
+                  - closest_safe_location (teleport to closest safe position (not in air or lava)
+                  - preserve (keep items in the inventory even if they wouldn't normally; applies to everyone)
+                Default: closest_safe_location""")
+            public Mode mode = Mode.closest_safe_location;
+
+            @Comment("""
+                    When a player dies to being in lava, should Lenient Death notify them where their items were moved to? Only
+                    applies if mode = closest_safe_location.
+                    This option exists because players who may not be aware of this feature probably would not look for
+                    their items otherwise.
+                    Options: true, false
+                    Default: true""")
+            public boolean announce = true;
+
+            public enum Mode {
+                disabled,
+                closest_safe_location,
                 preserve
             }
         }

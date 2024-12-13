@@ -30,6 +30,7 @@ public class Presets {
         config.droppedItemGlow.enabled = false;
 
         config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
+        config.itemResilience.lavaRecovery.mode = LenientDeathConfig.ItemResilience.LavaRecovery.Mode.disabled;
 
         config.deathCoordinates.sendToServerLog = false;
         config.deathCoordinates.sendToDeadPlayer = false;
@@ -59,6 +60,7 @@ public class Presets {
         config.preserveItemsOnDeath.byItemType.enabled = false;
 
         config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
+        config.itemResilience.lavaRecovery.mode = LenientDeathConfig.ItemResilience.LavaRecovery.Mode.disabled;
 
         return config;
     }
@@ -71,6 +73,7 @@ public class Presets {
         config.preserveItemsOnDeath.randomizer.enabled = true;
 
         config.itemResilience.voidRecovery.mode = LenientDeathConfig.ItemResilience.VoidRecovery.Mode.disabled;
+        config.itemResilience.lavaRecovery.mode = LenientDeathConfig.ItemResilience.LavaRecovery.Mode.disabled;
 
         return config;
     }

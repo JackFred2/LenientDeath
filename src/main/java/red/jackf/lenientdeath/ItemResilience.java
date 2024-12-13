@@ -16,6 +16,7 @@ import red.jackf.lenientdeath.mixinutil.DeathContext;
 import red.jackf.lenientdeath.mixinutil.LDDeathContextHolder;
 import red.jackf.lenientdeath.mixinutil.LDGroundedPosHolder;
 
+
 public class ItemResilience {
     private static final TagKey<DamageType> ITEMS_IMMUNE_TO = TagKey.create(
             Registries.DAMAGE_TYPE,
@@ -37,8 +38,43 @@ public class ItemResilience {
             var groundedPosHolder = (LDGroundedPosHolder) serverPlayer;
             var ctx = deathContextHolder.lenientdeath$getDeathContext();
             var groundedPos = groundedPosHolder.lenientdeath$getLastGroundedPosition();
+
+            //If the groundedPos is not valid (e.g Air or Lava) then find a safe block.
+            if(!ClosestSafeBlock.isValidPosition(serverPlayer.serverLevel(),groundedPos.pos()))
+            {
+                //If there is no LastGroundedPosition or if the groundedPos is too far away from the death location, use the actual player location
+                if(groundedPos == null || groundedPos.pos().distSqr(serverPlayer.getOnPos()) >= 100)
+                    groundedPos = GlobalPos.of(serverPlayer.serverLevel().dimension(), serverPlayer.getOnPos());
+
+                groundedPos = ClosestSafeBlock.find(serverPlayer.serverLevel(),groundedPos);
+            }
+
             if (ctx != null && groundedPos != null && ctx.source().is(DamageTypes.FELL_OUT_OF_WORLD)) {
                 return ifTrue.apply(ctx, groundedPos, serverPlayer);
+            }
+        }
+        return null;
+    }
+
+    public static <T> @Nullable T ifHandledLavaDeath(
+            Object player,
+            TriFunction<DeathContext, GlobalPos, ServerPlayer, T> ifTrue) {
+        if (LenientDeath.CONFIG.instance().itemResilience.lavaRecovery.mode == LenientDeathConfig.ItemResilience.LavaRecovery.Mode.closest_safe_location
+                && player instanceof ServerPlayer serverPlayer) {
+            var deathContextHolder = (LDDeathContextHolder) serverPlayer;
+            var groundedPosHolder = (LDGroundedPosHolder) serverPlayer;
+            var ctx = deathContextHolder.lenientdeath$getDeathContext();
+            var groundedPos = groundedPosHolder.lenientdeath$getLastGroundedPosition();
+
+            //If there is no LastGroundedPosition or if the groundedPos is too far away from the death location, use the actual player location
+            if(groundedPos == null || groundedPos.pos().distSqr(serverPlayer.getOnPos()) >= 30)
+                groundedPos = GlobalPos.of(serverPlayer.serverLevel().dimension(), serverPlayer.getOnPos());
+
+            //Determine the closet safe block
+            var safePos = ClosestSafeBlock.find(serverPlayer.serverLevel(), groundedPos);
+
+            if (ctx != null && safePos != null && ctx.source().is(DamageTypes.LAVA)) {
+                return ifTrue.apply(ctx, safePos, serverPlayer);
             }
         }
         return null;
@@ -48,6 +84,10 @@ public class ItemResilience {
         if (LenientDeath.CONFIG.instance().itemResilience.voidRecovery.mode == LenientDeathConfig.ItemResilience.VoidRecovery.Mode.preserve) {
             var deathContext = ((LDDeathContextHolder) player).lenientdeath$getDeathContext();
             return deathContext != null && deathContext.source().is(DamageTypes.FELL_OUT_OF_WORLD);
+        }
+        if (LenientDeath.CONFIG.instance().itemResilience.lavaRecovery.mode == LenientDeathConfig.ItemResilience.LavaRecovery.Mode.preserve) {
+            var deathContext = ((LDDeathContextHolder) player).lenientdeath$getDeathContext();
+            return deathContext != null && deathContext.source().is(DamageTypes.LAVA);
         }
         return false;
     }
@@ -60,7 +100,17 @@ public class ItemResilience {
                                                Formatting.variable(groundedPos.pos().above().toShortString()),
                                                Formatting.variable(groundedPos.dimension().location().toString()))
                 ));
+                return null;
+            });
+        }
 
+        if (LenientDeath.CONFIG.instance().itemResilience.lavaRecovery.announce) {
+            ifHandledLavaDeath(serverPlayer, (ctx, groundedPos, serverPlayer1) -> {
+                serverPlayer1.sendSystemMessage(Formatting.infoLine(
+                        Component.translatable("lenientdeath.itemResilience.announce",
+                                Formatting.variable(groundedPos.pos().above().toShortString()),
+                                Formatting.variable(groundedPos.dimension().location().toString()))
+                ));
                 return null;
             });
         }

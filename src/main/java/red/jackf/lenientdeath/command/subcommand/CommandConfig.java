@@ -433,6 +433,7 @@ public class CommandConfig {
         ));
 
         root.then(makeVoidRecoveryNode());
+        root.then(makeLavaRecoveryNode());
 
         return root;
     }
@@ -459,6 +460,30 @@ public class CommandConfig {
 
         return root;
     }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> makeLavaRecoveryNode() {
+        var root = Commands.literal("lavaRecovery");
+
+        root.then(makeEnum(
+                "mode",
+                "itemResilience.lavaRecovery.mode",
+                WikiPage.ITEM_RESILIENCE,
+                LenientDeathConfig.ItemResilience.LavaRecovery.Mode.class,
+                config -> config.itemResilience.lavaRecovery.mode,
+                (config, newValue) -> config.itemResilience.lavaRecovery.mode = newValue
+        ));
+
+        root.then(makeBoolean(
+                "announce",
+                "itemResilience.lavaRecovery.announce",
+                WikiPage.ITEM_RESILIENCE,
+                config -> config.itemResilience.lavaRecovery.announce,
+                (config, newValue) -> config.itemResilience.lavaRecovery.announce = newValue
+        ));
+
+        return root;
+    }
+
 
     private static LiteralArgumentBuilder<CommandSourceStack> createPresetsNode() {
         var root = Commands.literal("presets");
