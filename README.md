@@ -1,3 +1,7 @@
+# Archival Notice
+
+https://gist.github.com/JackFred2/58d267bd7043fd92442a451315bbd6d5
+
 # Lenient Death
 
 For information on the legacy 0.x version, see the [branch README](https://github.com/JackFred2/LenientDeath/tree/legacy-1.x).
